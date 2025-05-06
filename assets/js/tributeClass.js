@@ -24,7 +24,7 @@ class Tribute {
         throw new Error("Please enter all name fields!");
       }
       if(CheckIfNumber(value)){
-        throw new error("Names cannot be just numbers!");
+        throw new Error("Names cannot be just numbers!");
       }
       this._name = value;
     }
@@ -253,11 +253,13 @@ class Tribute {
     }
 
     // Find a medkit
-    findMedKit() {
+    findMedKit(amount) {
       if (this.medKits === 2) {
         throw new Error("This tribute already has the max amount of medkits (2)!");
-      } else {
+      } else if(this.medKits === 1) {
         this.medKits += 1;
+      } else{
+        this.medKits += amount;
       }
     }
   }
@@ -270,4 +272,3 @@ class Tribute {
         return false;
     }
   }
-  

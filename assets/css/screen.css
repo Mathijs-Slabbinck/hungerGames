@@ -208,21 +208,76 @@ main .tribute input{
                 /* ***FOOTER*** **/
 
 
-/* styles the footer */
 footer{
-    margin: 1vh 0 0 0;
-    background-color: black;
+    background-color: gray;
+    width: 100%;
 }
 
-/* styles the footer text */
-footer p{
-    color: white;
-    padding: 1vh 0 1vh 0;
-    margin: 0; /* needed because of bootstrap */
+@media only screen and (min-width: 646px) {
+    /* styles the footer */
+    footer {
+        margin: 0;
+        padding: 0;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        height: 25vh;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* Stick content to bottom */
+        align-items: center;
+    }
+
+    footer p {
+        margin: 0;
+        padding: 0.2rem 0; /* Adjust spacing above images */
+    }
+
+    footer img {
+        margin: 0 7vw;
+        height: 70%;
+    }
+
+
+    #bottomTributes{
+        align-items: flex-end;
+        margin-bottom: 3vh;
+        bottom: 0;
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    #bottomTributes p{
+        margin-bottom: 15vh;
+    }
 }
+
+@media only screen and (max-width: 645px){
+    #bottomTributes{
+        bottom: 0;
+        position: fixed;
+        display: flex;
+        justify-content: center;
+        background-color: gray;
+        padding-top: 5vh;
+    }
+
+    .bottomTributeImg{
+        width: 20%;
+        height: 20%;;
+     }
+}
+
 
 .log {
     margin: 4vh 0 4vh 0;
     padding: 2vh 2vw 2vh 2vw;
     border: 2px solid black;
+}
+
+.log li{
+    list-style-type: none;
+    text-align: center;
+    margin: 1vh 0 1vh 0;
 }
