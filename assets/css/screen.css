@@ -65,7 +65,7 @@ main div{
     margin: 1vh 0 0 0;
 }
 
-main div:hover, main div p:hover{
+.districtBar:hover, #fillInRandomly, #clearFields, #submit{
     cursor: pointer;
 }
 
@@ -113,11 +113,18 @@ main #fillInRandomly p{
 }
 
 /* the box to submit the info on click */
-main #submit{
+main #submit, #seeTributes{
     padding: 0.5vh 0 0.5vh 0;
     background-color: darkgreen;
     border: 2px solid black;
     text-align: center;
+}
+
+#seeTributes{
+    text-align: center;
+    list-style-type: none;
+    color: white;
+    font-weight: bold;
 }
 
 /* the text from the box to submit the info on click */
@@ -207,14 +214,14 @@ main .tribute input{
 
                 /* ***FOOTER*** **/
 
-
+/*
 footer{
     background-color: gray;
     width: 100%;
 }
 
 @media only screen and (min-width: 646px) {
-    /* styles the footer */
+    /* styles the footer *\
     footer {
         margin: 0;
         padding: 0;
@@ -225,13 +232,13 @@ footer{
 
         display: flex;
         flex-direction: column;
-        justify-content: flex-end; /* Stick content to bottom */
+        justify-content: flex-end; /* Stick content to bottom *\
         align-items: center;
     }
 
     footer p {
         margin: 0;
-        padding: 0.2rem 0; /* Adjust spacing above images */
+        padding: 0.2rem 0; /* Adjust spacing above images *\
     }
 
     footer img {
@@ -268,6 +275,7 @@ footer{
         height: 20%;;
      }
 }
+*/
 
 
 .log {
@@ -280,4 +288,16 @@ footer{
     list-style-type: none;
     text-align: center;
     margin: 1vh 0 1vh 0;
+}
+
+.tributeInfo div p{
+    color: white;
+}
+
+#eventLog{
+    padding: 0;
+}
+
+#seeTributes:hover{
+    cursor: pointer;
 }

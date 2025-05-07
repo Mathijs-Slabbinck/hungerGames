@@ -225,23 +225,36 @@ class Tribute {
     }
 
     // Do damage to the tribute
-    DoDamage(damageDone) {
-      if (damageDone < 0) {
-        throw new Error("Damage cannot be negative!");
-      }
-
-      if (this.armorDurability !== 0) {
-        this.hp -= damageDone / 2;
-        this.armorDurability -= 1;
-      } else {
-        this.hp -= damageDone;
-        if (this.hp < 0) {
-          this.hp = 0;
-          this.isAlive = false;
-          //throw new Error(`Tribute ${this.name} from district ${this.district} has died!`);
-        }
-      }
+  DoDamage(damageDone) {
+    if (damageDone < 0) {
+      throw new Error("Damage cannot be negative!");
     }
+
+    // Handle damage depending on armor durability
+    const damageTaken = this.armorDurability !== 0 ? damageDone / 2 : damageDone;
+    this.hp -= damageTaken;
+
+    // If the tribute has armor, reduce its durability
+    if (this.armorDurability !== 0) {
+      this.armorDurability -= 1;
+    }
+
+    // Medkit logic: Check if HP is <= 60 and medkits are available
+    if (this.hp <= 60 && this.medKits > 0) {
+      this.medKits -= 1;
+      this.hp += 40;
+      return { medKitUsed: true }; // Return true if medkit was used
+    }
+
+    // If HP is less than 0, mark the tribute as dead
+    if (this.hp < 0) {
+      this.hp = 0;
+      this.isAlive = false;
+    }
+
+    return { medKitUsed: false }; // Return false if no medkit was used
+  }
+
 
     // Find armor and equip it
     findArmor() {
@@ -272,3 +285,11 @@ class Tribute {
         return false;
     }
   }
+
+  function CheckToUseMedKit() {
+    if (this.medKits > 0 && this.hp <= 60) {
+      this.medKits -= 1;
+      this.hp += 40;
+      return { medKitUsed: true }; // Return this if medkit was used
+  }
+}

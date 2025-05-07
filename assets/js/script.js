@@ -7,6 +7,12 @@ $(document).ready(function(){
         "risk", "survivalSkills", "combatSkills", "luck"
     ];
 
+    const weaponModifiers = {
+        knife: 1.25,
+        bow: 1.5,
+        sword: 1.75,
+    };
+
 
     $("#clearFields").on("click", function() {
         if (confirm("Are you sure?")) {
@@ -93,27 +99,51 @@ $(document).ready(function(){
         //},8000);
     }
 
-    function StartLogging(){
-        //$("main").append("<p class='col-12' id='logTitle'>logging started</p>");
-        let startEventsAmount = Math.floor(Math.random() * 6) + 4;
-        $("main").append("<ul>");
+    function StartLogging() {
+        let startEventsAmount = Math.floor(Math.random() * 10) + 6;
+        $("main").append("<ul id='eventLog'></ul>");
+
         console.log(startEventsAmount);
-        let delay = 0; // Start with no delay
+        let delay = 0;
+        let eventsCompleted = 0;
+
         for (let i = 0; i < startEventsAmount; i++) {
             let randomTimer = ReturnRandomTimer();
-            delay += randomTimer; // Increase delay by the random timer each time
-            setTimeout(function(){
+            delay += randomTimer;
+
+            setTimeout(function () {
                 let tribute1 = ReturnTributeForCombatOrStart();
                 let tribute2 = ReturnTributeForCombatOrStart();
-                while (tribute1 == tribute2){
-                    tribute2 = ReturnTributeForCombatOrStart();
+
+                if (aliveTributes.length > 2) {
+                    while (tribute1 === tribute2) {
+                        tribute2 = ReturnTributeForCombatOrStart();
+                    }
+                } else if (aliveTributes.length === 2) {
+                    tribute1 = aliveTributes[0];
+                    tribute2 = aliveTributes[1];
                 }
+
+                if (aliveTributes.length > 3) {
+                    while (tribute1.district === tribute2.district) {
+                        if (Math.floor(Math.random() * 6) + 1 === 1) break;
+                        tribute2 = ReturnTributeForCombatOrStart();
+                    }
+                }
+
                 CombatTributes(tribute1, tribute2, true);
-                // Remove possible remaining dead tributes from the list
                 CheckToRemoveTributesFromList();
+
+                eventsCompleted++;
+                if (eventsCompleted === startEventsAmount) {
+                    $("ul").append(`<div class="log"><li>The bloodbath has ended!</li>`);
+                    $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
+                }
             }, delay);
         }
     }
+
+
 
     function ReturnTributeForCombatOrStart() { //raised chance for risk, and combat skills, lower chance for luck
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
@@ -193,7 +223,7 @@ $(document).ready(function(){
         let selectedTribute = weightedAliveTributes[randomIndex];
         console.log("Selected Tribute:", selectedTribute);
         return selectedTribute;
-    }    
+    }
 
 
     function ReturnTributeThatFoundSomething() { // higher chance for higher speed, luck, combatSkills or risk
@@ -238,14 +268,7 @@ $(document).ready(function(){
         function calculateDamage(attacker) {
             let baseDamage = Math.floor(Math.random() * 34) + 8;
             let damageModifier = attacker.combatSkills * 0.5;
-            let damageModifier2;
-            if(attacker.weapon === "knife"){
-                damageModifier2 = 1.2;
-            } else if(attacker.weapon === "bow"){
-                damageModifier2 = 1.3;
-            } else if(attacker.weapon === "sword"){
-                damageModifier2 = 1.4;
-            }
+            let damageModifier2 = weaponModifiers[attacker.weapon] || 1;
             return Math.floor((baseDamage + damageModifier) * damageModifier2);
         }
     
@@ -267,19 +290,19 @@ $(document).ready(function(){
                 tribute2.DoDamage(damageToTribute2);
     
                 if (tribute1.hp <= 0 && tribute2.hp > 0) {
-                    $("main").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} now has ${tribute2.hp.toFixed(2)} HP.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} died.</li></div>`);
+                    $("ul").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} now has ${tribute2.hp.toFixed(2)} HP.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} died.</li></div>`);
                     tribute2.kills += 1;
                     tribute1.isAlive = false;
                     RemoveTributeFromAliveList(tribute1);
                 } else if (tribute2.hp <= 0 && tribute1.hp > 0) {
-                    $("main").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} died.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} now has ${tribute1.hp.toFixed(2)} HP.</li></div>`);
+                    $("ul").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} died.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} now has ${tribute1.hp.toFixed(2)} HP.</li></div>`);
                     tribute1.kills += 1;
                     tribute2.isAlive = false;
                     RemoveTributeFromAliveList(tribute2);
                 } else if (tribute1.hp > 0 && tribute2.hp > 0) {
-                    $("main").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} now has ${tribute2.hp.toFixed(2)} HP.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} now has ${tribute1.hp.toFixed(2)} HP.</li></div>`);
+                    $("ul").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} now has ${tribute2.hp.toFixed(2)} HP.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} now has ${tribute1.hp.toFixed(2)} HP.</li></div>`);
                 } else {
-                    $("main").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} died.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} died.</li></div>`);
+                    $("ul").append(`<div class="log"><li>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2.toFixed(2)} damage. ${tribute2.name} died.</li><li>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1.toFixed(2)} damage. ${tribute1.name} died.</li></div>`);
                     tribute1.kills += 1;
                     tribute2.kills += 1;
                     tribute1.isAlive = false;
@@ -293,14 +316,11 @@ $(document).ready(function(){
                 let damage = calculateDamage(attacker);
                 damageTo.DoDamage(damage);
                 if(damageTo.hp == 0){
-                    $("main").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} has died.</li></div>`);
+                    $("ul").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} has died.</li></div>`);
                     damageTo.isAlive = false;
                     attacker.kills += 1;
                 } else{
-                    $("main").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} now has ${damageTo.hp.toFixed(2)} HP.</li></div>`);
-                }
-                if(damageTo.hp == 0){
-
+                    $("ul").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} now has ${damageTo.hp.toFixed(2)} HP.</li></div>`);
                 }
             } else if (damageMode === 4) { // 1 tribute gets killed instantly by the other
                 let victim = Math.random() < 0.5 ? tribute1 : tribute2;
@@ -309,7 +329,7 @@ $(document).ready(function(){
                 victim.isAlive = false;
                 killer.kills += 1;
                 RemoveTributeFromAliveList(victim);
-                $("main").append(`<div class="log"><li>${victim.name} has been killed instantly by ${killer.name}!</li></div>`);
+                $("ul").append(`<div class="log"><li>${victim.name} has been killed instantly by ${killer.name}!</li></div>`);
             } else if (damageMode === 5) { // make 2 tributes fight until 1 dies
                 let fightLog = `<div class="log">`;
                 while (tribute1.hp > 0 && tribute2.hp > 0) {
@@ -332,7 +352,7 @@ $(document).ready(function(){
                     fightLog += `<li>${tribute2.name} was killed by ${tribute1.name}</li>`;
                 }
                 fightLog += `</div>`;
-                $("main").append(fightLog);
+                $("ul").append(fightLog);
             } else if (damageMode == 6 || damageMode == 7){
                 let random = Math.floor(Math.random() * 7) + 1
                 let chosenTribute = ReturnTributeThatFoundSomething();
@@ -340,57 +360,59 @@ $(document).ready(function(){
                 {
                     case 1 :
                         if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a sword.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a sword.</li></div>`);
                             chosenTribute.weapon = "sword";
                         } else if(chosenTribute.weapon === "sword"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a sword but already has one.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a sword but already has one.</li></div>`);
                         } else if(chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a sword and upgraded their weapon.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a sword and upgraded their weapon.</li></div>`);
                             chosenTribute.weapon = "sword";
                         } else{ //should never happen
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a sword.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a sword.</li></div>`);
                             chosenTribute.weapon = "sword";
                             throw new Error("error");
                         }
                         break;
                     case 2:
                         if(chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a bow.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a bow.</li></div>`);
                             chosenTribute.weapon = "bow";
                         } else if(chosenTribute.weapon === "bow"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has one.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has one.</li></div>`);
                         } else if(chosenTribute.weapon === "sword"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has a better weapon.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has a better weapon.</li></div>`);
                         } else if(chosenTribute.weapon === "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a bow and upgraded their weapon.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow and upgraded their weapon.</li></div>`);
                             chosenTribute.weapon = "bow";
                         } else{ // should never happen
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a bow.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a bow.</li></div>`);
                             chosenTribute.weapon = "bow";
                             throw new Error("error");
                         }
                         break;
                     case 3:
                         if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a knife.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a knife.</li></div>`);
                             chosenTribute.weapon = "knife";
                         } else if(chosenTribute.weapon === "sword" || chosenTribute.weapon == "bow"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has a better weapon.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has a better weapon.</li></div>`);
                         } else if(chosenTribute.weapon === "knife"){
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has one.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has one.</li></div>`);
                         } else{ // should never happen
-                            $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with a knife.</li></div>`);
+                            $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a knife.</li></div>`);
                             chosenTribute.weapon = "bow";
                             throw new Error("error");
                         }
                         break;
-                    case 4 || 5:
+                    case 4:
+                    case 5:
                         let amountOfMedkits = Math.floor(Math.random() * 2) + 1;
-                        $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with ${amountOfMedkits} medkit(s).</li></div>`);
+                        $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up ${amountOfMedkits} medkit(s).</li></div>`);
                         chosenTribute.findMedKit(amountOfMedkits);
                         break;
-                    case 6 || 7:
-                        $("main").append(`<div class="log"><li>${chosenTribute.name} escaped with armor.</li></div>`);
+                    case 6:
+                    case 7:
+                        $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up armor.</li></div>`);
                         chosenTribute.armorDurability = 5;
                         break;
                 }
@@ -456,4 +478,10 @@ $(document).ready(function(){
     function ReturnRandomTimer(){
         return Math.floor(Math.random() * 1500) + 500;
     }
+
+    $(document).on("click", "#seeTributes", function () {
+        $("#eventLog").hide();
+        GenerateDistricts(false);
+    });
+
 });
