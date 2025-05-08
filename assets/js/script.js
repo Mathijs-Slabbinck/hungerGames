@@ -89,14 +89,14 @@ $(document).ready(function(){
     function StartGame(){
         $("main").empty();
 
-        /* UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
+        // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
         let slogan = new Audio('assets/media/slogan.mp3');
         let countDown = new Audio('assets/media/countDown.mp3');
         slogan.play();
         setTimeout(function(){
-            countDown.play();*/
+            countDown.play();
             StartLogging();
-        //},8000);
+        },8000);
     }
 
     function StartLogging() {
