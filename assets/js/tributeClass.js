@@ -13,6 +13,7 @@ class Tribute {
       this.luck = luck;
       this.hp = 100;
       this.weapon = "none";
+      this.hasArmor = "no";
       this.armorDurability = 0;
       this.medKits = 0;
       this.isAlive = true;
@@ -36,6 +37,7 @@ class Tribute {
     set gender(value) {
       this._gender = value;
     }
+
 
     get gender() {
       return this._gender;
@@ -216,6 +218,14 @@ class Tribute {
       this._isAlive = value;
     }
 
+  get hasArmor() {
+    return this._hasArmor;
+  }
+
+  set hasArmor(value) {
+    this._hasArmor = value;
+  }
+
     get kills() {
       return this._kills;
     }
@@ -237,6 +247,9 @@ class Tribute {
     // If the tribute has armor, reduce its durability
     if (this.armorDurability !== 0) {
       this.armorDurability -= 1;
+      if(this.armorDurability === 0){
+        this.hasArmor = "no";
+      }
     }
 
     // Medkit logic: Check if HP is <= 60 and medkits are available
@@ -260,6 +273,7 @@ class Tribute {
     findArmor() {
       if (this.armorDurability === 0) {
         this.armorDurability = 5;
+        this.hasArmor = "yes";
       } else {
         throw new Error("This tribute already has armor!");
       }

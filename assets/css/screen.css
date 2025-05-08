@@ -16,12 +16,14 @@ header img{
                 /* ***BODY *** */
 
 /* make selecting things impossible */
+/*
 body{
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
+    */
 
 /* defines width of scrollbar */
 ::-webkit-scrollbar{
@@ -300,4 +302,17 @@ footer{
 
 #seeTributes:hover{
     cursor: pointer;
+}
+
+.statLeft{
+    margin-right: 1vw;
+}
+
+.statsDiv{
+    margin: auto;
+    max-width: 70%;
+}
+
+#deadTribute{
+  filter: drop-shadow(0 0 4px black);
 }
