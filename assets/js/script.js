@@ -38,7 +38,16 @@ $(document).ready(function(){
             allTributes.push(maleTribute);
             allTributes.push(femaleTribute);
         }
-        StartGame();
+        $("main").empty();
+
+        // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
+        let slogan = new Audio('assets/media/slogan.mp3');
+        let countDown = new Audio('assets/media/countDown.mp3');
+        slogan.play();
+        setTimeout(function(){
+            countDown.play();
+            StartLogging();
+        },8000);
     });
 
     function GetName(i, gender){
@@ -84,19 +93,6 @@ $(document).ready(function(){
     function GetLuck(i, gender){
         const luck = $(`#luck${i}${gender[0].toUpperCase()}`);
         return luck.val();
-    }
-
-    function StartGame(){
-        $("main").empty();
-
-        // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
-        let slogan = new Audio('assets/media/slogan.mp3');
-        let countDown = new Audio('assets/media/countDown.mp3');
-        slogan.play();
-        setTimeout(function(){
-            countDown.play();
-            StartLogging();
-        },8000);
     }
 
     function StartLogging() {
