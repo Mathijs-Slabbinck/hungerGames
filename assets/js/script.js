@@ -43,10 +43,12 @@ $(document).ready(function(){
         // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
         let slogan = new Audio('assets/media/slogan.mp3');
         let countDown = new Audio('assets/media/countDown.mp3');
+        console.log("made it here");
         slogan.play();
         setTimeout(function(){
             countDown.play();
             StartLogging();
+            console.log("made it here 2");
         },8000);
     });
 
