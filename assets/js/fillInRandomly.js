@@ -158,7 +158,7 @@ $(document).ready(function() {
             case "femaleFirstName":
                 {
                     let random = Math.floor(Math.random() * 151);
-                    return maleFirstNames[random];
+                    return femaleFirstNames[random];
                 }
             case "lastName":
                 {
