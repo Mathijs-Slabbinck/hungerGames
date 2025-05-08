@@ -47,7 +47,11 @@ function GenerateDistricts(beforeGame = true) {
                 return `<input type="number" min="1" max="10" placeholder="${label}" class="col-10 stat" id="${id}" required>`;
             }
         } else {
-            return `<div id="${stat}Field${index}${gender}"><p>${label}:</p><p id="${id}"></p></div>`;
+            if(stat != "name"){
+                return `<div class="d-flex justify-content-between statsDiv" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
+            } else{
+                return `<div class="d-flex justify-content-center" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
+            }
         }
     }
 
@@ -75,14 +79,14 @@ function GenerateDistricts(beforeGame = true) {
                 </div>
                 <div class="col-4 tribute tributeForm" id="D${index}M">
                     <div class="insideForm">
-                        <img src="images/male.png" alt="male icon" class="col-12 col-sm-8 col-md-6 col-lg-4">
+                        <img src="images/male.png" alt="male icon" class="col-12 col-sm-8 col-md-6 col-lg-4" id="image${index}M">
                         <section class="tributeInfo" id="tributeInfo${index}M"></section>
                     </div>
                 </div>
                 <img class="districtLogo col-3" src="images/district${index}.png" alt="district ${index}'s logo">
                 <div class="tributeForm col-4 tribute" id="D${index}F">
                     <div class="insideForm">
-                        <img src="images/female.png" alt="female icon" class="col-12 col-sm-8 col-md-6 col-lg-4">
+                        <img src="images/female.png" alt="female icon" class="col-12 col-sm-8 col-md-6 col-lg-4" id="image${index}F">
                         <section class="tributeInfo" id="tributeInfo${index}F"></section>
                     </div>
                 </div>
@@ -99,8 +103,20 @@ function GenerateDistricts(beforeGame = true) {
             $districtSection.find(`#tributeInfo${index}F`).append(renderField(stat, index, "F"));
         });
 
-        if (beforeGame) {
-            $districtSection.find(`#tributeInfo${index}M`).append(`<div id="weaponBlock${index}M"></div>`);
+        if (!beforeGame) {
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="hpField${index}M"><p class="statLeft">HP: </p><p id="hp${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="hpField${index}F"><p class="statLeft">HP: </p><p id="hp${index}F"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="weaponField${index}M"><p class="statLeft">weapon: </p><p id="weapon${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="weaponField${index}F"><p class="statLeft">weapon: </p><p id="weapon${index}F"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="hasArmorField${index}M"><p class="statLeft">has armor: </p><p id="hasArmor${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="hasArmorField${index}F"><p class="statLeft">has armor: </p><p id="hasArmor${index}F"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="armorField${index}M"><p class="statLeft">armor durability: </p><p id="armorDurability${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="armorField${index}F"><p class="statLeft">armor durability: </p><p id="armorDurability${index}F"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="medkitField${index}M"><p class="statLeft">medkits: </p><p id="medKits${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="medkitField${index}F"><p class="statLeft">medkits: </p><p id="medKits${index}F"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="killField${index}M"><p class="statLeft">kills: </p><p id="kills${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="killField${index}F"><p class="statLeft">kills: </p><p id="kills${index}F"></p></div>`);
+
         }
 
         switch (index) {

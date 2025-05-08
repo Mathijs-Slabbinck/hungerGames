@@ -3,8 +3,9 @@ let allTributes = [];
 
 $(document).ready(function(){
     const fields = [
-        "speed", "power", "intelligence", "popularity",
-        "risk", "survivalSkills", "combatSkills", "luck"
+        "name", "speed", "power", "intelligence", "popularity",
+        "risk", "survivalSkills", "combatSkills", "luck", "hp",
+        "weapon", "hasArmor", "armorDurability", "medKits", "isAlive", "kills"
     ];
 
     const weaponModifiers = {
@@ -413,7 +414,7 @@ $(document).ready(function(){
                     case 6:
                     case 7:
                         $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up armor.</li></div>`);
-                        chosenTribute.armorDurability = 5;
+                        chosenTribute.findArmor();
                         break;
                 }
             }
@@ -421,18 +422,14 @@ $(document).ready(function(){
             // Post-combat death handling
             if (tribute1.hp <= 0 || tribute2.hp <= 0) {
                 if (tribute1.hp <= 0 && tribute2.hp <= 0) {
-                    tribute1.kills += 1;
-                    tribute2.kills += 1;
                     tribute1.isAlive = false;
                     tribute2.isAlive = false;
                     RemoveTributeFromAliveList(tribute1);
                     RemoveTributeFromAliveList(tribute2);
                 } else if (tribute1.hp <= 0) {
-                    tribute2.kills += 1;
                     tribute1.isAlive = false;
                     RemoveTributeFromAliveList(tribute1);
                 } else if (tribute2.hp <= 0) {
-                    tribute1.kills += 1;
                     tribute2.isAlive = false;
                     RemoveTributeFromAliveList(tribute2);
                 }
@@ -482,6 +479,31 @@ $(document).ready(function(){
     $(document).on("click", "#seeTributes", function () {
         $("#eventLog").hide();
         GenerateDistricts(false);
+        FillInData();
     });
 
+    function FillInData() {
+        for (let i = 0; i < 24; i += 2) {
+            const district = i / 2 + 1; // Convert 0,2,4,... to 1,2,3,...
+            let maleTribute = allTributes[i];
+            let femaleTribute = allTributes[i+1];
+
+            if(!maleTribute.isAlive){
+                $("#image" + district + "M").attr("src", "images/maleDead.png");
+                $("#image" + district + "M").attr("id", "deadTribute");
+            }
+
+            if(!femaleTribute.isAlive){
+                $("#image" + district + "F").attr("src", "images/femaleDead.png");
+                $("#image" + district + "F").attr("id", "deadTribute");
+            }
+
+            for (let j = 0; j < fields.length; j++) {
+                let field = fields[j];
+                $("#" + field + district + "M").text(maleTribute[field]);
+                $("#" + field + district + "F").text(femaleTribute[field]);
+                console.log("#" + field + district + "M");
+            }
+        }
+    }
 });
