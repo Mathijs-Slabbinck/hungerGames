@@ -13,7 +13,9 @@ $(document).ready(function(){
         bow: 1.5,
         sword: 1.75,
     };
-
+  
+    let generated;
+    let whichDay = 1;
 
     $("#clearFields").on("click", function() { // when clicked on clear fields button, verify if user is sure this and clear if yes
         if (confirm("Are you sure?")) {
@@ -72,8 +74,18 @@ $(document).ready(function(){
             aliveTributes.push(maleTribute, femaleTribute);
             allTributes.push(maleTribute, femaleTribute);
         }
-
         StartGame();
+
+        $("main").empty();
+
+        // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
+        let slogan = new Audio('assets/media/slogan.mp3');
+        let countDown = new Audio('assets/media/countDown.mp3');
+        slogan.play();
+        setTimeout(function(){
+            countDown.play();
+            StartLogging();
+        },8000);
     });
 
     function GetName(i, gender){ // reads the name of asked tribute and returns it
@@ -121,19 +133,6 @@ $(document).ready(function(){
         return luck.val();
     }
 
-    function StartGame(){
-        $("main").empty();
-
-        /* UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
-        let slogan = new Audio('assets/media/slogan.mp3');
-        let countDown = new Audio('assets/media/countDown.mp3');
-        slogan.play();
-        setTimeout(function(){
-            countDown.play();*/
-            StartLogging();
-        //},8000);
-    }
-
     function StartLogging() {
         let startEventsAmount = ReturnRandomNumber(6, 15);
         $("main").append("<ul id='eventLog'></ul>");
@@ -173,52 +172,50 @@ $(document).ready(function(){
                 if (eventsCompleted === startEventsAmount) {
                     $("ul").append(`<div class="log"><li>The bloodbath has ended!</li>`);
                     $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
+                    $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ` + whichDay + `</li>`);
                 }
             }, delay);
         }
     }
 
-
-
-    function ReturnTributeForCombatOrStart() { //raised chance for risk, and combat skills, lower chance for luck
-        if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
-            console.log("Invalid input or empty aliveTributes array");
-            return;
-        }
-        // Initialize an array to store the weighted values
-        let weightedAliveTributes = [];
-
-        // Iterate through each tribute to calculate the weight based on the given stat
-        for (let i = 0; i < aliveTributes.length; i++) {
-            let tribute = aliveTributes[i];
-            let riskValue = tribute["risk"];  // Get the value of the risk stat
-            let luckValue = tribute["luck"];  // Get the value of the luck stat
-            let combatSkillsValue = tribute["combatSkills"];  // Get the value of the combatSkills stat
-
-            // Calculate a weight factor for the tribute
-            let weight = riskValue;
-
-            // Reduce the weight based on the luck and combatSkills stats
-            weight -= luckValue * 0.5;  // Decrease the weight based on luck (lower luck = more likely)
-            weight -= combatSkillsValue * 0.5;  // Decrease the weight based on combatSkills (lower combatSkills = more likely)
-
-            // Ensure weight is at least 1 (so it can be added to the array)
-            weight = Math.max(weight, 1);
-
-            // Add a number of "entries" based on the calculated weight
-            for (let j = 0; j < weight; j++) {
-                weightedAliveTributes.push(tribute); // This creates more entries for higher risk and less for higher luck/combatSkills
+        function ReturnTributeForCombatOrStart() { // higher chance for higher speed, luck, combatSkills or risk
+            if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
+                console.log("Invalid input or empty aliveTributes array");
+                return;
             }
-        }
+
+            let weightedAliveTributes = [];
+
+            for (let i = 0; i < aliveTributes.length; i++) {
+                let tribute = aliveTributes[i];
+                let luck = tribute["luck"] || 0;
+                let speed = tribute["speed"] || 0;
+                let combat = tribute["combatSkills"] || 0;
+                let risk = tribute["risk"] || 0;
+                let survival = tribute["survivalSkills"] || 0;
+
+                // tuned multipliers based on how much each stat influences weight
+                let weight =
+                    (luck * 0.75) +
+                    (speed * 0.85) +
+                    (combat * 1.2) +
+                    (risk * 1.7) +
+                    (survival * 0.85);
+
+                // Ensure minimum weight of 1 so everyone has at least a small chance
+                weight = Math.max(weight, 1);
+
+                for (let j = 0; j < weight; j++) {
+                    weightedAliveTributes.push(tribute);
+                }
+            }
 
         // Now, pick a random tribute based on the weighted array
         let randomIndex = Math.floor(Math.random() * weightedAliveTributes.length);
         let selectedTribute = weightedAliveTributes[randomIndex];
-        console.log("Selected Tribute:", selectedTribute);
         return selectedTribute;
     }
-
-
+  
     /*
     function ReturnKiller() {
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
@@ -261,8 +258,7 @@ $(document).ready(function(){
         console.log("Selected Tribute:", selectedTribute);
         return selectedTribute;
     }
-        */
-
+    */
 
     function ReturnTributeThatFoundSomething() { // higher chance for higher speed, luck, combatSkills or risk
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
@@ -279,12 +275,12 @@ $(document).ready(function(){
             let combat = tribute["combatSkills"] || 0;
             let risk = tribute["risk"] || 0;
 
-            // You can tune the multipliers based on how much you want each stat to influence weight
+            // tuned multipliers based on how much each stat influences weight
             let weight =
-                (luck * 1.0) +
-                (speed * 1.0) +
-                (combat * 1.0) +
-                (risk * 1.0);
+                (luck * 1.2) +
+                (speed * 1.75) +
+                (combat * 1.2) +
+                (risk * 1.7);
 
             // Ensure minimum weight of 1 so everyone has at least a small chance
             weight = Math.max(weight, 1);
@@ -296,7 +292,6 @@ $(document).ready(function(){
 
         let randomIndex = Math.floor(Math.random() * weightedAliveTributes.length);
         let selectedTribute = weightedAliveTributes[randomIndex];
-        console.log("Selected Tribute:", selectedTribute);
         return selectedTribute;
     }
 
@@ -503,7 +498,6 @@ $(document).ready(function(){
         if (index !== -1) {
             // Remove the tribute from the array
             aliveTributes.splice(index, 1);
-            console.log(`${tribute.name} has been removed from the alive list.`);
         } else {
             console.log("Tribute not found in the alive list.");
         }
@@ -516,8 +510,18 @@ $(document).ready(function(){
 
     $(document).on("click", "#seeTributes", function () {
         $("#eventLog").hide();
-        GenerateDistricts(false);
+        if(generated != true){
+            GenerateDistricts(false);
+            generated = true;
+        } else {
+            $("#tributeDisplayList").show();
+        }
         FillInData();
+    });
+
+    $(document).on("click", "#backToLog", function () {
+        $("#tributeDisplayList").hide();
+        $("#eventLog").show();
     });
 
     function FillInData() {
@@ -540,7 +544,6 @@ $(document).ready(function(){
                 let field = fields[j];
                 $("#" + field + district + "M").text(maleTribute[field]);
                 $("#" + field + district + "F").text(femaleTribute[field]);
-                console.log("#" + field + district + "M");
             }
         }
     }

@@ -145,6 +145,10 @@ function GenerateDistricts(beforeGame = true) {
             <div class="row" id="clearFields"><p class="col-12">clear all fields</p></div>
             <div class="row" id="submit"><p class="col-12">submit info</p></div>
         `);
+    } else{
+        $container.append(`
+            <div class="row" id="backToLog"><p class="col-12">back to log</p></div>
+        `);
     }
 
     $("main").append($container);
