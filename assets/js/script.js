@@ -24,24 +24,58 @@ $(document).ready(function(){
         }
     });
 
-    $("#submit").on("click", function() {
+    function CheckIfNameExists(i, gender, usedNames) {
+        const name = GetName(i, gender).trim().toLowerCase();
+
+        if (usedNames.has(name)) {
+            throw new Error(`Two tributes have the same name: "${name}". Please change this.`);
+        }
+
+        return name;
+    }
+
+    $("#submit").on("click", function () {
         let maleTribute;
         let femaleTribute;
-        for(let i = 1; i < 13; i++){
+        let usedNames = new Set();
+
+        for (let i = 1; i < 13; i++) {
             try {
-                // Code that might throw an error
-                maleTribute = new Tribute(GetName(i, "male"), "male", i, GetSpeed(i, "male"), GetPower(i, "male"), GetIntelligence(i, "male"), GetPopularity(i, "male"), GetRisk(i, "male"), GetSurvivalSkills(i, "male"), GetCombatSkills(i, "male"), GetLuck(i, "male"));
-                femaleTribute = new Tribute(GetName(i, "female"), "female", i, GetSpeed(i, "female"), GetPower(i, "female"), GetIntelligence(i, "female"), GetPopularity(i, "female"), GetRisk(i, "female"), GetSurvivalSkills(i, "female"), GetCombatSkills(i, "female"), GetLuck(i, "female"));
+                let maleName = CheckIfNameExists(i, "male", usedNames);
+                let femaleName = CheckIfNameExists(i, "female", usedNames);
+                if(maleName === femaleName){
+                    throw new Error(`Two tributes have the same name: "${maleName}". Please change this.`);
+                }
+
+                maleTribute = new Tribute(
+                    maleName, "male", i,
+                    GetSpeed(i, "male"), GetPower(i, "male"),
+                    GetIntelligence(i, "male"), GetPopularity(i, "male"),
+                    GetRisk(i, "male"), GetSurvivalSkills(i, "male"),
+                    GetCombatSkills(i, "male"), GetLuck(i, "male")
+                );
+
+                femaleTribute = new Tribute(
+                    femaleName, "female", i,
+                    GetSpeed(i, "female"), GetPower(i, "female"),
+                    GetIntelligence(i, "female"), GetPopularity(i, "female"),
+                    GetRisk(i, "female"), GetSurvivalSkills(i, "female"),
+                    GetCombatSkills(i, "female"), GetLuck(i, "female")
+                );
+
+                usedNames.add(maleName);
+                usedNames.add(femaleName);
+
             } catch (error) {
-                // Catch and handle the error
                 alert(error.message);
                 return;
-              }
-            aliveTributes.push(maleTribute);
-            aliveTributes.push(femaleTribute);
-            allTributes.push(maleTribute);
-            allTributes.push(femaleTribute);
+            }
+
+            aliveTributes.push(maleTribute, femaleTribute);
+            allTributes.push(maleTribute, femaleTribute);
         }
+        StartGame();
+
         $("main").empty();
 
         // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
@@ -116,7 +150,7 @@ $(document).ready(function(){
                 let tribute2 = ReturnTributeForCombatOrStart();
 
                 if (aliveTributes.length > 2) {
-                    while (tribute1 === tribute2) {
+                    while (tribute1.name === tribute2.name) {
                         tribute2 = ReturnTributeForCombatOrStart();
                     }
                 } else if (aliveTributes.length === 2) {
