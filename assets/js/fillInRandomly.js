@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+    let names = [];
     const fields = [
         "speed", "power", "intelligence", "popularity",
         "risk", "survivalSkills", "combatSkills", "luck"
@@ -15,7 +15,6 @@ $(document).ready(function() {
 
     function EnterRandomNames(index, gender) {
         let firstName;
-        let names = [];
         switch (gender) {
             case "male":
                 firstName = returnRandomName("maleFirstName");
