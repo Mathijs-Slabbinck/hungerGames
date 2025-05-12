@@ -1,47 +1,81 @@
 let aliveTributes = [];
 let allTributes = [];
 
-$(document).ready(function () {
-    const fields = [
+$(document).ready(function() {
+    const fields = [ // an array containing all stats a Tribute has
         "name", "speed", "power", "intelligence", "popularity",
         "risk", "survivalSkills", "combatSkills", "luck", "hp",
         "weapon", "hasArmor", "armorDurability", "medKits", "isAlive", "kills"
     ];
 
-    let generated;
-    let whichDay = 1;
-
-    const weaponModifiers = {
+    const weaponModifiers = { // an array that keeps track of dmg modifiers for weapons
         knife: 1.25,
         bow: 1.5,
         sword: 1.75,
     };
+  
+    let generated;
+    let whichDay = 1;
 
-
-    $("#clearFields").on("click", function () {
+    $("#clearFields").on("click", function() { // when clicked on clear fields button, verify if user is sure this and clear if yes
         if (confirm("Are you sure?")) {
             $("input").val('');
         }
     });
 
+    function CheckIfNameExists(i, gender, usedNames) { // make sure a unique name gets returned
+        let name = GetName(i, gender).trim(); // Ask a name, remove spaces before and after and assign it to the variable name
+
+        if (usedNames.has(name)) { // check if the tribute's name already exists, if yes, throw an error
+            throw new Error(`Two tributes have the same name: "${name}". Please change this.`);
+        }
+
+        return name; // if the tribute's name doesn't exist yet, return the name
+    }
+
     $("#submit").on("click", function () {
         let maleTribute;
         let femaleTribute;
-        for (let i = 1; i < 13; i++) {
+        let usedNames = new Set(); // a set to keep track of which names have already been picked
+
+        for (let i = 1; i < 13; i++) { // loop between 1 and 12 (once for every district)
             try {
-                // Code that might throw an error
-                maleTribute = new Tribute(GetName(i, "male"), "male", i, GetSpeed(i, "male"), GetPower(i, "male"), GetIntelligence(i, "male"), GetPopularity(i, "male"), GetRisk(i, "male"), GetSurvivalSkills(i, "male"), GetCombatSkills(i, "male"), GetLuck(i, "male"));
-                femaleTribute = new Tribute(GetName(i, "female"), "female", i, GetSpeed(i, "female"), GetPower(i, "female"), GetIntelligence(i, "female"), GetPopularity(i, "female"), GetRisk(i, "female"), GetSurvivalSkills(i, "female"), GetCombatSkills(i, "female"), GetLuck(i, "female"));
+                let maleName = CheckIfNameExists(i, "male", usedNames);
+                let femaleName = CheckIfNameExists(i, "female", usedNames);
+                if(maleName === femaleName){
+                    console.log("ERROR 420")
+                    throw new Error(`Two tributes have the same name: "${maleName}". Please change this.`);
+                }
+
+                maleTribute = new Tribute(
+                    maleName, "male", i,
+                    GetSpeed(i, "male"), GetPower(i, "male"),
+                    GetIntelligence(i, "male"), GetPopularity(i, "male"),
+                    GetRisk(i, "male"), GetSurvivalSkills(i, "male"),
+                    GetCombatSkills(i, "male"), GetLuck(i, "male")
+                );
+
+                femaleTribute = new Tribute(
+                    femaleName, "female", i,
+                    GetSpeed(i, "female"), GetPower(i, "female"),
+                    GetIntelligence(i, "female"), GetPopularity(i, "female"),
+                    GetRisk(i, "female"), GetSurvivalSkills(i, "female"),
+                    GetCombatSkills(i, "female"), GetLuck(i, "female")
+                );
+
+                usedNames.add(maleName);
+                usedNames.add(femaleName);
+
             } catch (error) {
-                // Catch and handle the error
                 alert(error.message);
                 return;
             }
-            aliveTributes.push(maleTribute);
-            aliveTributes.push(femaleTribute);
-            allTributes.push(maleTribute);
-            allTributes.push(femaleTribute);
+
+            aliveTributes.push(maleTribute, femaleTribute);
+            allTributes.push(maleTribute, femaleTribute);
         }
+        StartGame();
+
         $("main").empty();
 
         // UNCOMMENT THIS, THIS IS FOR TESTING PURPOSES IN COMMENT
@@ -54,9 +88,9 @@ $(document).ready(function () {
         }, 8000);
     });
 
-    function GetName(i, gender) {
-        const name = $(`#name${i}${gender[0].toUpperCase()}`);
-        return name.val();
+    function GetName(i, gender){ // reads the name of asked tribute and returns it
+        const name = $(`#name${i}${gender[0].toUpperCase()}`); // select the field it should read the name from
+        return name.val(); //return the value of the input field (the name)
     }
 
     function GetSpeed(i, gender) {
@@ -100,8 +134,8 @@ $(document).ready(function () {
     }
 
     function StartLogging() {
+        let startEventsAmount = ReturnRandomNumber(6, 15);
         $("main").append("<ul id='eventLog'></ul>");
-        let startEventsAmount = Math.floor(Math.random() * 10) + 6;
         LogShit(startEventsAmount, true);
     }
 
@@ -129,7 +163,7 @@ $(document).ready(function () {
                 eventsCompleted++;
             }
         }
-
+      
         setTimeout(function () {
             if (eventsCompleted === eventsAmount && eventsAmount != 0) {
                 $("ul").append(`<div class="log"><li>The bloodbath has ended!</li>`);
@@ -193,7 +227,6 @@ $(document).ready(function () {
                 } else{
                     SponsorGift();
                 }
-
             }
         } else if (gift === 5) { // try to give sword
             if (chosenTribute.weapon != "sword") {
@@ -271,7 +304,7 @@ $(document).ready(function () {
             trapSetter.kills += 1;
         }
     }
-
+  
     /*
     function ReturnKiller() {
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
@@ -456,11 +489,12 @@ $(document).ready(function () {
 
     function CombatTributes(tribute1, tribute2, isStartOfGame = false) { // possibly add escaping later?
 
-        function calculateDamage(attacker) {
-            let baseDamage = Math.floor(Math.random() * 34) + 8;
-            let damageModifier = attacker.combatSkills * 0.5;
-            let damageModifier2 = weaponModifiers[attacker.weapon] || 1;
-            return Math.floor((baseDamage + damageModifier) * damageModifier2);
+        function CalculateDamage(attacker) { // calculate damage (min: 9, max: 94)
+            let baseDamage = ReturnRandomNumber(8, 30); // have a random between 8 and 30 for the base damage (random aspect)
+            let damageModifier = attacker.damage * 1.5; // apply bonus dmg for dmg stat
+            let combatDamageModifier = attacker.combatSkills * 1.15; // apply bonus dmg for combat skills
+            let damageModifier2 = weaponModifiers[attacker.weapon] || 1; // apply bonus dmg for weapon
+            return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
         }
 
         if (tribute1.hp > 0 && tribute2.hp > 0) {
@@ -474,9 +508,9 @@ $(document).ready(function () {
             console.log(`Damage Mode: ${damageMode}`);
 
             if (damageMode === 1 || damageMode === 2) { // make both tributes do damage to each other
-                let damageToTribute1 = calculateDamage(tribute2);
-                let damageToTribute2 = calculateDamage(tribute1);
-
+                let damageToTribute1 = CalculateDamage(tribute2);
+                let damageToTribute2 = CalculateDamage(tribute1);
+  
                 tribute1.DoDamage(damageToTribute1);
                 tribute2.DoDamage(damageToTribute2);
 
@@ -504,7 +538,7 @@ $(document).ready(function () {
             } else if (damageMode === 3) { // make 1 tribute do damage to another tribute
                 let damageTo = Math.random() < 0.5 ? tribute1 : tribute2;
                 let attacker = damageTo === tribute1 ? tribute2 : tribute1;
-                let damage = calculateDamage(attacker);
+                let damage = CalculateDamage(attacker);
                 damageTo.DoDamage(damage);
                 if (damageTo.hp == 0) {
                     $("ul").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} has died.</li></div>`);
@@ -524,8 +558,8 @@ $(document).ready(function () {
             } else if (damageMode === 5) { // make 2 tributes fight until 1 dies
                 let fightLog = `<div class="log">`;
                 while (tribute1.hp > 0 && tribute2.hp > 0) {
-                    let damageToTribute1 = calculateDamage(tribute2);
-                    let damageToTribute2 = calculateDamage(tribute1);
+                    let damageToTribute1 = CalculateDamage(tribute2);
+                    let damageToTribute2 = CalculateDamage(tribute1);
 
                     tribute1.DoDamage(damageToTribute1);
                     tribute2.DoDamage(damageToTribute2);
@@ -681,8 +715,6 @@ $(document).ready(function () {
             return Math.floor(Math.random() * 3000) + 2000; // between 2 and 5 seconds
         }
 
-    }
-
     $(document).on("click", "#advanceToNext", function () {
         let randomEvents = Math.floor(Math.random() * 20) + 1;
         let randomForWhenEndPhase = Math.floor(Math.random() * 6) + 3;
@@ -737,5 +769,11 @@ $(document).ready(function () {
                 $("#" + field + district + "F").text(femaleTribute[field]);
             }
         }
+    }
+
+    function ReturnRandomNumber(number1, number2) {
+        const min = Math.min(number1, number2);
+        const max = Math.max(number1, number2);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 });
