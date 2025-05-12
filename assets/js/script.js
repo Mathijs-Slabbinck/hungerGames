@@ -43,7 +43,7 @@ $(document).ready(function() {
                 let maleName = CheckIfNameExists(i, "male", usedNames);
                 let femaleName = CheckIfNameExists(i, "female", usedNames);
                 if(maleName === femaleName){
-                    console.log("ERROR 420")
+                    console.log(`Two tributes have the same name: "${ maleName }". Please change this.`)
                     throw new Error(`Two tributes have the same name: "${maleName}". Please change this.`);
                 }
 
@@ -148,18 +148,17 @@ $(document).ready(function() {
     }
 
     function StartLogging() {
-        let startEventsAmount = ReturnRandomNumber(6, 15);
+        let startEventsAmount = ReturnRandomNumber(6, 15); // generate a random to determine how many events will happen during the bloodbath
         $("main").append("<ul id='eventLog'><li class='log' id='Announcement'><div>The Bloodbath has begun!</div></li></ul>");
-        LogShit(startEventsAmount, true);
+        LogShit(startEventsAmount, true); // call the function, passing the amount of events and a boolean to say if it's the start of the game
     }
 
-    function LogShit(eventsAmount, isStart) {
+    function LogShit(eventsAmount, isStart) { // eventsAmount = how many events will happen, isStart = if it's the start of the game
         console.log("events amount: " + eventsAmount);
         let delay = 0;
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            console.log("random timer: " + randomTimer);
             let randomEvent = ReturnRandomNumber(1, 8);
             delay += randomTimer;
 
@@ -180,143 +179,146 @@ $(document).ready(function() {
         setTimeout(() => {
             if (whichDay === 0) {
                 $("ul").append(`<li class="log" id="Announcement"><div>The bloodbath has ended!</div></li>`);
+            } else{
+                $("ul").append(`<li class="log" id="Announcement"><div>Day ${whichDay} has ended!</div></li>`);
             }
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
         }, delay + 250); // Slight buffer to ensure it's visually last
     }
 
-    function SponsorGift(){
-        let chosenTribute = ReturnTribute("sponsorGift");
-        let gift = Math.floor(Math.random() * 5) + 1;
-        if (gift === 1 || gift == 2) { // try to give medkit
-            if (chosenTribute.medKits == 0) {
+    function SponsorGift(attempts = 0){
+        let chosenTribute = ReturnTribute("sponsorGift"); // pick a tribute to give a gift to
+        let gift = ReturnRandomNumber(1, 5); // generate a random to see what gift the tribute gets
+        if(attempts > 200) return; // if it's likely (after trying over 200 times) every tribute has max intelligence and all equipment, stop the function
+        if (gift === 1 || gift == 2) { // higher chance to get a medkit
+            if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                 let randomMedkit = Math.floor(Math.random() * 2) + 1;
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                 chosenTribute.findMedKit(randomMedkit);
-            } else if (chosenTribute.medKits == 1) {
+            } else if (chosenTribute.medKits == 1) { // if the tribute has 1 medkit, give 1
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
                 chosenTribute.findMedKit(1);
-            } else {
-                if (chosenTribute.hasArmor === "no") {
+            } else { // if the tribute has 2 medkits, try to give armor
+                if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
                     chosenTribute.findArmor(1);
-                } else if (chosenTribute.weapon != "sword") {
+                } else if (chosenTribute.weapon != "sword") { // if the tribute has medkits and armor, try to give a sword
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
                     chosenTribute.weapon = "sword";
-                } else {
+                } else { // if the tribute has medkits, armor and a sword, try to give intelligence
                     if(chosenTribute.intelligence < 10){
                         $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
                         let intelligence = chosenTribute.intelligence + 1;
                         chosenTribute.intelligence = intelligence;
-                    } else{
-                        SponsorGift();
+                    } else{ // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
+                        SponsorGift(attempts + 1);
                     }
                 }
             }
-        } else if (gift === 4 || gift === 4) { // try to give armor
-            if (chosenTribute.hasArmor === "no") { // try to give armor
+        } else if (gift === 4 || gift === 4) { // higher chance to get armor
+            if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
                 chosenTribute.findArmor();
-            } else if (chosenTribute.medKits != 2) {
-                if (chosenTribute.medKits != 2) {
-                    if (chosenTribute.medKits == 0) {
+            } else if (chosenTribute.medKits != 2) { // if the tribute has armor, try to give a medkit
+                if (chosenTribute.medKits != 2) { // check if the tribute doesn't have 2 medkits
+                    if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                         let randomMedkit = Math.floor(Math.random() * 2) + 1;
                         $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                         chosenTribute.findMedKit(randomMedkit);
-                    } else {
+                    } else { // if the tribute has 1 medkit, give 1
                         $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
                         chosenTribute.findMedKit(1);
                     }
                 }
-            } else if (chosenTribute.weapon != "sword") {
+            } else if (chosenTribute.weapon != "sword") { // if the tribute has armor and medkits, try to give a sword
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
                 chosenTribute.weapon = "sword";
-            } else {
-                if(chosenTribute.intelligence < 10){
+            } else { // if the tribute has armor, medkits and a sword, try to give intelligence
+                if(chosenTribute.intelligence < 10){ // check if the tribute doesn't have max intelligence
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
                     let intelligence = chosenTribute.intelligence + 1;
                     chosenTribute.intelligence = intelligence;
-                } else{
-                    SponsorGift();
+                } else{ // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
+                    SponsorGift(attempts + 1);
                 }
             }
-        } else if (gift === 5) { // try to give sword
-            if (chosenTribute.weapon != "sword") {
+        } else if (gift === 5) { // lower chance to get a sword
+            if (chosenTribute.weapon != "sword") { // if the tribute doesn't have a sword, give 1
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
                 chosenTribute.weapon = "sword";
-            } else if (chosenTribute.medKits != 2) {
-                if (chosenTribute.medKits == 0) {
+            } else if (chosenTribute.medKits != 2) { // if the tribute has a sword, try to give a medkit
+                if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                     let randomMedkit = Math.floor(Math.random() * 2) + 1;
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                     chosenTribute.findMedKit(randomMedkit);
-                } else {
+                } else { // if the tribute has 1 medkit, give 1
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
                     chosenTribute.findMedKit(1);
                 }
-            } else if (chosenTribute.hasArmor === "no") {
+            } else if (chosenTribute.hasArmor === "no") { // if the tribute has a sword and medkits, try to give armor
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
                 chosenTribute.findArmor(1);
-            } else {
-                if(chosenTribute.intelligence < 10){
+            } else { // if the tribute has a sword, medkits and armor, try to give intelligence
+                if(chosenTribute.intelligence < 10){ // check if the tribute doesn't have max intelligence
                     $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</li></div>`);
                     let intelligence = chosenTribute.intelligence + 1;
                     chosenTribute.intelligence = intelligence;
-                } else{
-                    SponsorGift();
+                } else{ // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
+                    SponsorGift(attempts + 1);
                 }
             }
         }
     }
 
-    function Combat(delay, isStart){
+    // prepare 2 tributes for combat and call CombatTributes to start the combat
+    function Combat(delay, isStart){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
             let tribute2 = ReturnTribute("combat");
 
-            if (aliveTributes.length > 2) {
+            if (aliveTributes.length > 2) { // if there are more than 2 tributes alive, make sure the tributes are not the same
                 while (tribute1 === tribute2) {
-                    tribute2 = ReturnTribute("combat");
+                    tribute2 = ReturnTribute("combat"); // pick a different tribute if the tributes are the same
                 }
-            } else if (aliveTributes.length === 2) {
+            } else if (aliveTributes.length === 2) { // if there are only 2 tributes alive, pick them both
                 tribute1 = aliveTributes[0];
                 tribute2 = aliveTributes[1];
             }
 
-            if (aliveTributes.length > 3) {
-                while (tribute1.district === tribute2.district) {
-                    if (Math.floor(Math.random() * 6) + 1 === 1) break;
-                    tribute2 = ReturnTribute("combat");
+            if (aliveTributes.length > 3) { // if there are more than 3 tributes alive, make same district battles less likely
+                while (tribute1.district === tribute2.district) { // check if the tributes are from the same district
+                    if (ReturnRandomNumber(1, 6) === 1) break; // 1 in 6 chance to allow same district battles
+                    tribute2 = ReturnTribute("combat"); // 5 in 6 chance to try to pick a different tribute
                 }
             }
 
-            CombatTributes(tribute1, tribute2, isStart);
-            CheckToRemoveTributesFromList();
+            CombatTributes(tribute1, tribute2, isStart); // start the combat with the prepared tributes
+            CheckToRemoveTributesFromList(); // check if the tributes are dead and remove them from the aliveTributes array if missed
         }, delay);
     }
 
     function FellInTrap() {
-        let randomForWhichTrap = Math.floor(Math.random() * 3) + 1;
-        let chosenTribute = ReturnTribute("fellInTrap");
-        let trapSetter = ReturnTribute("trapSetter");
-        if (randomForWhichTrap === 1 || randomForWhichTrap === 2) {
-            let trapDamage = Math.floor(Math.random() * 36) + 25;
-            chosenTribute.DoDamage(trapDamage);
-            if (chosenTribute.hp <= 0) {
+        let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick a random number between 1 and 3 to determine which trap the tribute fell into
+        let chosenTribute = ReturnTribute("fellInTrap"); // pick a tribute to fall into the trap
+        let trapSetter = ReturnTribute("trapSetter"); // pick a tribute that set the trap
+        if (randomForWhichTrap === 1 || randomForWhichTrap === 2) { // 2/3 chance to take damage
+            let trapDamage = ReturnRandomNumber(25, 60); // generate a random number between 25 and 60 for the trap damage
+            chosenTribute.DoDamage(trapDamage); // apply the damage to the tribute
+            if (chosenTribute.isAlive === false) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} fell into ${trapSetter.name}'s trap and took ${trapDamage.toFixed(2)} damage. ${chosenTribute.name} died.</div></li>`);
-                chosenTribute.isAlive = false;
-                RemoveTributeFromAliveList(chosenTribute);
-                trapSetter.kills += 1;
-                PlayKillSound();
+                RemoveTributeFromAliveList(chosenTribute); // remove the tribute from the aliveTributes array
+                trapSetter.kills += 1; // award a kill to the trap setter
+                PlayKillSound(); // play the canon sound
             } else {
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} fell into ${trapSetter.name}'s and took ${trapDamage.toFixed(2)} damage. ${chosenTribute.name} now has ${chosenTribute.hp.toFixed(2)} HP.</div></li>`);
             }
-        } else if (randomForWhichTrap === 3) {
+        } else if (randomForWhichTrap === 3) { // 1/3 chance to die instantly
             $("ul").append(`<li class="log"><div>${chosenTribute.name} fell into ${trapSetter.name}'s trap and died instantly.</div></li>`);
-            chosenTribute.isAlive = false;
-            RemoveTributeFromAliveList(chosenTribute);
-            trapSetter.kills += 1;
-            PlayKillSound();
+            chosenTribute.KillTribute(); // kill the tribute
+            RemoveTributeFromAliveList(chosenTribute); // remove the tribute from the aliveTributes array
+            trapSetter.kills += 1; // award a kill to the trap setter
+            PlayKillSound(); // play the canon sound
         }
     }
 
@@ -480,8 +482,6 @@ $(document).ready(function() {
             } else {
                 damageMode = Math.floor(Math.random() * 5) + 1;
             }
-
-            console.log(`Damage Mode: ${damageMode}`);
 
             if (damageMode === 1 || damageMode === 2) { // make both tributes do damage to each other
                 let damageToTribute1 = CalculateDamage(tribute2);
