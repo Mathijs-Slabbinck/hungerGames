@@ -16,14 +16,13 @@ header img{
                 /* ***BODY *** */
 
 /* make selecting things impossible */
-/*
+
 body{
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
-    */
 
 /* defines width of scrollbar */
 ::-webkit-scrollbar{
@@ -67,8 +66,12 @@ main div{
     margin: 1vh 0 0 0;
 }
 
-.districtBar:hover, #fillInRandomly, #clearFields, #submit{
+.districtBar:hover, #fillInRandomly, #clearFields, #submit, #backToLog, #advanceToNext, #seeTributes{
     cursor: pointer;
+}
+
+#backToLog{
+    margin-bottom: 2vh;
 }
 
 /* the box with the section info to show the section on click */
@@ -101,7 +104,7 @@ main #clearFields p{
     color: white;
 }
 
-main #fillInRandomly{
+main #fillInRandomly, #advanceToNext{
     padding: 0.5vh 0 0.5vh 0;
     background-color: darkblue;
     border: 2px solid black;
@@ -115,14 +118,18 @@ main #fillInRandomly p{
 }
 
 /* the box to submit the info on click */
-main #submit, #seeTributes{
+main #submit, #seeTributes, #backToLog{
     padding: 0.5vh 0 0.5vh 0;
     background-color: darkgreen;
     border: 2px solid black;
     text-align: center;
 }
 
-#seeTributes{
+#advanceToNext{
+    margin-top: 2vh;
+}
+
+#seeTributes, #backToLog, #advanceToNext{
     text-align: center;
     list-style-type: none;
     color: white;
@@ -130,7 +137,7 @@ main #submit, #seeTributes{
 }
 
 /* the text from the box to submit the info on click */
-main #submit p{
+main #submit p, #backToLog p, #advanceToNextp{
     margin: 0; /* needed because of bootstrap */
     font-family: "EB Garamond";
     color: white;
@@ -298,10 +305,6 @@ footer{
 
 #eventLog{
     padding: 0;
-}
-
-#seeTributes:hover{
-    cursor: pointer;
 }
 
 .statLeft{
