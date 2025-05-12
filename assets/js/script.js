@@ -2,45 +2,46 @@ let aliveTributes = [];
 let allTributes = [];
 
 $(document).ready(function(){
-    const fields = [
+    const fields = [ // an array containing all stats a Tribute has
         "name", "speed", "power", "intelligence", "popularity",
         "risk", "survivalSkills", "combatSkills", "luck", "hp",
         "weapon", "hasArmor", "armorDurability", "medKits", "isAlive", "kills"
     ];
 
-    const weaponModifiers = {
+    const weaponModifiers = { // an array that keeps track of dmg modifiers for weapons
         knife: 1.25,
         bow: 1.5,
         sword: 1.75,
     };
 
 
-    $("#clearFields").on("click", function() {
+    $("#clearFields").on("click", function() { // when clicked on clear fields button, verify if user is sure this and clear if yes
         if (confirm("Are you sure?")) {
             $("input").val('');
         }
     });
 
-    function CheckIfNameExists(i, gender, usedNames) {
-        const name = GetName(i, gender).trim().toLowerCase();
+    function CheckIfNameExists(i, gender, usedNames) { // make sure a unique name gets returned
+        let name = GetName(i, gender).trim(); // Ask a name, remove spaces before and after and assign it to the variable name
 
-        if (usedNames.has(name)) {
+        if (usedNames.has(name)) { // check if the tribute's name already exists, if yes, throw an error
             throw new Error(`Two tributes have the same name: "${name}". Please change this.`);
         }
 
-        return name;
+        return name; // if the tribute's name doesn't exist yet, return the name
     }
 
     $("#submit").on("click", function () {
         let maleTribute;
         let femaleTribute;
-        let usedNames = new Set();
+        let usedNames = new Set(); // a set to keep track of which names have already been picked
 
-        for (let i = 1; i < 13; i++) {
+        for (let i = 1; i < 13; i++) { // loop between 1 and 12 (once for every district)
             try {
                 let maleName = CheckIfNameExists(i, "male", usedNames);
                 let femaleName = CheckIfNameExists(i, "female", usedNames);
                 if(maleName === femaleName){
+                    console.log("ERROR 420")
                     throw new Error(`Two tributes have the same name: "${maleName}". Please change this.`);
                 }
 
@@ -75,9 +76,9 @@ $(document).ready(function(){
         StartGame();
     });
 
-    function GetName(i, gender){
-        const name = $(`#name${i}${gender[0].toUpperCase()}`);
-        return name.val();
+    function GetName(i, gender){ // reads the name of asked tribute and returns it
+        const name = $(`#name${i}${gender[0].toUpperCase()}`); // select the field it should read the name from
+        return name.val(); //return the value of the input field (the name)
     }
 
     function GetSpeed(i, gender){
@@ -134,7 +135,7 @@ $(document).ready(function(){
     }
 
     function StartLogging() {
-        let startEventsAmount = Math.floor(Math.random() * 10) + 6;
+        let startEventsAmount = ReturnRandomNumber(6, 15);
         $("main").append("<ul id='eventLog'></ul>");
 
         console.log(startEventsAmount);
@@ -158,9 +159,9 @@ $(document).ready(function(){
                     tribute2 = aliveTributes[1];
                 }
 
-                if (aliveTributes.length > 3) {
+                if (aliveTributes.length > 3) { // if more than 3 tributes are alive, only have a 1/6 chance tributes from the same district fight each other
                     while (tribute1.district === tribute2.district) {
-                        if (Math.floor(Math.random() * 6) + 1 === 1) break;
+                        if (ReturnRandomNumber(1, 6) === 1) break;
                         tribute2 = ReturnTributeForCombatOrStart();
                     }
                 }
@@ -217,6 +218,8 @@ $(document).ready(function(){
         return selectedTribute;
     }
 
+
+    /*
     function ReturnKiller() {
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
             console.log("Invalid input or empty aliveTributes array");
@@ -258,6 +261,7 @@ $(document).ready(function(){
         console.log("Selected Tribute:", selectedTribute);
         return selectedTribute;
     }
+        */
 
 
     function ReturnTributeThatFoundSomething() { // higher chance for higher speed, luck, combatSkills or risk
@@ -299,11 +303,12 @@ $(document).ready(function(){
 
     function CombatTributes(tribute1, tribute2, isStartOfGame = false) {
 
-        function calculateDamage(attacker) {
-            let baseDamage = Math.floor(Math.random() * 34) + 8;
-            let damageModifier = attacker.combatSkills * 0.5;
-            let damageModifier2 = weaponModifiers[attacker.weapon] || 1;
-            return Math.floor((baseDamage + damageModifier) * damageModifier2);
+        function CalculateDamage(attacker) { // calculate damage (min: 9, max: 94)
+            let baseDamage = ReturnRandomNumber(8, 30); // have a random between 8 and 30 for the base damage (random aspect)
+            let damageModifier = attacker.damage * 1.5; // apply bonus dmg for dmg stat
+            let combatDamageModifier = attacker.combatSkills * 1.15; // apply bonus dmg for combat skills
+            let damageModifier2 = weaponModifiers[attacker.weapon] || 1; // apply bonus dmg for weapon
+            return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
         }
     
         if (tribute1.hp > 0 && tribute2.hp > 0) {
@@ -317,8 +322,8 @@ $(document).ready(function(){
             console.log(`Damage Mode: ${damageMode}`);
     
             if (damageMode === 1 || damageMode === 2) { // make both tributes do damage to each other
-                let damageToTribute1 = calculateDamage(tribute2);
-                let damageToTribute2 = calculateDamage(tribute1);
+                let damageToTribute1 = CalculateDamage(tribute2);
+                let damageToTribute2 = CalculateDamage(tribute1);
     
                 tribute1.DoDamage(damageToTribute1);
                 tribute2.DoDamage(damageToTribute2);
@@ -347,7 +352,7 @@ $(document).ready(function(){
             } else if (damageMode === 3) { // make 1 tribute do damage to another tribute
                 let damageTo = Math.random() < 0.5 ? tribute1 : tribute2;
                 let attacker = damageTo === tribute1 ? tribute2 : tribute1;
-                let damage = calculateDamage(attacker);
+                let damage = CalculateDamage(attacker);
                 damageTo.DoDamage(damage);
                 if(damageTo.hp == 0){
                     $("ul").append(`<div class="log"><li>${attacker.name} attacks ${damageTo.name} for ${damage.toFixed(2)} damage. ${damageTo.name} has died.</li></div>`);
@@ -367,8 +372,8 @@ $(document).ready(function(){
             } else if (damageMode === 5) { // make 2 tributes fight until 1 dies
                 let fightLog = `<div class="log">`;
                 while (tribute1.hp > 0 && tribute2.hp > 0) {
-                    let damageToTribute1 = calculateDamage(tribute2);
-                    let damageToTribute2 = calculateDamage(tribute1);
+                    let damageToTribute1 = CalculateDamage(tribute2);
+                    let damageToTribute2 = CalculateDamage(tribute1);
 
                     tribute1.DoDamage(damageToTribute1);
                     tribute2.DoDamage(damageToTribute2);
@@ -506,7 +511,7 @@ $(document).ready(function(){
     
 
     function ReturnRandomTimer(){
-        return Math.floor(Math.random() * 1500) + 500;
+        return ReturnRandomNumber(500, 2000);
     }
 
     $(document).on("click", "#seeTributes", function () {
@@ -538,5 +543,11 @@ $(document).ready(function(){
                 console.log("#" + field + district + "M");
             }
         }
+    }
+
+    function ReturnRandomNumber(number1, number2) {
+        const min = Math.min(number1, number2);
+        const max = Math.max(number1, number2);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 });
