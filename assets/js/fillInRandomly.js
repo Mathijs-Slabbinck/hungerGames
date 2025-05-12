@@ -9,31 +9,47 @@ $(document).ready(function() {
         for (let i = 1; i <= 12; i++) {
             EnterRandomNames(i, "male");
             EnterRandomNames(i, "female");
-            fillInNumberFields(i);
+            FillInNumberFields(i);
         }
     });
 
     function EnterRandomNames(index, gender) {
         let firstName;
+        
         switch (gender) {
             case "male":
-                firstName = returnRandomName("maleFirstName");
+                firstName = ReturnRandomName("maleFirstName");
                 break;
             case "female":
-                firstName = returnRandomName("femaleFirstName");
+                firstName = ReturnRandomName("femaleFirstName");
                 break;
         }
-        let lastName = returnRandomName("lastName");
-        while (lastName == undefined){
-            lastName = returnRandomName("lastName");
+
+        let lastName = ReturnRandomName("lastName");
+
+        for (let i = 0; i < 10; i++) {
+            firstName = ReturnRandomName(gender + "FirstName");
+            lastName = ReturnRandomName(gender + "lastname");
+            if (firstName !== undefined && lastName != undefined) break;
         }
-        const nameInput = $(`#name${index}${gender[0].toUpperCase()}`);
+
+        if (firstName === undefined) { // if after 10 times it's still undefined, throw an error
+            alert("ERROR: First name ended up undefined after 10 attempts!");
+            throw new Error("ERROR: First name ended up undefined after 10 attempts!");
+        }
+
+        if (lastName === undefined) { // if after 10 times it's still undefined, throw an error
+            alert("ERROR: Last name ended up undefined after 10 attempts!");
+            throw new Error("ERROR: Last name ended up undefined after 10 attempts!");
+        }
+
+        const nameInput = $(`#name${index}${gender[0].toUpperCase()}`); // select the input field it should fill with a name
         let name = `${firstName} ${lastName}`;
 
-        // Check if the name already exists in the array
+        // As long as the name already exists, try a name name
         while (names.includes(name)) {
-            firstName = returnRandomName(gender + "FirstName");
-            lastName = returnRandomName("lastName");
+            firstName = ReturnRandomName(gender + "FirstName");
+            lastName = ReturnRandomName("lastName");
             name = `${firstName} ${lastName}`;
         }
 
@@ -47,13 +63,15 @@ $(document).ready(function() {
     }
 
 
-    function fillInNumberFields(i) {
-        for(let j = 0; j < 8; j++){
-            let field = fields[j];
+    function FillInNumberFields(i) {
+        for(let j = 0; j < fields.length; j++){ // loop trough the amount of stat fields it should fill in (8)
+            let field = fields[j]; // select the name of the field it should currently fill in
             let random1 = Math.floor(Math.random() * 10) + 1;
             let random2 = Math.floor(Math.random() * 10) + 1;
-            let maleField = $(`#${field}${i}M`);
-            let femaleField = $(`#${field}${i}F`)
+
+            const maleField = $(`#${field}${i}M`); // select the current male tribute's stat field and store it
+            const femaleField = $(`#${field}${i}F`); // select the current female tribute's stat field and store it
+
             if(maleField.val() == ""){
                 maleField.val(random1);
             }
@@ -63,7 +81,7 @@ $(document).ready(function() {
         }
     }
 
-    function returnRandomName(whichName){
+    function ReturnRandomName(whichName){
         const maleFirstNames = [
             "Liam", "Noah", "Aiden", "Lucas", "Mason", "Ethan", "James", "Benjamin", "Elijah", "Alexander",
             "William", "Daniel", "Michael", "Jacob", "Sebastian", "Jack", "Samuel", "David", "Matthew", "Joseph",
@@ -151,17 +169,17 @@ $(document).ready(function() {
         {
             case "maleFirstName":
                 {
-                    let random = Math.floor(Math.random() * 151);
+                    let random = Math.floor(Math.random() * maleFirstNames.length);
                     return maleFirstNames[random];
                 }
             case "femaleFirstName":
                 {
-                    let random = Math.floor(Math.random() * 151);
+                    let random = Math.floor(Math.random() * femaleFirstNames.length);
                     return femaleFirstNames[random];
                 }
             case "lastName":
                 {
-                    let random = Math.floor(Math.random() * 301);
+                    let random = Math.floor(Math.random() * lastNames.length);
                     return lastNames[random];
                 }
             default:
