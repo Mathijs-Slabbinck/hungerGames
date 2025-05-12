@@ -159,7 +159,7 @@ $(document).ready(function() {
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = ReturnRandomNumber(1, 8);
+            let randomEvent = ReturnRandomNumber(1, 9);
             delay += randomTimer;
 
             setTimeout(() => {
@@ -171,6 +171,8 @@ $(document).ready(function() {
                     FellInTrap();
                 } else if (randomEvent === 8) {
                     SponsorGift();
+                } else if (randomEvent === 9) {
+                    AnimalAttack();
                 }
             }, delay);
         }
@@ -593,7 +595,47 @@ $(document).ready(function() {
         canon.play();
     }
 
-    function FoundSomething() { // tribuyte finds a weapon, medkit or armor
+    function AnimalAttack() {
+        let chosenTribute = ReturnTribute("animalAttack");
+        let animalDamage = ReturnRandomNumber(10, 50);
+        let random = ReturnRandomNumber(1, 10);
+
+        function ApplyDamage() {
+            chosenTribute.DoDamage(animalDamage);
+            if (chosenTribute.isAlive === false) { // check if the tribute is dead
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and died.</div></li>`);
+                RemoveTributeFromAliveList(chosenTribute); // if the tribute is dead, remove it from the aliveTributes array
+                PlayKillSound(); // play the canon sound
+            } else {
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and took ${animalDamage.toFixed(2)} damage. ${chosenTribute.name} now has ${chosenTribute.hp.toFixed(2)} HP.</div></li>`);
+            }
+        }
+
+        if (random === 1) { // 1/10 chance to take damage
+            ApplyDamage();
+        } else if (random === 2) { // 1/10 chance take no damage
+            $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to escape.</div></li>`);
+        } else if (random === 3) { // 1/10 chance to die instantly
+            $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and died instantly!</div></li>`);
+            chosenTribute.KillTribute(); // kill the tribute
+            RemoveTributeFromAliveList(chosenTribute); // remove the tribute from the aliveTributes array
+            PlayKillSound(); // play the canon sound
+        } else if (random >= 4 && random <= 10) { // 7/10 chance for stat check
+            if (chosenTribute.power >= 8) {
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to fight them off (power check).</div></li>`);
+            } else if (chosenTribute.speed >= 8) {
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to escape (speed check).</div></li>`);
+            } else if (chosenTribute.survivalSkills >= 8) {
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to hide (survival skills check).</div></li>`);
+            } else if (chosenTribute.intelligence >= 8) {
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to trick them (intelligence check).</div></li>`);
+            } else {
+                ApplyDamage(); // if the tribute fails all checks, apply damage
+            }
+        }
+    }
+
+    function FoundSomething() { // tribute finds a weapon, medkit or armor
         let random = Math.floor(Math.random() * 7) + 1
         let chosenTribute = ReturnTribute("foundSomething");
         switch (random) {
