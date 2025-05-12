@@ -289,6 +289,11 @@ class Tribute {
         this.medKits += amount;
       }
     }
+
+    KillTribute() {
+      this.hp = 0;
+      this.isAlive = false;
+    }
   }
 
   function CheckIfNumber(value){

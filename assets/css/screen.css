@@ -291,6 +291,8 @@ footer{
     margin: 4vh 0 4vh 0;
     padding: 2vh 2vw 2vh 2vw;
     border: 2px solid black;
+    list-style-type: none;
+    text-align: center;
 }
 
 .log li{
@@ -318,4 +320,8 @@ footer{
 
 #deadTribute{
   filter: drop-shadow(0 0 4px black);
+}
+
+#Announcement{
+    background-color: darkGray;
 }
