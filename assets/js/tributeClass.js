@@ -259,8 +259,8 @@ class Tribute {
       return { medKitUsed: true }; // Return true if medkit was used
     }
 
-    // If HP is less than 0, mark the tribute as dead
-    if (this.hp < 0) {
+    // If HP is less or equal than 0, mark the tribute as dead
+    if (this.hp <= 0) {
       this.hp = 0;
       this.isAlive = false;
     }

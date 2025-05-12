@@ -1,10 +1,13 @@
 $(document).ready(function() {
-    let names = [];
+    let names = []; // an array that stores the names that have already been generated to prevent duplicates
+
+    // an array to keep track of the stats
     const fields = [
         "speed", "power", "intelligence", "popularity",
         "risk", "survivalSkills", "combatSkills", "luck"
     ];
 
+    // when the button is clicked, fill in the names and stats
     $("#fillInRandomly").on("click", function() {
         for (let i = 1; i <= 12; i++) {
             EnterRandomNames(i, "male");
@@ -15,22 +18,12 @@ $(document).ready(function() {
 
     function EnterRandomNames(index, gender) {
         let firstName;
-        
-        switch (gender) {
-            case "male":
-                firstName = ReturnRandomName("maleFirstName");
-                break;
-            case "female":
-                firstName = ReturnRandomName("femaleFirstName");
-                break;
-        }
-
         let lastName = ReturnRandomName("lastName");
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) { // try to generate a name 10 times
             firstName = ReturnRandomName(gender + "FirstName");
-            lastName = ReturnRandomName(gender + "lastname");
-            if (firstName !== undefined && lastName != undefined) break;
+            lastName = ReturnRandomName("lastName");
+            if (firstName !== undefined && lastName != undefined) break; // if both names are defined, break the loop
         }
 
         if (firstName === undefined) { // if after 10 times it's still undefined, throw an error
@@ -62,26 +55,28 @@ $(document).ready(function() {
         }
     }
 
-
+    // fill in the stat fields with random numbers
     function FillInNumberFields(i) {
         for(let j = 0; j < fields.length; j++){ // loop trough the amount of stat fields it should fill in (8)
             let field = fields[j]; // select the name of the field it should currently fill in
-            let random1 = Math.floor(Math.random() * 10) + 1;
-            let random2 = Math.floor(Math.random() * 10) + 1;
+            let random1 = Math.floor(Math.random() * 10) + 1; // generate a random number for the current male tribute's stat
+            let random2 = Math.floor(Math.random() * 10) + 1; // generate a random number for the current female tribute's stat
 
             const maleField = $(`#${field}${i}M`); // select the current male tribute's stat field and store it
             const femaleField = $(`#${field}${i}F`); // select the current female tribute's stat field and store it
 
-            if(maleField.val() == ""){
-                maleField.val(random1);
+            if(maleField.val() == ""){ // check if the field is empty
+                maleField.val(random1); // if it's empty, fill it in with the random number
             }
-            if(femaleField.val() == ""){
-                femaleField.val(random2);
+            if(femaleField.val() == ""){ // check if the field is empty
+                femaleField.val(random2); // if it's empty, fill it in with the random number
             }
         }
     }
 
-    function ReturnRandomName(whichName){
+    function ReturnRandomName(whichName){ // whichName can be "maleFirstName", "femaleFirstName" or "lastName"
+
+        // array with male first names
         const maleFirstNames = [
             "Liam", "Noah", "Aiden", "Lucas", "Mason", "Ethan", "James", "Benjamin", "Elijah", "Alexander",
             "William", "Daniel", "Michael", "Jacob", "Sebastian", "Jack", "Samuel", "David", "Matthew", "Joseph",
@@ -109,6 +104,7 @@ $(document).ready(function() {
             "Kellan", "Dante", "Cole", "Brandon", "Oliver", "Luca", "Weston", "Bodhi", "Milo", "Max"
         ];
 
+        // array with female first names
         const femaleFirstNames = [
             "Emma", "Olivia", "Sophia", "Isabella", "Mia", "Amelia", "Harper", "Evelyn", "Abigail", "Ella",
             "Scarlett", "Aria", "Grace", "Lily", "Chloe", "Layla", "Zoe", "Nora", "Avery", "Hannah",
@@ -134,6 +130,7 @@ $(document).ready(function() {
             "Lillian", "Kelsey", "Addison", "Violet", "Eden", "Maeve", "Clara", "Amaya", "Ellie", "Sabrina"
         ];
 
+        // array with last names
         const lastNames = [
             "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor",
             "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia", "Martinez", "Roberts",
@@ -165,25 +162,31 @@ $(document).ready(function() {
             "Franklin", "Taylor", "Davis", "Anderson", "Becker", "McCarthy", "Sweeney", "Willis", "Graham", "Burns"
         ];
 
+
         switch (whichName)
         {
+            // if a male first name is requested, return it
             case "maleFirstName":
                 {
                     let random = Math.floor(Math.random() * maleFirstNames.length);
                     return maleFirstNames[random];
                 }
+            // if a female first name is requested, return it
             case "femaleFirstName":
                 {
                     let random = Math.floor(Math.random() * femaleFirstNames.length);
                     return femaleFirstNames[random];
                 }
+            // if a last name is requested, return it
             case "lastName":
                 {
                     let random = Math.floor(Math.random() * lastNames.length);
                     return lastNames[random];
                 }
-            default:
-                return "ERROR"; // should never happen
+            // when whichName is not one of the above, return ERROR
+            default: // should never happen
+                alert("ERROR: Invalid name type requested!");
+                return "ERROR";
         }
     }
 });

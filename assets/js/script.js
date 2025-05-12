@@ -15,7 +15,7 @@ $(document).ready(function() {
     };
   
     let generated;
-    let whichDay = 1;
+    let whichDay = 0;
 
     $("#clearFields").on("click", function() { // when clicked on clear fields button, verify if user is sure this and clear if yes
         if (confirm("Are you sure?")) {
@@ -74,7 +74,7 @@ $(document).ready(function() {
             aliveTributes.push(maleTribute, femaleTribute);
             allTributes.push(maleTribute, femaleTribute);
         }
-        StartGame();
+        //StartGame();
 
         $("main").empty();
 
@@ -140,38 +140,36 @@ $(document).ready(function() {
     }
 
     function LogShit(eventsAmount, isStart) {
-        console.log(eventsAmount);
+        console.log("events amount: " + eventsAmount);
         let delay = 0;
-        let eventsCompleted = 0;
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = Math.floor(Math.random() * 8) + 1;
+            let randomEvent = ReturnRandomNumber(1, 8);
             delay += randomTimer;
 
-            if (isStart || randomEvent === 1 || randomEvent === 2 || randomEvent === 3 || randomEvent === 4 || randomEvent === 5) {
-                Combat(delay);
-                eventsCompleted++;
-            } else if (randomEvent === 6) {
-                FoundSomething();
-                eventsCompleted++;
-            } else if (randomEvent === 7) {
-                FellInTrap();
-                eventsCompleted++;
-            } else if (randomEvent === 8) {
-                SponsorGift();
-                eventsCompleted++;
-            }
+            setTimeout(() => {
+                if (isStart || randomEvent <= 5) {
+                    Combat(Math.random(), isStart);
+                } else if (randomEvent === 6) {
+                    FoundSomething();
+                } else if (randomEvent === 7) {
+                    FellInTrap();
+                } else if (randomEvent === 8) {
+                    SponsorGift();
+                }
+            }, delay);
         }
-      
-        setTimeout(function () {
-            if (eventsCompleted === eventsAmount && eventsAmount != 0) {
-                $("ul").append(`<div class="log"><li>The bloodbath has ended!</li>`);
-                $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
-                $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ` + whichDay + `</li>`);
+
+        // This runs a little *after* the final event, guaranteeing it's last
+        setTimeout(() => {
+            if (whichDay === 0) {
+                $("ul").append(`<div class="log"><li>The bloodbath has ended!</li></div>`);
             }
-        }, delay + 100);
-    }
+            $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
+            $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
+        }, delay + 250); // Slight buffer to ensure it's visually last
+    }    
 
     function SponsorGift(){
         let chosenTribute = ReturnTribute("sponsorGift");
@@ -256,7 +254,7 @@ $(document).ready(function() {
         }
     }
 
-    function Combat(delay){
+    function Combat(delay, isStart){
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
             let tribute2 = ReturnTribute("combat");
@@ -277,7 +275,7 @@ $(document).ready(function() {
                 }
             }
 
-            CombatTributes(tribute1, tribute2, true);
+            CombatTributes(tribute1, tribute2, isStart);
             CheckToRemoveTributesFromList();
         }, delay);
     }
@@ -349,16 +347,19 @@ $(document).ready(function() {
     }
     */
 
-    function ReturnTribute(whatFor) {
-        if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) {
+    // return a tribute based on random value and stats correlating to the event
+    function ReturnTribute(whatFor) { //whatfor = which event?
+        if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) { // check if the array AliveTributes is valid and empty
             console.log("Invalid input or empty aliveTributes array");
             return;
         }
 
-        let weightedAliveTributes = [];
+        let weightedAliveTributes = []; // Initialize an array to store the weighted values
 
-        for (let i = 0; i < aliveTributes.length; i++) {
-            let tribute = aliveTributes[i];
+        for (let i = 0; i < aliveTributes.length; i++) { // loop through all alive tributes
+            let tribute = aliveTributes[i]; // select the current tribute
+
+            // Get the values of the tribute's stats
             let speed = tribute["speed"] || 0;
             let power = tribute["power"] || 0;
             let intelligence = tribute["intelligence"] || 0;
@@ -367,6 +368,8 @@ $(document).ready(function() {
             let survival = tribute["survivalSkills"] || 0
             let combat = tribute["combatSkills"] || 0;
             let luck = tribute["luck"] || 0;
+
+            // initialize a var weight that will store the weight of the tribute
             let weight;
 
             switch (whatFor) {
@@ -477,29 +480,29 @@ $(document).ready(function() {
             // Ensure minimum weight of 1 so everyone has at least a small chance
             weight = Math.max(weight, 1);
 
-            for (let j = 0; j < weight; j++) {
-                weightedAliveTributes.push(tribute);
+            for (let j = 0; j < weight; j++) { // loop as much as the weight of the tribute
+                weightedAliveTributes.push(tribute); // add the tribute x times to the array where x is the weight
             }
         }
 
-        let randomIndex = Math.floor(Math.random() * weightedAliveTributes.length);
-        let selectedTribute = weightedAliveTributes[randomIndex];
-        return selectedTribute;
+        let randomIndex = Math.floor(Math.random() * weightedAliveTributes.length); // pick a random index from the weightedAliveTributes array
+        let selectedTribute = weightedAliveTributes[randomIndex]; // select a random tribute from the weighted array
+        return selectedTribute; // return the selected tribute
     }
 
     function CombatTributes(tribute1, tribute2, isStartOfGame = false) { // possibly add escaping later?
 
         function CalculateDamage(attacker) { // calculate damage (min: 9, max: 94)
             let baseDamage = ReturnRandomNumber(8, 30); // have a random between 8 and 30 for the base damage (random aspect)
-            let damageModifier = attacker.damage * 1.5; // apply bonus dmg for dmg stat
+            let damageModifier = attacker.power * 1.5; // apply bonus dmg for dmg stat
             let combatDamageModifier = attacker.combatSkills * 1.15; // apply bonus dmg for combat skills
-            let damageModifier2 = weaponModifiers[attacker.weapon] || 1; // apply bonus dmg for weapon
+            let damageModifier2 = weaponModifiers[attacker.weapon] || 1; // apply bonus dmg for weapon (or 1 if no weapon)
             return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
         }
 
-        if (tribute1.hp > 0 && tribute2.hp > 0) {
+        if (tribute1.isAlive && tribute2.isAlive) { // check if both tributes are alive
             let damageMode;
-            if (isStartOfGame == true) {
+            if (isStartOfGame == true) { // if it's the start of the game, also handle chance to find items to simulate bloodbath
                 damageMode = Math.floor(Math.random() * 7) + 1
             } else {
                 damageMode = Math.floor(Math.random() * 5) + 1;
@@ -510,7 +513,7 @@ $(document).ready(function() {
             if (damageMode === 1 || damageMode === 2) { // make both tributes do damage to each other
                 let damageToTribute1 = CalculateDamage(tribute2);
                 let damageToTribute2 = CalculateDamage(tribute1);
-  
+
                 tribute1.DoDamage(damageToTribute1);
                 tribute2.DoDamage(damageToTribute2);
 
@@ -597,77 +600,86 @@ $(document).ready(function() {
                     RemoveTributeFromAliveList(tribute2);
                 }
             }
+        } else{ // should never happen || this executes when at least 1 of the chosen tributes is dead
+            alert("Error: At least 1 chosen tribute is dead.");
+            throw new Error("At least 1 chosen tribute is dead.");
         }
     }
 
-    function FoundSomething() {
+    function FoundSomething() { // tribuyte finds a weapon, medkit or armor
         let random = Math.floor(Math.random() * 7) + 1
         let chosenTribute = ReturnTribute("foundSomething");
         switch (random) {
-            case 1:
+            case 1: // try to give a sword
+                // when chosenTribute has no weapon, try giving a sword first
+                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
                 if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a sword.</li></div>`);
                     chosenTribute.weapon = "sword";
-                } else if (chosenTribute.weapon === "sword") {
+                } else if (chosenTribute.weapon === "sword") { // if the tribute already has a sword, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a sword but already has one.</li></div>`);
-                } else if (chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife") {
+                } else if (chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife") { // if the tribute has a bow or knife, upgrade to sword
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a sword and upgraded their weapon.</li></div>`);
                     chosenTribute.weapon = "sword";
-                } else { //should never happen
+                } else { //should never happen | otherwise, give a sword and throw an error
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a sword.</li></div>`);
                     chosenTribute.weapon = "sword";
-                    throw new Error("error");
+                    throw new Error("Error: Giving sword almost failed.");
                 }
                 break;
-            case 2:
+            case 2: // try to give a bow
+                // when chosenTribute has no weapon, try giving a bow first
+                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
                 if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a bow.</li></div>`);
                     chosenTribute.weapon = "bow";
-                } else if (chosenTribute.weapon === "bow") {
+                } else if (chosenTribute.weapon === "bow") { // if tribute already has a bow, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has one.</li></div>`);
-                } else if (chosenTribute.weapon === "sword") {
+                } else if (chosenTribute.weapon === "sword") { // if the tribute has a sword, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow but already has a better weapon.</li></div>`);
-                } else if (chosenTribute.weapon === "knife") {
+                } else if (chosenTribute.weapon === "knife") { // if the tribute has a knife, upgrade to bow
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a bow and upgraded their weapon.</li></div>`);
                     chosenTribute.weapon = "bow";
-                } else { // should never happen
+                } else { // should never happen | otherwise, give a bow and throw an error
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a bow.</li></div>`);
                     chosenTribute.weapon = "bow";
-                    throw new Error("error");
+                    throw new Error("Error: Giving bow almost failed.");
                 }
                 break;
-            case 3:
+            case 3: // try to give a knife
+                // when chosenTribute has no weapon, try giving a knife first
+                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
                 if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a knife.</li></div>`);
                     chosenTribute.weapon = "knife";
-                } else if (chosenTribute.weapon === "sword" || chosenTribute.weapon == "bow") {
+                } else if (chosenTribute.weapon === "sword" || chosenTribute.weapon == "bow") { // if the tribute has a sword or bow, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has a better weapon.</li></div>`);
-                } else if (chosenTribute.weapon === "knife") {
+                } else if (chosenTribute.weapon === "knife") { // if the tribute already has a knife, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a knife but already has one.</li></div>`);
-                } else { // should never happen
+                } else { // should never happen | otherwise, give a knife and throw an error
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up a knife.</li></div>`);
                     chosenTribute.weapon = "bow";
-                    throw new Error("error");
+                    throw new Error("Error: Giving knife almost failed.");
                 }
                 break;
-            case 4:
+            case 4: // higher chance to give a medkit
             case 5:
-                if(chosenTribute.medKits == 0){
+                if(chosenTribute.medKits == 0){ // if the tribute has no medkits, give 1 or 2 (random)
                     let amountOfMedkits = Math.floor(Math.random() * 2) + 1;
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up ${amountOfMedkits} medkit(s).</li></div>`);
                     chosenTribute.findMedKit(amountOfMedkits);
-                } else if(chosenTribute.medKits == 1){
+                } else if(chosenTribute.medKits == 1){ // if the tribute has 1 medkit, give 1
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up 1 medkit.</li></div>`);
                     chosenTribute.findMedKit(1);
-                } else{
+                } else{ // if the tribute already has 2 medkits, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found a medkit but already has 2.</li></div>`);
                 }
                 break;
-            case 6:
+            case 6: // higher chance to give armor
             case 7:
-                if(chosenTribute.hasArmor === "yes"){
+                if(chosenTribute.hasArmor === "yes"){ // if the tribute has armor, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} found armor but already has one.</li></div>`);
-                } else{
+                } else{ // if the tribute has no armor, give 1
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} picked up armor.</li></div>`);
                     chosenTribute.findArmor();
                 }
@@ -675,22 +687,11 @@ $(document).ready(function() {
         }
     }
 
-
-    /*
-    function CalculateDamage(tribute) {
-        let baseDamage = Math.floor(Math.random() * 26) + 20;  // Random damage between 20 and 45
-        let damageModifier = tribute.combatSkills * 0.5;  // CombatSkills will influence the damage, you can adjust the multiplier
-
-        let finalDamage = baseDamage + damageModifier;  // Apply combat skills to the damage
-        return Math.max(finalDamage, baseDamage);  // Ensure damage isn't lower than the base damage
-    }
-        */
-
-    function CheckToRemoveTributesFromList() {
+    function CheckToRemoveTributesFromList() { // function to make sure the aliveTributes array is up to date
         for (let i = 0; i < aliveTributes.length; i++) {
-            if (aliveTributes[i].isAlive === false) {
-                aliveTributes.splice(i, 1); // Remove 1 element at index i
-                i--; // Decrease the index to account for the shift in the array
+            if (aliveTributes[i].isAlive === false) { // check if the tribute is dead
+                aliveTributes.splice(i, 1); // Remove 1 element at index i (so remove the tribute from aliveTributes)
+                i--; // when a tribute is removed, decrease the index to account for the shift in the array
             }
         }
     }
@@ -709,27 +710,27 @@ $(document).ready(function() {
     }
 
     function ReturnRandomTimer(isStart) {
-        if (isStart) {
-            return Math.floor(Math.random() * 1500) + 500;
-        } else {
-            return Math.floor(Math.random() * 3000) + 2000; // between 2 and 5 seconds
+        if (isStart) { // if it's the start of the game, return a random timer between 0.5 and 2 seconds
+            return ReturnRandomNumber(500, 2000);
+        } else { // if it's not the start of the game, return a random timer between 1.5 and 4 seconds
+            return ReturnRandomNumber(1500, 3000);
         }
     }
 
     $(document).on("click", "#advanceToNext", function () {
-        let randomEvents = Math.floor(Math.random() * 20) + 1;
-        let randomForWhenEndPhase = Math.floor(Math.random() * 6) + 3;
+        let randomEvents = ReturnRandomNumber(3, 17); // how many events will happen this day
+        let randomForWhenEndPhase = ReturnRandomNumber(3, 8); // how many tributes need to be alive for the end phase to start
         whichDay += 1;
         $("#eventLog").empty();
         $("#eventLog").append(`<div class="log"><li>Day ${whichDay} has started!</li></div>`);
         
-        for (let i = 0; i < randomEvents; i++) {
+        //for (let i = 0; i < randomEvents; i++) {
             if (aliveTributes.length > randomForWhenEndPhase) {
-                LogShit(randomEvents, false);
+                    LogShit(randomEvents, false);
             } else { // end phase
 
             }
-        }
+        //}
     });
 
     $(document).on("click", "#seeTributes", function () {
@@ -749,25 +750,30 @@ $(document).ready(function() {
     });
 
     function FillInData() {
-        for (let i = 0; i < 24; i += 2) {
-            const district = i / 2 + 1; // Convert 0,2,4,... to 1,2,3,...
+        for (let i = 0; i < 24; i += 2) { // loop trough all tributes (12 districts, 2 tributes each) by looping trough even values of i
+            const district = i / 2 + 1; // Convert even value of i (0,2,4,...) to 1,2,3,...
             let maleTribute = allTributes[i];
             let femaleTribute = allTributes[i + 1];
 
-            if (!maleTribute.isAlive) {
+            if (!maleTribute.isAlive) { // if the male tribute is dead, make the image red
                 $("#image" + district + "M").attr("src", "images/maleDead.png");
                 $("#image" + district + "M").attr("id", "deadTribute");
             }
 
-            if (!femaleTribute.isAlive) {
+            if (!femaleTribute.isAlive) { // if the female tribute is dead, make the image red
                 $("#image" + district + "F").attr("src", "images/femaleDead.png");
                 $("#image" + district + "F").attr("id", "deadTribute");
             }
 
-            for (let j = 0; j < fields.length; j++) {
-                let field = fields[j];
-                $("#" + field + district + "M").text(maleTribute[field]);
-                $("#" + field + district + "F").text(femaleTribute[field]);
+            for (let j = 0; j < fields.length; j++) { // loop through all fields (all info to display)
+                let field = fields[j]; // get the current field
+                $("#" + field + district + "M").text(maleTribute[field]); // fill in the current male field with the right stat data
+                $("#" + field + district + "F").text(femaleTribute[field]); // fill in the current female field with the right stat data
+            }
+
+            if(!maleTribute.isAlive && !femaleTribute.isAlive){ // if both tributes are dead, make the district bar red
+                $(`#div${i}`).css("background-color", "darkred");
+                $(`#div${i}`).css("color", "white");
             }
         }
     }
