@@ -325,3 +325,7 @@ footer{
 #Announcement{
     background-color: darkGray;
 }
+
+html {
+    scroll-behavior: smooth;
+}
