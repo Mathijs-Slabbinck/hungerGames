@@ -714,6 +714,7 @@ $(document).ready(function() {
         } else {
             return Math.floor(Math.random() * 3000) + 2000; // between 2 and 5 seconds
         }
+    }
 
     $(document).on("click", "#advanceToNext", function () {
         let randomEvents = Math.floor(Math.random() * 20) + 1;
