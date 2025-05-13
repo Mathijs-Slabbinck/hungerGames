@@ -1,6 +1,9 @@
 let aliveTributes = [];
 let allTributes = [];
+let dreamer = null;
+let dreamCameTrue = null;
 let skipIntro = false; // set to true to skip the intro
+let canonAudio = new Audio('assets/media/canon.mp3');
 
 $(document).ready(function() {
     const fields = [ // an array containing all stats a Tribute has
@@ -100,7 +103,7 @@ $(document).ready(function() {
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = ReturnRandomNumber(1, 46); // Include up to 49 for rare events
+            let randomEvent = ReturnRandomNumber(1, 47);
             delay += randomTimer;
 
             if (aliveTributes.length === 2) {
@@ -108,7 +111,7 @@ $(document).ready(function() {
                 FinalBattle(tribute1, tribute2);
                 return;
             }
-            
+
             setTimeout(() => {
                 // If only 2 tributes left, start the final battle
                 if (aliveTributes.length === 2) {
@@ -124,27 +127,31 @@ $(document).ready(function() {
                     FoundSomething();
                 } else if (randomEvent >= 14 && randomEvent <= 17) { // 4 chance
                     FellInTrap();
-                } else if (randomEvent >= 18 && randomEvent <= 20) {
+                } else if (randomEvent >= 18 && randomEvent <= 20) {  // 3 chance
                     SponsorGift();
-                } else if (randomEvent >= 21 && randomEvent <= 24) {
+                } else if (randomEvent >= 21 && randomEvent <= 24) { // 4 chance
                     AnimalAttack();
-                } else if (randomEvent >= 25 && randomEvent <= 28) {
+                } else if (randomEvent >= 25 && randomEvent <= 28) { // 4 chance
                     AteFood();
-                } else if (randomEvent >= 29 && randomEvent <= 31) {
+                } else if (randomEvent >= 29 && randomEvent <= 31) { // 3 chance
                     Trained();
-                } else if (randomEvent >= 32 && randomEvent <= 35) {
+                } else if (randomEvent >= 32 && randomEvent <= 35) { // 4 chance
                     Injured();
-                } else if (randomEvent >= 36 && randomEvent <= 39) {
+                } else if (randomEvent >= 36 && randomEvent <= 39) { // 4 chance
                     Ambushed();
-                } else if (randomEvent >= 40 && randomEvent <= 42) {
+                } else if (randomEvent >= 40 && randomEvent <= 42) { // 3 chance
                     ShowedMercy();
-                } else if (randomEvent >= 43 && randomEvent <= 46) {
+                } else if (randomEvent >= 43 && randomEvent <= 46) { // 4 chance
                     Rested();
-                } else if (randomEvent === 47 || randomEvent === 48) {
+                } else if (randomEvent === 47) { // temp until I implement RareRandomEvent() | 1 chance
+                    SuperRareRandomEvent();
+                }
+
+                /*else if (randomEvent === 47 || randomEvent === 48) { // temp until I implement RareRandomEvent()
                     RareRandomEvent();
                 } else if (randomEvent === 49) {
                     SuperRareRandomEvent();
-                }
+                }*/
 
                 ScrollToBottom();
             }, delay);
@@ -489,6 +496,13 @@ $(document).ready(function() {
                         (survival * 0.65) +
                         (speed * 0.75);
                         break;
+                case "dream":
+                    weight =
+                        (luck * 0.6) +
+                        (risk * 1.1) +
+                        (survival * 0.95)
+                        (intelligence *1.05);
+                        break;
             }
 
 
@@ -531,6 +545,17 @@ $(document).ready(function() {
         PlayKillSound(); // play the canon sound
     }
 
+    function HandleEarthquake(damage){
+        for (let i = 0; i < aliveTributes.length; i++) {
+            HandleDamage(aliveTributes[i], damage);
+            if (!aliveTributes[i].isAlive) { // check if the tribute is dead
+                $("ul").append(`<li class="log"><div>${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
+                aliveTributes[i].causeOfDeath = `small earthquake`
+                HandleDeath(aliveTributes[i]);
+            }
+        }
+    }
+
     function CombatTributes(tribute1, tribute2, isStartOfGame = false, isEndGame = false) { // possibly add escaping later?
         if (tribute1.isAlive && tribute2.isAlive) { // check if both tributes are alive
             let damageMode;
@@ -568,9 +593,10 @@ $(document).ready(function() {
                     tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}]`; // set the cause of death
                     tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}]`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
+                    HandleDeath(tribute2); // handle death of tribute2
                     setTimeout(function () { // delay handling death of tribute2 a bit to delay the canon sound
-                        HandleDeath(tribute2); // handle death of tribute2
-                    }, 750);
+                        PlayKillSound(); // play the Killsound again to make sure there are 2 canon shots
+                    }, 1500);
                 }
             } else if (damageMode === 3) { // make 1 tribute do damage to another tribute
                 let damageTo = Math.random() < 0.5 ? tribute1 : tribute2; // pick a random tribute to take damage
@@ -635,8 +661,8 @@ $(document).ready(function() {
     }
 
     function PlayKillSound(){
-        let canon = new Audio('assets/media/canon.mp3');
-        canon.play();
+        canonAudio.currentTime = 0; // rewind to start
+        canonAudio.play().catch(e => console.warn("Audio play failed:", e));
     }
 
     function AnimalAttack() {
@@ -886,16 +912,10 @@ $(document).ready(function() {
     }
 
     function Trained(counter = 0) {
-        if (counter > 200) {// if it's likely (after trying over 10 times) every tribute has maxed out their stats, stop the function
-            $("ul").append(`<li class="log"><div>A small earthquake hit the arena, all tributes lose 15HP.</div></li>`);
-            for (let i = 0; i < aliveTributes.length; i++) {
-                HandleDamage(aliveTributes[i], 10);
-                if (!aliveTributes[i].isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
-                    aliveTributes[i].causeOfDeath = `Small earthquake`
-                    HandleDeath(aliveTributes[i]);
-                }
-            }
+        if (counter > 200) {// if it's likely (after trying over 200 times) every tribute has maxed out their stats, stop the function
+            let earthquakeDamage = ReturnRandomNumber(10, 25);
+            $("ul").append(`<li class="log"><div>A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP.</div></li>`);
+            HandleEarthquake(earthquakeDamage);
         }
 
         let random = ReturnRandomNumber(1, 3);
@@ -1040,16 +1060,25 @@ $(document).ready(function() {
     function ShowedMercy(){
         let mercyShower = ReturnTribute("showedMercy");
         let sparedTribute = ReturnTribute("sparedTribute");
-        let random = ReturnRandomNumber(1, 2);
+        let randomForBackStabbed = ReturnRandomNumber(1, 2);
 
         if (mercyShower.popularity >= 10){ // if the tribute has max popularity
-            if(random === 1){ // 50% chance to do nothing
+            if (randomForBackStabbed === 1){ // 50% chance to do nothing
                 $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}].</div></li>`);
             } else{ // 50% chance to be backstabbed
-                $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}].</div></li>`);
+                let damage = sparedTribute.CalculateDamage() / 1.25;
+                HandleDamage(mercyShower, damage);
+                if (mercyShower.isAlive){
+                    $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and lost ${damage} HP.</div><div>${mercyShower.name} now has ${mercyShower.hp} HP.</div></li>`);
+                } else{
+                    $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and got killed by ${sparedTribute.name}.</div>></li>`);
+                    HandleDeath(mercyShower);
+                    mercyShower.causeOfDeath = `showed mercy but backstabbed by ${sparedTribute.name} [${sparedTribute.district}]`
+                    sparedTribute.AddKill(mercyShower);
+                }
             }
         } else{ // if the tribute has less than 10 popularity, give +1 popularity
-            $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute and gained popularity.</div></li>`);
+            $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] and gained popularity.</div></li>`);
             let newPopularity = parseInt(mercyShower.popularity) + 1;
             mercyShower.popularity = newPopularity;
         }
@@ -1138,7 +1167,7 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but escaped. They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else{
                         $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] tried to run but got killed by an end phase monster.</div></li>`);
-                        chosenTribute.causeOfDeath = `end game monster`;
+                        chosenTribute.causeOfDeath = `failed to run from end game monster`;
                         HandleDeath(chosenTribute);
                     }
                 } else if (chosenTribute.luck >= 8){
@@ -1147,7 +1176,7 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but succesfully played dead. They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else {
                         $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] tried to play dead but got killed by an end phase monster.</div></li>`);
-                        chosenTribute.causeOfDeath = `end game monster`;
+                        chosenTribute.causeOfDeath = `failed to play death from end game monster`;
                         HandleDeath(chosenTribute);
                     }
                 } else{
@@ -1173,26 +1202,59 @@ $(document).ready(function() {
 
     // to implement
     function RareRandomEvent() {
-
+        // stepped on a mine
     }
 
     // to implement
     function SuperRareRandomEvent() {
-        let random = ReturnRandomNumber(1, 10);
+        let random = ReturnRandomNumber(1, 8);
 
-        switch (random){
+        switch (random) {
             case 1:
+            case 2:
                 let cheater = ReturnTribute("cheater");
                 $("ul").append(`<li class="log"><div class="bold">${cheater.name} [${cheater.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
                 cheater.causeOfDeath = `caught cheating`;
                 HandleDeath(cheater);
                 break;
-            case 2:
+            case 3:
+            case 4:
                 let struckDownTribute = ReturnTribute("lightning");
                 $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
                 HandleDeath(struckDownTribute);
                 break;
+            case 5:
+            case 6:
+                let earthquakeDamage = ReturnRandomNumber(30, 50);
+                $("ul").append(`<li class="log"><div>The arena was hit by an eartquake! All tributes lose ${earthquakeDamage} HP.</div></li>`);
+                HandleEarthquake(earthquakeDamage);
+                break;
+            case 7:
+                let dreamerTribute = ReturnTribute("dream");
+                let randomForDreamCameTrue = ReturnRandomNumber(1, 2);
+                dreamer = dreamerTribute;
+                if (randomForDreamCameTrue === 1) {
+                    dreamCameTrue = true;
+                } else {
+                    dreamCameTrue = false;
+                }
+                $("ul").append(`<li class="log"><div>${dreamerTribute.name} [${dreamerTribute.district}] had a weird dream; foretelling their own death.</div></li>`);
+                break;
+            case 8:
+                let weedTribute = ReturnTribute("sponsorGift");
+                if (weedTribute.hp != 100) {
+                    $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and restored all of their HP.</div></li>`);
+                    weedTribute.hp = 100;
+                } else {
+                    if (weedTribute.intelligence != 1) {
+                        $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and lost 1 intelligence.</div></li>`);
+                        let newIntelligence = parseInt(weedTribute.intelligence) - 1;
+                        weedTribute.intelligence = newIntelligence;
+                    } else {
+                        $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it.</div></li>`);
+                    }
+                }
         }
     }
 
@@ -1229,6 +1291,16 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#submit", function () {
+        if (!canonAudio.unlocked) {
+            canonAudio.volume = 0;
+            canonAudio.play().then(() => {
+                canonAudio.pause();
+                canonAudio.currentTime = 0;
+                canonAudio.volume = 1;
+                canonAudio.unlocked = true; // custom property to track it
+            });
+        }
+
         let maleTribute;
         let femaleTribute;
         let usedNames = new Set(); // a set to keep track of which names have already been picked
@@ -1291,9 +1363,29 @@ $(document).ready(function() {
         whichDay += 1;
         $("#eventLog").empty();
         $("#eventLog").append(`<li class="log Announcement"><div>Day ${whichDay} has started!</div></li>`);
+        if (dreamer != null){
+            let delay = ReturnRandomTimer(true);
+            if(dreamCameTrue === true){
+                if(dreamer.isAlive){
+                    setTimeout(function () {
+                        $("#eventLog").append(`<li class='log'><div class="bold">${dreamer.name}'s [${dreamer.district}] dream came true and they died to a hart attack.</div></li>`);
+                        HandleDeath(dreamer);
+                        dreamer.causeOfDeath = `foresaw their hart attack in a dream`;
+                        dreamer = null;
+                        dreamCameTrue = null;
+                    }, delay);
+                } // else (if I want to add a text for if the tribute has died during the day)
+            } else {
+                setTimeout(function () {
+                    $("#eventLog").append(`<li class='log'><div>${dreamer.name}'s [${dreamer.district}] dream didn't come true and they lived (for now).</div></li>`);
+                    dreamer = null;
+                    dreamCameTrue = null;
+                }, delay);
+            }
+        }
 
         if (aliveTributes.length > randomForWhenEndPhase) {
-            //NukeTributes(); //enable this when a lot of tributes need to at start for testing purposes
+            //NukeTributes(); //enable this when a lot of tributes need to die at start for testing purposes
             LogShit(randomEvents, false);
         } else { // end phase
             $("#eventLog").append("<li class='log Announcement'><div>The arena starts shrinking, the end phase has begun!</div></li>");
