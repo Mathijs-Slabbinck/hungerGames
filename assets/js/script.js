@@ -103,6 +103,12 @@ $(document).ready(function() {
             let randomEvent = ReturnRandomNumber(1, 49); // Include up to 49 for rare events
             delay += randomTimer;
 
+            if (aliveTributes.length === 2) {
+                const [tribute1, tribute2] = aliveTributes;
+                FinalBattle(tribute1, tribute2);
+                return;
+            }
+            
             setTimeout(() => {
                 // If only 2 tributes left, start the final battle
                 if (aliveTributes.length === 2) {
@@ -202,7 +208,7 @@ $(document).ready(function() {
 
         // Start scheduling events
         scheduleEvent();
-    }    
+    }
 
     function NukeTributes(){
         for (let i = 0; i < aliveTributes.length - 2; i++){
@@ -240,44 +246,54 @@ $(document).ready(function() {
     function FinalBattle(tribute1, tribute2) {
         console.log(`⚔️ Final battle between ${tribute1.name} and ${tribute2.name} begins!`);
 
-        $("main").append(`<li class="log Announcement"><div>The final battle has started!</div></li><li class='log Announcement'><div>${tribute1.name} and ${tribute2.name} face off in the final battle!</div></li>`);
+        // Show the initial start of the final battle, only once before the fight begins
+        $("#eventLog").append(`<li class="log Announcement"><div>The final battle has started!</div></li>`);
+
+        // Show the initial encounter message once
+        $("#eventLog").append(`<li class='log Announcement'><div>${tribute1.name} and ${tribute2.name} face off in the final battle!</div></li>`);
 
         let attacker = Math.random() < 0.5 ? tribute1 : tribute2;
         let defender = attacker === tribute1 ? tribute2 : tribute1;
         let round = 1;
 
+        // Use setInterval to simulate the rounds of the final battle
         const fightInterval = setInterval(() => {
             if (!attacker.isAlive || !defender.isAlive) {
                 clearInterval(fightInterval);
+
+                // Determine the winner and loser
                 let winner = attacker.isAlive ? attacker : defender;
                 let loser = !attacker.isAlive ? attacker : defender;
 
+                // Record the death and add kill count
                 winner.AddKill(loser);
                 winner.killedTributes.push(loser.name);
                 loser.causeOfDeath = `Killed by ${winner.name} in the final battle`;
                 HandleDeath(loser);
 
-                $("main").append(`<li class='log gold'><div>${loser.name} was slain by ${winner.name} in round ${round} of the final battle.</div><div>${winner.name} from district ${winner.district} wins the Hunger Games!</div></li>`);
-                $("main").append(`<li id="seeTributes finish" class="col-12">SEE TRIBUTES</li>`);
-                ScrollToBottom();
+                // Now that the battle is over, append the final winner and loser info
+                $("#eventLog").append(`<li class='log gold'><div>${loser.name} was slain by ${winner.name} in round ${round} of the final battle.</div><div>${winner.name} from district ${winner.district} wins the Hunger Games!</div></li>`);
+                $("#eventLog").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
+                ScrollToBottom();  // Scroll to bottom of log once final battle is finished
                 return;
             }
 
+            // If the battle is still ongoing, calculate damage for this round
             let randomMaxDmg = ReturnRandomNumber(10, 20);
             const damage = Math.round(Math.max(randomMaxDmg, CalculateDamage(attacker) / 3)); // damage = calculated dmg / 3 with a minum of randomMaxDmg
             const result = defender.DoDamage(damage);
 
-            $("main").append(
-                `<li class='log'><div>Round ${round}: ${attacker.name} hits ${defender.name} for ${damage} HP damage${result.medKitUsed ? ", who uses a medkit and healed 40 HP!" : "!"} . They now have ${defender.hp} HP.</div></li>`
+            // Log the damage dealt in the current round
+            $("#eventLog").append(
+                `<li class='log'><div>Round ${round}: ${attacker.name} hits ${defender.name} for ${damage} HP damage${result.medKitUsed ? ", who uses a medkit and healed 40 HP!" : "!"} They now have ${defender.hp} HP.</div></li>`
             );
-            ScrollToBottom();
+            ScrollToBottom();  // Scroll to bottom to keep log updated
 
-            // Swap attacker/defender
+            // Swap attacker and defender for the next round
             [attacker, defender] = [defender, attacker];
-            round++;
+            round++;  // Increment round number for the next attack
         }, 1500); // time between attack rounds
     }
-    
 
     function FellInTrap() {
         let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick a random number between 1 and 3 to determine which trap the tribute fell into
@@ -485,7 +501,7 @@ $(document).ready(function() {
     function HandleDamage(tribute, damage){
         if (tribute.DoDamage(damage).medKitUsed){ // apply the damage and check if a medkit was used
             if(tribute.isAlive){ // verify the tribute is still alive
-                $("ul").append(`<li class="log"><div>${tribute.name} used a medkit and healed 40 HP during this battle.</div></li>`);
+                $("ul").append(`<li class="log"><div>${tribute.name} used a medkit and healed 40 HP during the next encounter.</div></li>`);
             }
         }
     }
