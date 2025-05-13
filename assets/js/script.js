@@ -1,6 +1,6 @@
 let aliveTributes = [];
 let allTributes = [];
-let skipIntro = false; // set to true to skip the intro
+let skipIntro = true; // set to true to skip the intro
 
 $(document).ready(function() {
     const fields = [ // an array containing all stats a Tribute has
@@ -100,7 +100,7 @@ $(document).ready(function() {
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = ReturnRandomNumber(1, 49); // Include up to 49 for rare events
+            let randomEvent = ReturnRandomNumber(1, 46); // Include up to 49 for rare events
             delay += randomTimer;
 
             if (aliveTributes.length === 2) {
@@ -118,11 +118,11 @@ $(document).ready(function() {
                 }
 
                 // Proceed with regular event
-                if (isStart || randomEvent <= 10) {
+                if (isStart || randomEvent <= 10) { // 10 chance
                     Combat(Math.random(), isStart, false);
-                } else if (randomEvent >= 11 && randomEvent <= 13) {
+                } else if (randomEvent >= 11 && randomEvent <= 13) { // 3 chance
                     FoundSomething();
-                } else if (randomEvent >= 14 && randomEvent <= 17) {
+                } else if (randomEvent >= 14 && randomEvent <= 17) { // 4 chance
                     FellInTrap();
                 } else if (randomEvent >= 18 && randomEvent <= 20) {
                     SponsorGift();
@@ -472,7 +472,7 @@ $(document).ready(function() {
                     break;
                 case "cheater":
                     weight =
-                        (luck * 0*6) +
+                        (luck * 0.6) +
                         (risk * 1.3);
                     break;
                 case "monsterEncounter":
@@ -482,6 +482,13 @@ $(document).ready(function() {
                         (speed * 0.7) +
                         (survival * 0.9);
                     break;
+                case "lightning":
+                    weight =
+                        (luck * 0.75) +
+                        (risk * 1.2) +
+                        (survival * 0.65) +
+                        (speed * 0.75);
+                        break;
             }
 
 
@@ -798,22 +805,22 @@ $(document).ready(function() {
         }
         if (gift === 1 || gift == 2) { // higher chance to get a medkit
             if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
-                let randomMedkit = Math.floor(Math.random() * 2) + 1;
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                let randomMedkit = ReturnRandomNumber(1, 2);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                 chosenTribute.FindMedKit(randomMedkit);
             } else if (chosenTribute.medKits == 1) { // if the tribute has 1 medkit, give 1
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
                 chosenTribute.FindMedKit(1);
             } else { // if the tribute has 2 medkits, try to give armor
                 if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
                     chosenTribute.FindArmor(1);
                 } else if (chosenTribute.weapon != "sword") { // if the tribute has medkits and armor, try to give a sword
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
                     chosenTribute.weapon = "sword";
                 } else { // if the tribute has medkits, armor and a sword, try to give intelligence
                     if (chosenTribute.intelligence < 10) {
-                        $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
                         let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                         chosenTribute.intelligence = newIntelligence;
                     } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -823,25 +830,25 @@ $(document).ready(function() {
             }
         } else if (gift === 4 || gift === 4) { // higher chance to get armor
             if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
                 chosenTribute.FindArmor();
             } else if (chosenTribute.medKits != 2) { // if the tribute has armor, try to give a medkit
                 if (chosenTribute.medKits != 2) { // check if the tribute doesn't have 2 medkits
                     if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                         let randomMedkit = Math.floor(Math.random() * 2) + 1;
-                        $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                         chosenTribute.FindMedKit(randomMedkit);
                     } else { // if the tribute has 1 medkit, give 1
-                        $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
                         chosenTribute.FindMedKit(1);
                     }
                 }
             } else if (chosenTribute.weapon != "sword") { // if the tribute has armor and medkits, try to give a sword
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
                 chosenTribute.weapon = "sword";
             } else { // if the tribute has armor, medkits and a sword, try to give intelligence
                 if (chosenTribute.intelligence < 10) { // check if the tribute doesn't have max intelligence
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
                     let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                     chosenTribute.intelligence = newIntelligence;
                 } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -850,23 +857,23 @@ $(document).ready(function() {
             }
         } else if (gift === 5) { // lower chance to get a sword
             if (chosenTribute.weapon != "sword") { // if the tribute doesn't have a sword, give 1
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received a sword from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
                 chosenTribute.weapon = "sword";
             } else if (chosenTribute.medKits != 2) { // if the tribute has a sword, try to give a medkit
                 if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                     let randomMedkit = Math.floor(Math.random() * 2) + 1;
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
                     chosenTribute.FindMedKit(randomMedkit);
                 } else { // if the tribute has 1 medkit, give 1
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received a medkit from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
                     chosenTribute.FindMedKit(1);
                 }
             } else if (chosenTribute.hasArmor === "no") { // if the tribute has a sword and medkits, try to give armor
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} received armor from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
                 chosenTribute.FindArmor(1);
             } else { // if the tribute has a sword, medkits and armor, try to give intelligence
                 if (chosenTribute.intelligence < 10) { // check if the tribute doesn't have max intelligence
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} received some knowledge about the arena from a sponsor. (+1 intelligence)</li></div>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</li></div>`);
                     let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                     chosenTribute.intelligence = newIntelligence;
                 } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -878,13 +885,13 @@ $(document).ready(function() {
 
     function Trained(counter = 0) {
         if (counter > 200) {// if it's likely (after trying over 10 times) every tribute has maxed out their stats, stop the function
-            $("ul").append(`<li class="log"><div>An earthquake hit the arena, all tributes lose 10HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>A small earthquake hit the arena, all tributes lose 15HP.</div></li>`);
             for (let i = 0; i < aliveTributes.length; i++) {
                 HandleDamage(aliveTributes[i], 10);
-                if (aliveTributes[i].isAlive === false) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${aliveTributes[i].name} died from the earthquake.</div></li>`);
-                    RemoveTributeFromAliveList(aliveTributes[i]); // if the tribute is dead, remove it from the aliveTributes array
-                    PlayKillSound(); // play the canon sound
+                if (!aliveTributes[i].isAlive) { // check if the tribute is dead
+                    $("ul").append(`<li class="log"><div>${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
+                    aliveTributes[i].causeOfDeath = `Small earthquake`
+                    HandleDeath(aliveTributes[i]);
                 }
             }
         }
@@ -894,15 +901,15 @@ $(document).ready(function() {
         if (random === 1) { // 50% chance to train power
             let chosenTribute = ReturnTribute("trainedPower");
             if (chosenTribute.power < 10) { // if tribute has less than 10 power, give +1 power
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else if (chosenTribute.speed < 10) { // if tribute has less than 10 speed, give +1 speed
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else if (chosenTribute.combatSkills < 10) { // if tribute has less than 10 combat skills, give +1 combat skills
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else { // if the tribute has 10 power, speed and combat skills, try to train again
@@ -912,15 +919,15 @@ $(document).ready(function() {
         } else if (random === 2) { // 50% chance to train speed
             let chosenTribute = ReturnTribute("trainedSpeed");
             if (chosenTribute.speed < 10) { // if tribute has less than 10 speed, give +1 speed
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else if (chosenTribute.combatSkills < 10) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else if (chosenTribute.power < 10) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else {
@@ -930,15 +937,15 @@ $(document).ready(function() {
         } else if (random === 3) { // 50% chance to train combat skills
             let chosenTribute = ReturnTribute("trainedCombatSkills");
             if (chosenTribute.combatSkills < 10) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else if (chosenTribute.power < 10) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else if (chosenTribute.speed < 10) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else {
@@ -1076,31 +1083,31 @@ $(document).ready(function() {
                     rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
-                    $("ul").append(`<li class="log"><div>${rester.name} rested but got ambushed by ${attacker.name} and lost ${attackerDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP.</div></li>`);
                 }
             }
         } else{ // 2/7 chance to compare stats between the two tributes
             if(rester.survivalSkills > 5 && rester.combatSkills > attacker.combatSkills){ // if the tribute passes a surival check and has more combat skills than the attacker, attack back
                 HandleDamage(attacker, resterDamage); // apply damage to the ambusher tribute
                 if (!attacker.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">${rester.name} rested and got ambushed by ${attacker.name} but fought back and killed them.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} ${attacker.district} but fought back and killed them.</div></li>`);
                     rester.AddKill(attacker); // award a kill to the killer and store the killed tribute
-                    attacker.causeOfDeath = `failed attack on resting ${rester.name}`; // set the cause of death
+                    attacker.causeOfDeath = `failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
                     HandleDeath(attacker); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but fought back, dealing ${attackerDamage} damage. ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage. ${attacker.name} [${attacker.district}] now has ${attacker.hp} HP.</div></li>`);
                 }
             } else if(rester.speed > attacker.speed){ // if the tribute has more speed than the ambusher, do nothing
-                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but managed to escape.</div></li>`);
+                $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape.</div></li>`);
             } else{ // if the tribute fails both checks, apply damage
                 HandleDamage(rester, attackerDamage); // apply damage to the ambushed tribute
                 if (!rester.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">${rester.name} rested and got ambushed by ${attacker.name} and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
                     attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
-                    rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
+                    rester.causeOfDeath = `attacked by ${attacker.name} [${attacker.district}]  while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} and lost ${attackerDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP.</div></li>`);
                 }
             }
         }
@@ -1112,7 +1119,7 @@ $(document).ready(function() {
 
         switch(random){
             case 1: // 1 / 5 chance to die instantly
-                $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} got killed by an end phase monster.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster.</div></li>`);
                 chosenTribute.causeOfDeath = `end game monster`;
                 HandleDeath(chosenTribute);
                 break;
@@ -1122,23 +1129,23 @@ $(document).ready(function() {
                 if(chosenTribute.speed >= 8){
                     HandleDamage(chosenTribute, randomSmallDamage);
                     if(chosenTribute.isAlive){
-                        $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but escaped. They only lost ${randomSmallDamage} HP.</div></li>`);
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but escaped. They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else{
-                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} tried to run but got killed by an end phase monster.</div></li>`);
+                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] tried to run but got killed by an end phase monster.</div></li>`);
                         chosenTribute.causeOfDeath = `end game monster`;
                         HandleDeath(chosenTribute);
                     }
                 } else if (chosenTribute.luck >= 8){
                     HandleDamage(chosenTribute, randomSmallDamage);
                     if (chosenTribute.isAlive) {
-                        $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but succesfully played dead. They only lost ${randomSmallDamage} HP.</div></li>`);
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but succesfully played dead. They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else {
-                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} tried to play dead but got killed by an end phase monster.</div></li>`);
+                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] tried to play dead but got killed by an end phase monster.</div></li>`);
                         chosenTribute.causeOfDeath = `end game monster`;
                         HandleDeath(chosenTribute);
                     }
                 } else{
-                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} got killed by an end phase monster.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster.</div></li>`);
                     chosenTribute.causeOfDeath = `end game monster`;
                     HandleDeath(chosenTribute);
                 }
@@ -1148,9 +1155,9 @@ $(document).ready(function() {
                 let randomDamage = ReturnRandomNumber(45, 80);
                 HandleDamage(chosenTribute, randomDamage);
                 if (chosenTribute.isAlive) {
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but survived. They lost ${randomDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but survived. They lost ${randomDamage} HP.</div></li>`);
                 } else {
-                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} was attacked by an end phase monster and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster and died.</div></li>`);
                     chosenTribute.causeOfDeath = `end game monster`;
                     HandleDeath(chosenTribute);
                 }
@@ -1170,9 +1177,15 @@ $(document).ready(function() {
         switch (random){
             case 1:
                 let cheater = ReturnTribute("cheater");
-                $("ul").append(`<li class="log"><div class="bold">${cheater.name} was caught cheating and got killed by the gamemakers!</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${cheater.name} [${cheater.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
                 cheater.causeOfDeath = `caught cheating`;
                 HandleDeath(cheater);
+                break;
+            case 2:
+                let struckDownTribute = ReturnTribute("lightning");
+                $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
+                struckDownTribute.causeOfDeath = `struck by lightning`;
+                HandleDeath(struckDownTribute);
                 break;
         }
     }
@@ -1327,9 +1340,9 @@ $(document).ready(function() {
             }
 
             if(!maleTribute.isAlive && !femaleTribute.isAlive){ // if both tributes are dead, make the district bar red
+                $(`#div${district}`).removeClass("halfDeadDistrict");
                 $(`#div${district}`).addClass("deadDistrict");
             } else if(!maleTribute.isAlive || !femaleTribute.isAlive){
-                $(`#div${district}`).removeClass("halfDeadDistrict");
                 $(`#div${district}`).addClass("halfDeadDistrict");
             }
         }
