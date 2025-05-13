@@ -18,6 +18,7 @@ class Tribute {
       this.medKits = 0;
       this.isAlive = true;
       this.kills = 0;
+      this.killedTributes = [];
     }
 
     set name(value) {
@@ -269,32 +270,38 @@ class Tribute {
   }
 
 
-    // Find armor and equip it
-    findArmor() {
-      if (this.armorDurability === 0) {
-        this.armorDurability = 5;
-        this.hasArmor = "yes";
-      } else {
-        throw new Error("This tribute already has armor!");
-      }
-    }
-
-    // Find a medkit
-    findMedKit(amount) {
-      if (this.medKits === 2) {
-        throw new Error("This tribute already has the max amount of medkits (2)!");
-      } else if(this.medKits === 1) {
-        this.medKits += 1;
-      } else{
-        this.medKits += amount;
-      }
-    }
-
-    KillTribute() {
-      this.hp = 0;
-      this.isAlive = false;
+  // Find armor and equip it
+  FindArmor() {
+    if (this.armorDurability === 0) {
+      this.armorDurability = 5;
+      this.hasArmor = "yes";
+    } else {
+      throw new Error("This tribute already has armor!");
     }
   }
+
+  // Find a medkit
+  FindMedKit(amount) {
+    if (this.medKits === 2) {
+      throw new Error("This tribute already has the max amount of medkits (2)!");
+    } else if (this.medKits === 1) {
+      this.medKits += 1;
+    } else {
+      this.medKits += amount;
+    }
+  }
+
+  KillTribute() {
+    this.hp = 0;
+    this.isAlive = false;
+  }
+
+  // Add a kill to the tribute's record
+  AddKill(tribute) {
+    this.kills += 1;
+    this.killedTributes.push(tribute);
+  }
+}
 
   function CheckIfNumber(value){
     let n = parseInt(value);

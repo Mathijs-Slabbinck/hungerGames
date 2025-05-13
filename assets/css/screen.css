@@ -329,3 +329,12 @@ footer{
 html {
     scroll-behavior: smooth;
 }
+
+.container{
+    max-width: 100%;
+}
+
+#tributeFormContainer{
+    max-width: 95%;
+    margin: 2vh auto 0 auto;
+}
