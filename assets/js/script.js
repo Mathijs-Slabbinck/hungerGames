@@ -1,12 +1,12 @@
 let aliveTributes = [];
 let allTributes = [];
-let skipIntro = true; // set to true to skip the intro
+let skipIntro = false; // set to true to skip the intro
 
 $(document).ready(function() {
     const fields = [ // an array containing all stats a Tribute has
         "name", "speed", "power", "intelligence", "popularity",
         "risk", "survivalSkills", "combatSkills", "luck", "hp",
-        "weapon", "hasArmor", "armorDurability", "medKits", "isAlive", "kills"
+        "weapon", "hasArmor", "armorDurability", "medKits", "isAlive", "kills", "causeOfDeath"
     ];
 
     const weaponModifiers = { // an array that keeps track of dmg modifiers for weapons
@@ -90,65 +90,128 @@ $(document).ready(function() {
 
     function StartLogging() {
         let startEventsAmount = ReturnRandomNumber(6, 15); // generate a random to determine how many events will happen during the bloodbath
-        $("main").append("<ul id='eventLog'><li class='log' id='Announcement'><div>The Bloodbath has begun!</div></li></ul>");
+        $("main").append("<ul id='eventLog'><li class='log Announcement'><div>The Bloodbath has begun!</div></li></ul>");
         LogShit(startEventsAmount, true); // call the function, passing the amount of events and a boolean to say if it's the start of the game
     }
 
     function LogShit(eventsAmount, isStart) { // eventsAmount = how many events will happen, isStart = if it's the start of the game
-    
         let delay = 0;
+        console.log("events amount : " + eventsAmount);
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = ReturnRandomNumber(1, 46); // increase this after implementing the rare events
+            let randomEvent = ReturnRandomNumber(1, 49); // Include up to 49 for rare events
             delay += randomTimer;
 
             setTimeout(() => {
-                if (isStart || randomEvent <= 10) { // 10 chance to fight
-                    Combat(Math.random(), isStart);
-                } else if (randomEvent >= 11 && randomEvent <= 13) { // 3 chance to find something
+                // If only 2 tributes left, start the final battle
+                if (aliveTributes.length === 2) {
+                    const [tribute1, tribute2] = aliveTributes;
+                    FinalBattle(tribute1, tribute2);
+                    return;
+                }
+
+                // Proceed with regular event
+                if (isStart || randomEvent <= 10) {
+                    Combat(Math.random(), isStart, false);
+                } else if (randomEvent >= 11 && randomEvent <= 13) {
                     FoundSomething();
-                } else if (randomEvent >= 14 && randomEvent <= 17) { // 4 chance to fall in a trap
+                } else if (randomEvent >= 14 && randomEvent <= 17) {
                     FellInTrap();
-                } else if (randomEvent >= 18 && randomEvent <= 20) { // 3 chance to get a sponsor gift
+                } else if (randomEvent >= 18 && randomEvent <= 20) {
                     SponsorGift();
-                } else if (randomEvent >= 21 && randomEvent <= 24) { // 4 chance to get attacked by animals
+                } else if (randomEvent >= 21 && randomEvent <= 24) {
                     AnimalAttack();
-                } else if (randomEvent >= 25 || randomEvent <= 28) { // 4 chance to eat food
+                } else if (randomEvent >= 25 && randomEvent <= 28) {
                     AteFood();
-                } else if (randomEvent >= 28 || randomEvent <= 31) { // 3 chance to train a stat
+                } else if (randomEvent >= 29 && randomEvent <= 31) {
                     Trained();
-                } else if (randomEvent >= 32 || randomEvent <= 35) { // 4 chance to get injured
+                } else if (randomEvent >= 32 && randomEvent <= 35) {
                     Injured();
-                } else if (randomEvent >= 36 || randomEvent <= 39) { // 4 chance to get ambushed
+                } else if (randomEvent >= 36 && randomEvent <= 39) {
                     Ambushed();
-                } else if (randomEvent >= 40 || randomEvent <= 42) { // 3 chance to show mercy
+                } else if (randomEvent >= 40 && randomEvent <= 42) {
                     ShowedMercy();
-                } else if (randomEvent >= 43 || randomEvent <= 46) { // 4 chance to rest
+                } else if (randomEvent >= 43 && randomEvent <= 46) {
                     Rested();
-                } else if (randomEvent === 47 || randomEvent === 48){ // 2 chance for a rare event
+                } else if (randomEvent === 47 || randomEvent === 48) {
                     RareRandomEvent();
-                } else if (randomEvent === 49){ // 1 chance for a super rare event
+                } else if (randomEvent === 49) {
                     SuperRareRandomEvent();
                 }
+
                 ScrollToBottom();
             }, delay);
         }
 
-        // This runs a little *after* the final event, guaranteeing it's last
+        // Run this slightly after the final event for end-of-day announcement
         setTimeout(() => {
+            // Skip announcement if the final battle has started
+            if (aliveTributes.length === 2) return;
+
             if (whichDay === 0) {
-                $("ul").append(`<li class="log" id="Announcement"><div>The bloodbath has ended!</div></li>`);
-            } else{
-                $("ul").append(`<li class="log" id="Announcement"><div>Day ${whichDay} has ended!</div></li>`);
+                $("ul").append(`<li class="log Announcement"><div>The bloodbath has ended!</div></li>`);
+            } else {
+                $("ul").append(`<li class="log Announcement"><div>Day ${whichDay} has ended!</div></li>`);
             }
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
-        }, delay + 200); // Slight buffer to ensure it's visually last
+        }, delay + 200);
+    }
+
+    function LogEndPhase() {
+        console.log("end phase started");
+        let delay = 0;
+
+        // Function to schedule events
+        function scheduleEvent() {
+            // Check if more than 2 tributes are alive
+            if (aliveTributes.length <= 2) {
+                // Once only 2 tributes remain, trigger the final battle
+                const [tribute1, tribute2] = aliveTributes;
+                FinalBattle(tribute1, tribute2);
+                return; // Exit the function once final battle is triggered
+            }
+
+            let randomTimer = ReturnRandomTimer(true);
+            let randomEvent = ReturnRandomNumber(1, 20);
+            delay = randomTimer;
+
+            setTimeout(() => {
+                // Execute events if more than 2 tributes are alive
+                if (randomEvent <= 5) {
+                    Combat(Math.random(), false, true);
+                } else if (randomEvent === 6 || randomEvent === 7) {
+                    FellInTrap();
+                } else if (randomEvent === 8 || randomEvent === 9) {
+                    AnimalAttack();
+                } else if (randomEvent === 10 || randomEvent === 11) {
+                    Injured();
+                } else if (randomEvent === 12 || randomEvent === 13) {
+                    Ambushed();
+                } else if (randomEvent >= 14 && randomEvent <= 20) {
+                    EncounterMonster();
+                }
+
+                ScrollToBottom();
+
+                // Schedule the next event if there are more than 2 tributes alive
+                scheduleEvent();
+            }, delay);
+        }
+
+        // Start scheduling events
+        scheduleEvent();
+    }    
+
+    function NukeTributes(){
+        for (let i = 0; i < aliveTributes.length - 2; i++){
+            aliveTributes.pop();
+        }
     }
 
     // prepare 2 tributes for combat and call CombatTributes to start the combat
-    function Combat(delay, isStart){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
+    function Combat(delay, isStart, isEndGame = false){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
             let tribute2 = ReturnTribute("combat");
@@ -158,8 +221,8 @@ $(document).ready(function() {
                     tribute2 = ReturnTribute("combat"); // pick a different tribute if the tributes are the same
                 }
             } else if (aliveTributes.length === 2) { // if there are only 2 tributes alive, pick them both
-                tribute1 = aliveTributes[0];
-                tribute2 = aliveTributes[1];
+                const [tribute1, tribute2] = aliveTributes;
+                FinalBattle(tribute1, tribute2);
             }
 
             if (aliveTributes.length > 3) { // if there are more than 3 tributes alive, make same district battles less likely
@@ -169,10 +232,52 @@ $(document).ready(function() {
                 }
             }
 
-            CombatTributes(tribute1, tribute2, isStart); // start the combat with the prepared tributes
+            CombatTributes(tribute1, tribute2, isStart, isEndGame); // start the combat with the prepared tributes
             CheckToRemoveTributesFromList(); // check if the tributes are dead and remove them from the aliveTributes array if missed
         }, delay);
     }
+
+    function FinalBattle(tribute1, tribute2) {
+        console.log(`⚔️ Final battle between ${tribute1.name} and ${tribute2.name} begins!`);
+
+        $("main").append(`<li class="log Announcement"><div>The final battle has started!</div></li><li class='log Announcement'><div>${tribute1.name} and ${tribute2.name} face off in the final battle!</div></li>`);
+
+        let attacker = Math.random() < 0.5 ? tribute1 : tribute2;
+        let defender = attacker === tribute1 ? tribute2 : tribute1;
+        let round = 1;
+
+        const fightInterval = setInterval(() => {
+            if (!attacker.isAlive || !defender.isAlive) {
+                clearInterval(fightInterval);
+                let winner = attacker.isAlive ? attacker : defender;
+                let loser = !attacker.isAlive ? attacker : defender;
+
+                winner.AddKill(loser);
+                winner.killedTributes.push(loser.name);
+                loser.causeOfDeath = `Killed by ${winner.name} in the final battle`;
+                HandleDeath(loser);
+
+                $("main").append(`<li class='log gold'><div>${loser.name} was slain by ${winner.name} in round ${round} of the final battle.</div><div>${winner.name} from district ${winner.district} wins the Hunger Games!</div></li>`);
+                $("main").append(`<li id="seeTributes finish" class="col-12">SEE TRIBUTES</li>`);
+                ScrollToBottom();
+                return;
+            }
+
+            let randomMaxDmg = ReturnRandomNumber(10, 20);
+            const damage = Math.round(Math.max(randomMaxDmg, CalculateDamage(attacker) / 3)); // damage = calculated dmg / 3 with a minum of randomMaxDmg
+            const result = defender.DoDamage(damage);
+
+            $("main").append(
+                `<li class='log'><div>Round ${round}: ${attacker.name} hits ${defender.name} for ${damage} HP damage${result.medKitUsed ? ", who uses a medkit and healed 40 HP!" : "!"} . They now have ${defender.hp} HP.</div></li>`
+            );
+            ScrollToBottom();
+
+            // Swap attacker/defender
+            [attacker, defender] = [defender, attacker];
+            round++;
+        }, 1500); // time between attack rounds
+    }
+    
 
     function FellInTrap() {
         let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick a random number between 1 and 3 to determine which trap the tribute fell into
@@ -181,17 +286,18 @@ $(document).ready(function() {
         if (randomForWhichTrap === 1 || randomForWhichTrap === 2) { // 2/3 chance to take damage
             let trapDamage = ReturnRandomNumber(25, 60); // generate a random number between 25 and 60 for the trap damage
             HandleDamage(trappedTribute, trapDamage); // handle the damage
-            if (trappedTribute.isAlive === false) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${trappedTribute.name} fell into ${trapSetter.name}'s trap and took ${trapDamage} damage. ${trappedTribute.name} died.</div></li>`);
+            if (!trappedTribute.isAlive) { // check if the tribute is dead
+                $("ul").append(`<li class="log"><div class="bold">${trappedTribute.name} fell into ${trapSetter.name}'s trap and took ${trapDamage} damage. ${trappedTribute.name} died.</div></li>`);
                 trapSetter.AddKill(trappedTribute); // award a kill to the trap setter and store the killed tribute
+                trappedTribute.causeOfDeath = `trap by ${trapSetter.name}`; // set the cause of death
                 HandleDeath(trappedTribute); // handle death of the tribute
             } else {
                 $("ul").append(`<li class="log"><div>${trappedTribute.name} fell into ${trapSetter.name}'s trap and took ${trapDamage} damage. ${trappedTribute.name} now has ${trappedTribute.hp} HP.</div></li>`);
             }
         } else if (randomForWhichTrap === 3) { // 1/3 chance to die instantly
-            $("ul").append(`<li class="log"><div>${trappedTribute.name} fell into ${trapSetter.name}'s trap and died instantly.</div></li>`);
-            trappedTribute.KillTribute(); // kill the tribute
+            $("ul").append(`<li class="log"><div class="bold">${trappedTribute.name} fell into ${trapSetter.name}'s trap and died instantly.</div></li>`);
             trapSetter.AddKill(trappedTribute); // award a kill to the trap setter and store the killed tribute
+            trappedTribute.causeOfDeath = `trap by ${trapSetter.name}`; // set the cause of death
             HandleDeath(trappedTribute); // handle death of the tribute
         }
     }
@@ -348,6 +454,18 @@ $(document).ready(function() {
                         (risk * 1.25) +
                         (survival * 1.2);
                     break;
+                case "cheater":
+                    weight =
+                        (luck * 0*6) +
+                        (risk * 1.3);
+                    break;
+                case "monsterEncounter":
+                    weight =
+                        (luck * 0.85) +
+                        (risk * 1.2) +
+                        (speed * 0.7) +
+                        (survival * 0.9);
+                    break;
             }
 
 
@@ -365,10 +483,10 @@ $(document).ready(function() {
     }
 
     function HandleDamage(tribute, damage){
-        if (tribute.DoDamage(damage).medKitUsed){
-            setTimeout(function () {
-                $("ul").append(`<li class="log"><div>${tribute.name} used a medkit and healed 40 HP. ${tribute.name} now has ${tribute.hp} HP.</div></li>`);
-            }, 250);
+        if (tribute.DoDamage(damage).medKitUsed){ // apply the damage and check if a medkit was used
+            if(tribute.isAlive){ // verify the tribute is still alive
+                $("ul").append(`<li class="log"><div>${tribute.name} used a medkit and healed 40 HP during this battle.</div></li>`);
+            }
         }
     }
 
@@ -382,19 +500,23 @@ $(document).ready(function() {
 
     }
 
-    function HandleDeath(tribute)
-    {
+    function HandleDeath(tribute){
+        if(tribute.isAlive){
+            tribute.KillTribute();
+        }
         RemoveTributeFromAliveList(tribute); // if the tribute is dead, remove it from the aliveTributes array
         PlayKillSound(); // play the canon sound
     }
 
-    function CombatTributes(tribute1, tribute2, isStartOfGame = false) { // possibly add escaping later?
+    function CombatTributes(tribute1, tribute2, isStartOfGame = false, isEndGame = false) { // possibly add escaping later?
         if (tribute1.isAlive && tribute2.isAlive) { // check if both tributes are alive
             let damageMode;
             if (isStartOfGame == true) { // if it's the start of the game, also handle chance to find items to simulate bloodbath
-                damageMode = Math.floor(Math.random() * 7) + 1
+                damageMode = ReturnRandomNumber(1, 7);
+            } else if (isEndGame == true){
+                damageMode = ReturnRandomNumber(3, 4);
             } else {
-                damageMode = Math.floor(Math.random() * 5) + 1;
+                damageMode = ReturnRandomNumber(1, 5);
             }
 
             if (damageMode === 1 || damageMode === 2) { // make both tributes do damage to each other
@@ -405,19 +527,23 @@ $(document).ready(function() {
                 HandleDamage(tribute2, damageToTribute2);
 
                 if (tribute1.isAlive === false && tribute2.isAlive === true) { // if tribute1 is dead and tribute2 is alive
-                    $("ul").append(`<li class="log"><div>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div class="bold">${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
                     tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
+                    tribute1.causeOfDeath = `killed by ${tribute2.name}`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
                 } else if (tribute1.isAlive === true && tribute2.isAlive === false) { // if tribute1 is alive and tribute2 is dead
-                    $("ul").append(`<li class="log"><div>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} died.</div><div>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} died.</div><div>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
                     tribute1.AddKill(tribute2); // award a kill to tribute1
+                    tribute2.causeOfDeath = `killed by ${tribute1.name}`; // set the cause of death
                     HandleDeath(tribute2); // handle death of tribute2
                 } else if (tribute1.isAlive === true && tribute2.isAlive === true) { // if both tributes are alive
                     $("ul").append(`<li class="log"><div>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
                 } else { // if both tributes are dead
-                    $("ul").append(`<li class="log"><div>${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} died.</div><div>${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${tribute1.name} attacks ${tribute2.name} for ${damageToTribute2} damage. ${tribute2.name} died.</div><div class="bold">${tribute2.name} attacks ${tribute1.name} for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
                     tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
                     tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
+                    tribute1.causeOfDeath = `killed by ${tribute2.name}`; // set the cause of death
+                    tribute2.causeOfDeath = `killed by ${tribute1.name}`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
                     setTimeout(function () { // delay handling death of tribute2 a bit to delay the canon sound
                         HandleDeath(tribute2); // handle death of tribute2
@@ -429,8 +555,9 @@ $(document).ready(function() {
                 let damage = CalculateDamage(attacker); // calculate the damage of the attacker
                 HandleDamage(damageTo, damage); // handle the damage of the tribute that takes damage
                 if (damageTo.isAlive === false) { // if the tribute that took damage is dead
-                    $("ul").append(`<li class="log"><div>${attacker.name} attacks ${damageTo.name} for ${damage} damage. ${damageTo.name} has died.</li></div>`);
+                    $("ul").append(`<li class="log"><div class="bold">${attacker.name} attacks ${damageTo.name} for ${damage} damage. ${damageTo.name} has died.</li></div>`);
                     attacker.AddKill(damageTo); // award a kill to the attacker and store the killed tribute
+                    damageTo.causeOfDeath = `killed by ${attacker.name}`; // set the cause of death
                     HandleDeath(damageTo); // handle death of the tribute that died
                 } else { // if the tribute that took damage is alive
                     $("ul").append(`<li class="log"><div>${attacker.name} attacks ${damageTo.name} for ${damage} damage. ${damageTo.name} now has ${damageTo.hp} HP.</li></div>`);
@@ -438,10 +565,10 @@ $(document).ready(function() {
             } else if (damageMode === 4) { // 1 tribute gets killed instantly by the other
                 let victim = Math.random() < 0.5 ? tribute1 : tribute2; // pick a random tribute to be the victim
                 let killer = victim === tribute1 ? tribute2 : tribute1; // pick the other tribute as the killer
-                victim.KillTribute(); // kill the victim
                 killer.AddKill(victim); // award a kill to the killer and store the killed tribute
+                victim.causeOfDeath = `killed by ${killer.name}`; // set the cause of death
                 HandleDeath(victim); // handle death of the victim
-                $("ul").append(`<li class="log"><div>${victim.name} has been killed instantly by ${killer.name}!</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${victim.name} has been killed instantly by ${killer.name}!</div></li>`);
             } else if (damageMode === 5) { // make 2 tributes fight until 1 dies
                 let fightLog = `<li class="log">`;
                 while (tribute1.isAlive === true && tribute2.isAlive === true) { // as long as both tributes are alive, make them fight
@@ -455,12 +582,14 @@ $(document).ready(function() {
                 }
                 if (!tribute1.isAlive) { // if tribute1 is dead
                     tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                    fightLog += `<div>${tribute1.name} was killed by ${tribute2.name}!</div>`;
+                    fightLog += `<div class="bold">${tribute1.name} was killed by ${tribute2.name}!</div>`;
+                    tribute1.causeOfDeath = `killed by ${tribute2.name}`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
                 }
                 if (!tribute2.isAlive) { // if tribute2 is dead
                     tribute1.AddKill(tribute2); // award a kill to tribute1
-                    fightLog += `<div>${tribute2.name} was killed by ${tribute1.name}!</div>`;
+                    fightLog += `<div class="bold">${tribute2.name} was killed by ${tribute1.name}!</div>`;
+                    tribute2.causeOfDeath = `killed by ${tribute1.name}`; // set the cause of death
                     HandleDeath(tribute2); // handle death of tribute2
                 }
                 fightLog += `</li>`;
@@ -495,9 +624,8 @@ $(document).ready(function() {
         function ApplyDamage() {
             HandleDamage(chosenTribute, animalDamage);
             if (chosenTribute.isAlive === false) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and died.</div></li>`);
-                RemoveTributeFromAliveList(chosenTribute); // if the tribute is dead, remove it from the aliveTributes array
-                PlayKillSound(); // play the canon sound
+                $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} was attacked by a pack of wild animals and died.</div></li>`);
+                HandleDeath(chosenTribute);
             } else {
                 $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and took ${animalDamage} damage. ${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
             }
@@ -508,19 +636,17 @@ $(document).ready(function() {
         } else if (random === 2) { // 1/10 chance take no damage
             $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to escape.</div></li>`);
         } else if (random === 3) { // 1/10 chance to die instantly
-            $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals and died instantly!</div></li>`);
-            chosenTribute.KillTribute(); // kill the tribute
-            RemoveTributeFromAliveList(chosenTribute); // remove the tribute from the aliveTributes array
-            PlayKillSound(); // play the canon sound
+            $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} was attacked by a pack of wild animals and died instantly!</div></li>`);
+            HandleDeath(chosenTribute);
         } else if (random >= 4 && random <= 10) { // 7/10 chance for stat check
             if (chosenTribute.power >= 8) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to fight them off (power check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to fight them off.</div></li>`);
             } else if (chosenTribute.speed >= 8) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to escape (speed check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to escape.</div></li>`);
             } else if (chosenTribute.survivalSkills >= 8) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to hide (survival skills check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to hide.</div></li>`);
             } else if (chosenTribute.intelligence >= 8) {
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to trick them (intelligence check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by a pack of wild animals but managed to trick them.</div></li>`);
             } else {
                 ApplyDamage(); // if the tribute fails all checks, apply damage
             }
@@ -616,7 +742,8 @@ $(document).ready(function() {
         function AtePoisonedFood(tribute) {
             HandleDamage(tribute, hpDifference);
             if (!tribute.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${tribute.name} ate poisoned food and died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${tribute.name} ate poisoned food and died.</div></li>`);
+                tribute.causeOfDeath = `poisoned food`; // set the cause of death
                 HandleDeath(tribute); // handle death of the tribute
             } else {
                 $("ul").append(`<li class="log"><div>${tribute.name} ate poisoned food and took ${hpDifference} damage. ${tribute.name} now has ${tribute.hp} HP.</div></li>`);
@@ -631,15 +758,16 @@ $(document).ready(function() {
             HandleHeal(chosenTribute, hpDifference);
         } else{ // 2/5 chance for stat check
             if(chosenTribute.survivalSkills >= 7){ // if the tribute has high survival skills, they wil find healthy food
-                $("ul").append(`<li class="log"><div>${chosenTribute.name} found food and healed ${hpDifference} HP. ${chosenTribute.name} now has ${chosenTribute.hp} HP (survival skills check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${chosenTribute.name} found food and healed ${hpDifference} HP. ${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
                 HandleHeal(chosenTribute, hpDifference);
             } else{ // if the tribute fails the survival skills check, they will eat poisoned food
                 HandleDamage(chosenTribute, hpDifference);
                 if (!chosenTribute.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} ate poisoned food and died (survival skills check).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} ate poisoned food and died.</div></li>`);
+                    chosenTribute.causeOfDeath = `poisoned food`; // set the cause of death
                     HandleDeath(chosenTribute); // handle death of the tribute
                 } else {
-                    $("ul").append(`<li class="log"><div>${chosenTribute.name} found food but it was poisoned. ${chosenTribute.name} now has ${chosenTribute.hp} HP (survival skills check).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} found food but it was poisoned. ${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
                 }
             }
         }
@@ -733,7 +861,6 @@ $(document).ready(function() {
     }
 
     function Trained(counter = 0) {
-
         if (counter > 200) {// if it's likely (after trying over 10 times) every tribute has maxed out their stats, stop the function
             $("ul").append(`<li class="log"><div>An earthquake hit the arena, all tributes lose 10HP.</div></li>`);
             for (let i = 0; i < aliveTributes.length; i++) {
@@ -810,10 +937,11 @@ $(document).ready(function() {
         let injuryDamage = ReturnRandomNumber(5, 20);
         HandleDamage(chosenTribute, injuryDamage);
         if (chosenTribute.isAlive === false) { // check if the tribute is dead
-            $("ul").append(`<li class="log"><div>${chosenTribute.name} got injured and died to their injuries.</div></li>`);
+            $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} got injured and died to their injuries.</div></li>`);
+            chosenTribute.causeOfDeath = `injuries`; // set the cause of death
             HandleDeath(chosenTribute);
         } else {
-            $("ul").append(`<li class="log"><div>${chosenTribute.name} got injured and took ${injuryDamage} damage.</div><div>${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>${chosenTribute.name} got injured and took ${injuryDamage} damage. ${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
         }
     }
 
@@ -824,7 +952,7 @@ $(document).ready(function() {
         let ambushedDamage = CalculateDamage(ambushedTribute);
         let random = ReturnRandomNumber(1, 8);
 
-        function TakeDamage(damageTaker, damage) {
+        function TakeDamage(damageTaker, damage, damageGiver) {
             HandleDamage(damageTaker, damage);
 
             if (!damageTaker.isAlive) { // check if the tribute is dead
@@ -834,44 +962,47 @@ $(document).ready(function() {
         }
 
         if (random === 1 || random === 2) { // 2/8 chance to take damage
-            TakeDamage(ambushedTribute, ambusherDamage); // apply damage to the ambushed tribute
+            TakeDamage(ambushedTribute, ambusherDamage, ambusher); // apply damage to the ambushed tribute
             if (!ambushedTribute.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${damageTaker.name} was ambushed by ${damageGiver.name} and died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} was ambushed by ${ambusher.name} and died.</div></li>`);
+                ambushedTribute.causeOfDeath = `ambushed by ${ambusher.name}`; // set the cause of death
             } else {
-                $("ul").append(`<li class="log"><div>${damageTaker.name} was ambushed by ${damageGiver.name} and took ${ambusherDamage} damage. ${damageTaker.name} now has ${damageTaker.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
             }
-            $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} and died.</div></li>`);
         } else if (random === 3) { // 1/8 chance take no damage
             $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to escape.</div></li>`);
         } else if (random === 4 || random === 5) { // 2/8 chance to to do stat check
             if (ambushedTribute.survivalSkills >= 8){ // if the ambushed tribute has passes the survival skills check, do nothing
-                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to escape (survival skills check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to escape.</div></li>`);
             } else if (ambushedTribute.speed >= 8){ // if the ambushed tribute passes the speed check, do nothing
-                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to run away (survival skills check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to run away.</div></li>`);
             } else if (ambushedTribute.combatSkills >= 8){ // // if the ambushed tribute passes the combat skills check, fight back
-                TakeDamage(ambusher, ambushedDamage); // apply damage to the ambusher tribute
+                TakeDamage(ambusher, ambushedDamage, ambushedTribute); // apply damage to the ambusher tribute
                 if (!ambusher.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back and killed them (combat skills check).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back and killed them.</div></li>`);
+                    ambusher.causeOfDeath = `failed ambush on ${ambushedTribute.name}`; // set the cause of death
                 } else {
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP (combat skills check).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
                 }
             }
         } else{ // 3/8 chance to compare stats
             if (ambushedTribute.combatSkills > ambusher.combatSkills) { // if the ambushed tribute has more power than the ambusher
-                TakeDamage(ambusher, ambushedDamage); // apply damage to the ambusher tribute
+                TakeDamage(ambusher, ambushedDamage, ambushedTribute); // apply damage to the ambusher tribute
                 if (!ambusher.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back and killed them (higher combat skills).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back and killed them.</div></li>`);
+                    ambusher.causeOfDeath = `failed ambush on ${ambushedTribute.name}`; // set the cause of death
                 } else {
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP (higher combat skills).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
                 }
             } else if (ambushedTribute.speed > ambusher.speed) { // if the ambushed tribute has more speed than the ambusher
-                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to outrun them (higher speed stat).</div></li>`);
+                $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} but managed to outrun them.</div></li>`);
             } else { // if the ambushed tribute fails both checks, apply damage
-                TakeDamage(ambushedTribute, ambusherDamage); // apply damage to the ambushed tribute
+                TakeDamage(ambushedTribute, ambusherDamage, ambusher); // apply damage to the ambushed tribute
                 if (!ambushedTribute.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} and died (lost stat comparison).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} was ambushed by ${ambusher.name} and died.</div></li>`);
+                    ambushedTribute.causeOfDeath = `ambushed by ${ambusher.name}`; // set the cause of death
                 } else {
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP (lost stat comparison).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} was ambushed by ${ambusher.name} and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
                 }
             }
         }
@@ -909,22 +1040,24 @@ $(document).ready(function() {
         } else if(random === 3){ // 1/7 chance to get ambushed with guaranteed success
             HandleDamage(rester, attackerDamage); // apply damage to the rester
             if (!rester.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${rester.name} rested but got ambushed by ${attacker.name} and died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${rester.name} rested but got ambushed by ${attacker.name} and died.</div></li>`);
                 attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
+                rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
                 HandleDeath(rester); // handle death of the tribute that died
             } else{
                 $("ul").append(`<li class="log"><div>${rester.name} rested but got ambushed by ${attacker.name} and lost ${attackerDamage} HP.</div></li>`);
             }
         } else if(random === 4 || random === 5){ // 2/7 chance to get ambushed with a chance to escape
             if(rester.speed >= 8){ // if the tribute passes the speed check, do nothing
-                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but managed to escape (speed check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but managed to escape.</div></li>`);
             } else if(rester.survivalSkills >= 8){ // if the tribute passes the survival skills check, do nothing
-                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but woke up in time to escape (survival skills check).</div></li>`);
+                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but woke up in time to escape.</div></li>`);
             } else{ // if the rester fails both checks, apply damage
                 HandleDamage(rester, attackerDamage); // apply damage to the rester
                 if (!rester.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${rester.name} rested but got ambushed by ${attacker.name} and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} rested but got ambushed by ${attacker.name} and died.</div></li>`);
                     attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
+                    rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
                     $("ul").append(`<li class="log"><div>${rester.name} rested but got ambushed by ${attacker.name} and lost ${attackerDamage} HP.</div></li>`);
@@ -934,24 +1067,78 @@ $(document).ready(function() {
             if(rester.survivalSkills > 5 && rester.combatSkills > attacker.combatSkills){ // if the tribute passes a surival check and has more combat skills than the attacker, attack back
                 HandleDamage(attacker, resterDamage); // apply damage to the ambusher tribute
                 if (!attacker.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but fought back and killed them (survival skills check + higher combat skills stat).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} rested and got ambushed by ${attacker.name} but fought back and killed them.</div></li>`);
                     rester.AddKill(attacker); // award a kill to the killer and store the killed tribute
+                    attacker.causeOfDeath = `failed attack on resting ${rester.name}`; // set the cause of death
                     HandleDeath(attacker); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but fought back, dealing ${attackerDamage} damage. ${attacker.name} now has ${attacker.hp} HP (survival skills check + higher combat skills stat).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but fought back, dealing ${attackerDamage} damage. ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
                 }
             } else if(rester.speed > attacker.speed){ // if the tribute has more speed than the ambusher, do nothing
-                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but managed to escape (higher speed stat).</div></li>`);
+                $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} but managed to escape.</div></li>`);
             } else{ // if the tribute fails both checks, apply damage
                 HandleDamage(rester, attackerDamage); // apply damage to the ambushed tribute
                 if (!rester.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} and died (lost stat comparison).</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} rested and got ambushed by ${attacker.name} and died.</div></li>`);
                     attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
+                    rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
-                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} and lost ${attackerDamage} HP (lost stat comparison).</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} rested and got ambushed by ${attacker.name} and lost ${attackerDamage} HP.</div></li>`);
                 }
             }
+        }
+    }
+
+    function EncounterMonster(){
+        let chosenTribute = ReturnTribute("monsterEncounter");
+        let random = ReturnRandomNumber(1, 5);
+
+        switch(random){
+            case 1: // 1 / 5 chance to die instantly
+                $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} got killed by an end phase monster.</div></li>`);
+                chosenTribute.causeOfDeath = `end game monster`;
+                HandleDeath(chosenTribute);
+                break;
+            case 2:
+            case 3: // 2 / 5 chance to do stat check
+                let randomSmallDamage = ReturnRandomNumber(5, 15);
+                if(chosenTribute.speed >= 8){
+                    HandleDamage(chosenTribute, randomSmallDamage);
+                    if(chosenTribute.isAlive){
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but escaped. They only lost ${randomSmallDamage} HP.</div></li>`);
+                    } else{
+                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} tried to run but got killed by an end phase monster.</div></li>`);
+                        chosenTribute.causeOfDeath = `end game monster`;
+                        HandleDeath(chosenTribute);
+                    }
+                } else if (chosenTribute.luck >= 8){
+                    HandleDamage(chosenTribute, randomSmallDamage);
+                    if (chosenTribute.isAlive) {
+                        $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but succesfully played dead. They only lost ${randomSmallDamage} HP.</div></li>`);
+                    } else {
+                        $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} tried to play dead but got killed by an end phase monster.</div></li>`);
+                        chosenTribute.causeOfDeath = `end game monster`;
+                        HandleDeath(chosenTribute);
+                    }
+                } else{
+                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} got killed by an end phase monster.</div></li>`);
+                    chosenTribute.causeOfDeath = `end game monster`;
+                    HandleDeath(chosenTribute);
+                }
+                break;
+            case 4:
+            case 5:
+                let randomDamage = ReturnRandomNumber(45, 80);
+                HandleDamage(chosenTribute, randomDamage);
+                if (chosenTribute.isAlive) {
+                    $("ul").append(`<li class="log"><div>${chosenTribute.name} was attacked by an end phase monster but survived. They lost ${randomDamage} HP.</div></li>`);
+                } else {
+                    $("ul").append(`<li class="log"><div class="bold">${chosenTribute.name} was attacked by an end phase monster and died.</div></li>`);
+                    chosenTribute.causeOfDeath = `end game monster`;
+                    HandleDeath(chosenTribute);
+                }
+                break;
         }
     }
 
@@ -962,13 +1149,21 @@ $(document).ready(function() {
 
     // to implement
     function SuperRareRandomEvent() {
+        let random = ReturnRandomNumber(1, 10);
 
+        switch (random){
+            case 1:
+                let cheater = ReturnTribute("cheater");
+                $("ul").append(`<li class="log"><div class="bold">${cheater.name} was caught cheating and got killed by the gamemakers!</div></li>`);
+                cheater.causeOfDeath = `caught cheating`;
+                HandleDeath(cheater);
+                break;
+        }
     }
 
     function ScrollToBottom() {
         $("html, body").animate({ scrollTop: $(document).height() }, 300);
     }
-    
 
     function CheckToRemoveTributesFromList() { // function to make sure the aliveTributes array is up to date
         for (let i = 0; i < aliveTributes.length; i++) {
@@ -1057,15 +1252,17 @@ $(document).ready(function() {
 
     $(document).on("click", "#advanceToNext", function () {
         let randomEvents = ReturnRandomNumber(3, 14); // how many events will happen this day
-        let randomForWhenEndPhase = ReturnRandomNumber(3, 8); // how many tributes need to be alive for the end phase to start
+        let randomForWhenEndPhase = ReturnRandomNumber(5, 9); // how many tributes need to be alive for the end phase to start
         whichDay += 1;
         $("#eventLog").empty();
-        $("#eventLog").append(`<li class="log" id="Announcement"><div>Day ${whichDay} has started!</div></li>`);
+        $("#eventLog").append(`<li class="log Announcement"><div>Day ${whichDay} has started!</div></li>`);
 
         if (aliveTributes.length > randomForWhenEndPhase) {
+            //NukeTributes(); //enable this when a lot of tributes need to at start for testing purposes
             LogShit(randomEvents, false);
         } else { // end phase
-
+            $("#eventLog").append("<li class='log Announcement'><div>The arena starts shrinking, the end phase has begun!</div></li>");
+            LogEndPhase();
         }
     });
 
@@ -1095,12 +1292,16 @@ $(document).ready(function() {
 
             if (!maleTribute.isAlive) { // if the male tribute is dead, make the image red
                 $("#image" + district + "M").attr("src", "images/maleDead.png");
-                $("#image" + district + "M").attr("id", "deadTribute");
+                $("#image" + district + "M").addClass("deadTribute");
+                $("#deathCauseField" + district + "M").removeClass("hidden");
+                $("#deathCauseField" + district + "M").addClass("showFlex");
             }
 
             if (!femaleTribute.isAlive) { // if the female tribute is dead, make the image red
                 $("#image" + district + "F").attr("src", "images/femaleDead.png");
-                $("#image" + district + "F").attr("id", "deadTribute");
+                $("#image" + district + "F").addClass("deadTribute");
+                $("#deathCauseField" + district + "F").removeClass("hidden");
+                $("#deathCauseField" + district + "F").addClass("showFlex");
             }
 
             for (let j = 0; j < fields.length; j++) { // loop through all fields (all info to display)
@@ -1110,8 +1311,10 @@ $(document).ready(function() {
             }
 
             if(!maleTribute.isAlive && !femaleTribute.isAlive){ // if both tributes are dead, make the district bar red
-                $(`#div${i}`).css("background-color", "darkred");
-                $(`#div${i}`).css("color", "white");
+                $(`#div${district}`).addClass("deadDistrict");
+            } else if(!maleTribute.isAlive || !femaleTribute.isAlive){
+                $(`#div${district}`).removeClass("halfDeadDistrict");
+                $(`#div${district}`).addClass("halfDeadDistrict");
             }
         }
     }
@@ -1122,8 +1325,8 @@ $(document).ready(function() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function ReturnRandomTimer(isStart) {
-        if (isStart) { // if it's the start of the game, return a random timer between 0.5 and 2 seconds
+    function ReturnRandomTimer(shortTimer) {
+        if (shortTimer) { // if it's the start of the game, return a random timer between 0.5 and 2 seconds
             return ReturnRandomNumber(500, 2000);
         } else { // if it's not the start of the game, return a random timer between 2.5 and 3.75 seconds
             return ReturnRandomNumber(2500, 3750);

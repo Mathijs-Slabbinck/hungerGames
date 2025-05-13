@@ -116,7 +116,8 @@ function GenerateDistricts(beforeGame = true) {
             $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="medkitField${index}F"><p class="statLeft">medkits: </p><p id="medKits${index}F"></p></div>`);
             $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv" id="killField${index}M"><p class="statLeft">kills: </p><p id="kills${index}M"></p></div>`);
             $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv" id="killField${index}F"><p class="statLeft">kills: </p><p id="kills${index}F"></p></div>`);
-
+            $districtSection.find(`#tributeInfo${index}M`).append(`<div class="d-flex justify-content-between statsDiv hidden" id="deathCauseField${index}M"><p class="statLeft">cause of death: </p><p id="causeOfDeath${index}M"></p></div>`);
+            $districtSection.find(`#tributeInfo${index}F`).append(`<div class="d-flex justify-content-between statsDiv hidden" id="deathCauseField${index}F"><p class="statLeft">cause of death: </p><p id="causeOfDeath${index}F"></p></div>`);
         }
 
         switch (index) {

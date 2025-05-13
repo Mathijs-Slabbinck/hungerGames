@@ -318,12 +318,21 @@ footer{
     max-width: 70%;
 }
 
-#deadTribute{
+.deadTribute{
   filter: drop-shadow(0 0 4px black);
 }
 
-#Announcement{
+.Announcement{
     background-color: darkGray;
+}
+
+.gold{
+    background-color: goldenrod;
+    border: 2px solid black;
+}
+
+#finish{
+    margin-bottom: 3vh;
 }
 
 html {
@@ -337,4 +346,26 @@ html {
 #tributeFormContainer{
     max-width: 95%;
     margin: 2vh auto 0 auto;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.showFlex{
+    display: flex !important;
+}
+
+.deadDistrict{
+    background-color: darkred !important;
+    color: white;
+}
+
+.halfDeadDistrict {
+    background-color: darkorange !important;
+    color: white;
+}
+
+.bold{
+    font-weight: bold;
 }

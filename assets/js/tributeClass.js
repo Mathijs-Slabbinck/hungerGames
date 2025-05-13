@@ -19,6 +19,7 @@ class Tribute {
       this.isAlive = true;
       this.kills = 0;
       this.killedTributes = [];
+      this.causeOfDeath = "none";
     }
 
     set name(value) {
@@ -227,13 +228,21 @@ class Tribute {
     this._hasArmor = value;
   }
 
-    get kills() {
-      return this._kills;
-    }
+  get kills() {
+    return this._kills;
+  }
 
-    set kills(value) {
-      this._kills = value;
-    }
+  set kills(value) {
+    this._kills = value;
+  }
+
+  get causeOfDeath() {
+    return this._causeOfDeath;
+  }
+
+  set causeOfDeath(value) {
+    this._causeOfDeath = value;
+  }
 
     // Do damage to the tribute
   DoDamage(damageDone) {
