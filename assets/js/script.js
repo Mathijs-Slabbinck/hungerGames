@@ -63,9 +63,6 @@ $(document).ready(function() {
                             HandleDeath(tribute2);
                             ScrollToBottom();
                         }, delay - counterDelay);
-                        setTimeout(function () {
-                            PlayKillSound(); // play it again after short delay to make sure 2 canon shots can be heard
-                        }, 750);
                     } else { // 1/4 chance more tributes stepped off their plate
                         let randomFor4Tributes = ReturnRandomNumber(1, 4);
                         let tribute3 = ReturnTribute("steppedOfPlate");
@@ -253,7 +250,7 @@ $(document).ready(function() {
             }
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
-        }, delay + 200);
+        }, delay + 450); // small delay to ensure the announcement appears after the last event
     }
 
     function LogEndPhase() {
@@ -1453,7 +1450,22 @@ $(document).ready(function() {
                 }
                 break;
             case 4:
-                let howManyTributes = ReturnRandomNumber(1, 7); // select 1 to 7 tributes to be caught in the fire
+                // this part prevents the game from crashing if there aren't enough tributes alive in the while loop
+                let maxTributes = aliveTributes.length; // get the number of alive tributes
+                if (maxTributes < 7) { // if there are less than 7 tributes, set the max tributes to the number of alive tributes -2 (to avoid killing the last 2 tributes)
+                    let maxTributes = aliveTributes.length-2;
+                    if(maxTributes === 3){ // if there are 3 tributes, set the max tributes to 1 (to avoid killing the last 2 tributes)
+                        maxTributes = 1;
+                    }
+                } else{ // if there are more than 7 tributes, set the max tributes to 7
+                    if(maxTributes > 9) { // if there are more than 9 tributes, set the max tributes to 7
+                        maxTributes = 7;
+                    } else{
+                        maxTributes = 5;
+                    }
+                }
+
+                let howManyTributes = ReturnRandomNumber(1, maxTributes); // select 1 to 7 tributes to be caught in the fire
                 let wildFireTributesArray = []; // initialize an empty array to store the tributes that are caught in the fire  || I use an array to make sure the tributes are not repeated
                 for (let i = 0; i < howManyTributes; i++) { // loop through the number of tributes to be caught in the fire
                     let wildFireTribute = ReturnRandomNumber("wildFire"); // select a random tribute
