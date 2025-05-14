@@ -583,14 +583,14 @@ $(document).ready(function() {
                         (luck * 0.25) -
                         (survival * 0.35) -
                         (speed * 0.3);
-                        break;
+                    break;
                 case "dream":
                     weight =
                         (risk * 1.2) + // plus here since intelligence should RAISE chance but only a tiny bit
                         (intelligence * 0.2) -
                         (luck * 0.2) -
                         (survival * 0.25);
-                        break;
+                    break;
                 case "steppedOfPlate":
                     weight =
                         (risk * 1.2) + // plus here since speed should RAISE chance but only a tiny bit
@@ -604,6 +604,13 @@ $(document).ready(function() {
                         (popularity * 0.4) -
                         (speed * 0.4) -
                         (luck * 0.2);
+                    break;
+                case "steppedOnMine":
+                    weight =
+                        (risk * 1.2) -
+                        (speed * 0.2) -
+                        (luck * 0.2) -
+                        (intelligence * 0.3);
                     break;
             }
 
@@ -1354,7 +1361,7 @@ $(document).ready(function() {
 
     // to implement
     function SuperRareRandomEvent() {
-        let random = ReturnRandomNumber(1, 9);
+        let random = ReturnRandomNumber(1, 10);
 
         switch (random) {
             case 1:
@@ -1367,7 +1374,7 @@ $(document).ready(function() {
             case 3:
             case 4:
                 let struckDownTribute = ReturnTribute("lightning");
-                $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died!</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died instantly!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
                 HandleDeath(struckDownTribute);
                 break;
@@ -1407,6 +1414,12 @@ $(document).ready(function() {
                 $("ul").append(`<li class="log"><div class="bold">A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}] instantly!</div></li>`);
                 droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
                 HandleDeath(droneCrashTribute);
+                break;
+            case 10:
+                let mineTribute = ReturnTribute("steppedOnMine");
+                $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
+                mineTribute.causeOfDeath = `stepped on a mine`;
+                HandleDeath(mineTribute);
                 break;
         }
     }
