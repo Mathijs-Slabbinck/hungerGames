@@ -42,15 +42,15 @@ function GenerateDistricts(beforeGame = true) {
 
         if (beforeGame) {
             if (stat === "name") {
-                return `<input type="text" placeholder="${label}" class="col-10 name" id="${id}" required>`;
+                return `<input type="text" placeholder="${label}" class="col-10 name" name="${id}" id="${id}" required>`;
             } else {
-                return `<input type="number" min="1" max="10" placeholder="${label}" class="col-10 stat" id="${id}" required>`;
+                return `<input type="number" min="1" max="10" placeholder="${label}" name="${id}" class="col-10 stat" id="${id}" required>`;
             }
         } else {
             if(stat != "name"){
-                return `<div class="d-flex justify-content-between statsDiv" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
+                return `<div class="d-flex justify-content-between statsDiv" name="${id}" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
             } else{
-                return `<div class="d-flex justify-content-center" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
+                return `<div class="d-flex justify-content-center" name="${id}" id="${stat}Field${index}${gender}"><p class="statLeft">${label}: </p><p id="${id}"></p></div>`;
             }
         }
     }
@@ -142,6 +142,7 @@ function GenerateDistricts(beforeGame = true) {
 
     if (beforeGame) {
         $container.append(`
+            <div class="row align-items-center"><p class="col-10" id="skipIntroText">Skip intro?</p><button type="button" class="col-2" id="skipIntro">NO</button></div>
             <div class="row" id="fillInRandomly"><p class="col-12">fill empty fields randomly</p></div>
             <div class="row" id="clearFields"><p class="col-12">clear all fields</p></div>
             <div class="row" id="submit"><p class="col-12">submit info</p></div>

@@ -549,8 +549,8 @@ $(document).ready(function() {
         for (let i = 0; i < aliveTributes.length; i++) {
             HandleDamage(aliveTributes[i], damage);
             if (!aliveTributes[i].isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div>${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
-                aliveTributes[i].causeOfDeath = `small earthquake`
+                $("ul").append(`<li class="log"><div class="bold">${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
+                aliveTributes[i].causeOfDeath = `earthquake`
                 HandleDeath(aliveTributes[i]);
             }
         }
@@ -594,9 +594,9 @@ $(document).ready(function() {
                     tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}]`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
                     HandleDeath(tribute2); // handle death of tribute2
-                    setTimeout(function () { // delay handling death of tribute2 a bit to delay the canon sound
-                        PlayKillSound(); // play the Killsound again to make sure there are 2 canon shots
-                    }, 1500);
+                    setTimeout(function () {
+                        PlayKillSound(); // play it again after short delay to make sure 2 canon shots can be heard
+                    }, 750);
                 }
             } else if (damageMode === 3) { // make 1 tribute do damage to another tribute
                 let damageTo = Math.random() < 0.5 ? tribute1 : tribute2; // pick a random tribute to take damage
@@ -660,9 +660,10 @@ $(document).ready(function() {
         return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
     }
 
-    function PlayKillSound(){
-        canonAudio.currentTime = 0; // rewind to start
-        canonAudio.play().catch(e => console.warn("Audio play failed:", e));
+    function PlayKillSound() {
+        const canonInstance = canonAudio.cloneNode(); // make a new copy
+        canonInstance.volume = canonAudio.volume;     // optional: inherit volume
+        canonInstance.play().catch(e => console.warn("Audio play failed:", e));
     }
 
     function AnimalAttack() {
@@ -1433,6 +1434,16 @@ $(document).ready(function() {
         $("#tributeDisplayList").hide();
         $("#eventLog").show();
     });
+
+    $(document).on("click", "#skipIntro", function (){
+        if(!skipIntro){
+            skipIntro = true;
+            $("#skipIntro").text("YES");
+        } else{
+            skipIntro = false;
+            $("#skipIntro").text("NO");
+        }
+   });
 
     function FillInData() {
         for (let i = 0; i < 24; i += 2) { // loop trough all tributes (12 districts, 2 tributes each) by looping trough even values of i
