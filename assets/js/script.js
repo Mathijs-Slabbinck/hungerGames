@@ -250,6 +250,7 @@ $(document).ready(function() {
             }
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
+            ScrollToBottom();
         }, delay + 450); // small delay to ensure the announcement appears after the last event
     }
 
