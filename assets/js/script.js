@@ -1165,14 +1165,14 @@ $(document).ready(function() {
                     HandleDeath(ambusher); // handle death of the tribute that died
                     ambushedTribute.AddKill(ambusher); // award a kill to the killer and store the killed tribute
                 } else {
-                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
                 }
             } else if (ambushedTribute.speed > ambusher.speed) { // if the ambushed tribute has more speed than the ambusher
                 $("ul").append(`<li class="log"><div>${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to outrun them.</div></li>`);
             } else { // if the ambushed tribute fails both checks, apply damage
                 TakeDamage(ambushedTribute, ambusherDamage, ambusher); // apply damage to the ambushed tribute
                 if (!ambushedTribute.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and died.</div></li>`);
                     ambushedTribute.causeOfDeath = `ambushed by ${ambusher.name} [${ambusher.district}]`; // set the cause of death
                 } else {
                     $("ul").append(`<li class="log"><div>${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
@@ -1287,7 +1287,7 @@ $(document).ready(function() {
             if(rester.survivalSkills > 5 && rester.combatSkills > attacker.combatSkills){ // if the tribute passes a surival check and has more combat skills than the attacker, attack back
                 HandleDamage(attacker, resterDamage); // apply damage to the ambusher tribute
                 if (!attacker.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} ${attacker.district} but fought back and killed them.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back and killed them.</div></li>`);
                     rester.AddKill(attacker); // award a kill to the killer and store the killed tribute
                     attacker.causeOfDeath = `failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
                     HandleDeath(attacker); // handle death of the tribute that died
