@@ -545,14 +545,20 @@ $(document).ready(function() {
         PlayKillSound(); // play the canon sound
     }
 
-    function HandleEarthquake(damage){
+    function HandleEarthquake(damage, causeOfDeathMessage){
         for (let i = 0; i < aliveTributes.length; i++) {
             HandleDamage(aliveTributes[i], damage);
             if (!aliveTributes[i].isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
-                aliveTributes[i].causeOfDeath = `earthquake`
+                aliveTributes[i].causeOfDeath = `causeOfDeathMessage`
                 HandleDeath(aliveTributes[i]);
             }
+        }
+
+        if (aliveTributes.length === 0) {
+            $("ul").append(`<li class="log Announcement"><div>All tributes died; there is no winner this edition!</div></li>`);
+            $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
+            return;
         }
     }
 
@@ -916,7 +922,7 @@ $(document).ready(function() {
         if (counter > 200) {// if it's likely (after trying over 200 times) every tribute has maxed out their stats, stop the function
             let earthquakeDamage = ReturnRandomNumber(10, 25);
             $("ul").append(`<li class="log"><div>A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP.</div></li>`);
-            HandleEarthquake(earthquakeDamage);
+            HandleEarthquake(earthquakeDamage, "small eartquake");
         }
 
         let random = ReturnRandomNumber(1, 3);
@@ -1252,7 +1258,7 @@ $(document).ready(function() {
             case 6:
                 let earthquakeDamage = ReturnRandomNumber(20, 35);
                 $("ul").append(`<li class="log"><div>The arena was hit by an eartquake! All tributes lose ${earthquakeDamage} HP.</div></li>`);
-                HandleEarthquake(earthquakeDamage);
+                HandleEarthquake(earthquakeDamage, "earthquake");
                 break;
             case 7:
                 let dreamerTribute = ReturnTribute("dream");
