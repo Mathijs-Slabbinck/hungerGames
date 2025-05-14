@@ -1061,6 +1061,29 @@ $(document).ready(function() {
         let mercyShower = ReturnTribute("showedMercy");
         let sparedTribute = ReturnTribute("sparedTribute");
         let randomForBackStabbed = ReturnRandomNumber(1, 2);
+        let tries = 0;
+
+        while(mercyShower === sparedTribute){
+            if(aliveTributes.length > 2){
+                sparedTribute = ReturnTribute("sparedTribute");
+                if (tries === 200) { // if the code can't find 2 tributes, should never happen
+                    $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute.`);
+                }
+                tries++;
+            } else if(aliveTributes.length === 2){
+                let randomNumber = ReturnRandomNumber(1, 2);
+                if(randomNumber - 1 === 0){ // check if number is one
+                    mercyShower = aliveTributes[randomNumber];
+                    sparedTribute = aliveTributes[randomNumber +1];
+                } else{ // if random number is 2
+                    mercyShower = aliveTributes[randomNumber];
+                    sparedTribute = aliveTributes[randomNumber - 1];
+                }
+            } else{
+                alert("Critical Error: Only 1 tribute left to show mercy!");
+                throw new Error("Only one tribute left to show mercy!");
+            }
+        }
 
         if (mercyShower.popularity >= 10){ // if the tribute has max popularity
             if (randomForBackStabbed === 1){ // 50% chance to do nothing
@@ -1220,13 +1243,13 @@ $(document).ready(function() {
             case 3:
             case 4:
                 let struckDownTribute = ReturnTribute("lightning");
-                $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
                 HandleDeath(struckDownTribute);
                 break;
             case 5:
             case 6:
-                let earthquakeDamage = ReturnRandomNumber(30, 50);
+                let earthquakeDamage = ReturnRandomNumber(20, 35);
                 $("ul").append(`<li class="log"><div>The arena was hit by an eartquake! All tributes lose ${earthquakeDamage} HP.</div></li>`);
                 HandleEarthquake(earthquakeDamage);
                 break;
