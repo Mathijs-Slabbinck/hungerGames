@@ -612,6 +612,20 @@ $(document).ready(function() {
                         (luck * 0.2) -
                         (intelligence * 0.3);
                     break;
+                case "stolenItem":
+                    weight =
+                        (risk * 1.2) -
+                        (survival * 0.3) -
+                        (luck * 0.2) -
+                        (intelligence * 0.15);
+                        break;
+                case "craftArmor":
+                    weight =
+                        (risk * 1.2) +
+                        (intelligence * 1.5) +
+                        (survival * 1.5) +
+                        (luck * 0.2);
+                    break;
             }
 
 
@@ -1356,12 +1370,97 @@ $(document).ready(function() {
 
     // to implement
     function RareRandomEvent() {
-        // stepped on a mine
+        let random = ReturnRandomNumber(1, 3);
+
+        switch(random){
+            case 1:
+                let mineTribute = ReturnTribute("steppedOnMine");
+                $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
+                mineTribute.causeOfDeath = `stepped on a mine`;
+                HandleDeath(mineTribute);
+                break;
+            case 2:
+                let tributeStolenItem = ReturnTribute("stolenItem");
+
+                if (tributeStolenItem.hasArmor) { // try to take armor first
+                    $("ul").append(`<li class="log"><div>A monkey stole ${tributeStolenItem.name} [${tributeStolenItem.district}]'s armor while they were resting!</div></li>`);
+                    tributeStolenItem.hasArmor = false;
+                    tributeStolenItem.armorDurability = 0;
+                } else if (tributeStolenItem.medKits != 0) { // try to take medkits second
+                    if (tributeStolenItem.medKits === 1) { // if the tribute only has 1 medkit take it
+                        $("ul").append(`<li class="log"><div>A monkey stole ${tributeStolenItem.name} [${tributeStolenItem.district}]'s only medkit while they were resting!</div></li>`);
+                        tributeStolenItem.medKits = 0;
+                    } else { // if the tribute only has 2 medkit, have a 50% chance to lose both, 50% to lose 1
+                        let randomChance = ReturnRandomNumber(1, 2);
+                        if (randomChance === 1) {
+                            $("ul").append(`<li class="log"><div>A monkey stole one of ${tributeStolenItem.name} [${tributeStolenItem.district}]'s medkits while they were resting!</div></li>`);
+                            tributeStolenItem.medKits = 1;
+                        } else {
+                            $("ul").append(`<li class="log"><div>A monkey stole both of ${tributeStolenItem.name} [${tributeStolenItem.district}]'s medkits while they were resting!</div></li>`);
+                            tributeStolenItem.medKits = 0;
+                        }
+                    }
+                } else if (tributeStolenItem.weapon != "none") { // try to take weapon second
+                    $("ul").append(`<li class="log"><div>A monkey stole ${tributeStolenItem.name} [${tributeStolenItem.district}]'s ${tributeStolenItem.weapon} while they were resting!</div></li>`);
+                    tributeStolenItem.weapon = "none";
+                } else {
+                    let damage = ReturnRandomNumber(10, 30);
+                    HandleDamage(tributeStolenItem);
+                    if (tributeStolenItem.isAlive) {
+                        $("ul").append(`<li class="log"><div>${tributeStolenItem.name} [${tributeStolenItem.district}]'s ${tributeStolenItem.weapon} got attacked by a group of monkeys and lost ${damage} HP before they managed to flee!</div></li>`);
+                    } else {
+                        $("ul").append(`<li class="log"><div>${tributeStolenItem.name} [${tributeStolenItem.district}]'s ${tributeStolenItem.weapon} got attacked by a group of monkeys and died!</div></li>`);
+                        tributeStolenItem.causeOfDeath = `killed by a group of monkeys`;
+                        HandleDeath(tributeStolenItem);
+                    }
+                }
+            case 3:
+                let tributeCraftArmor = ReturnTribute("craftedArmor");
+
+                if (tributeCraftArmor.hasArmor) { // if the tribute already has armor, check armor durability
+                    if (tributeCraftArmor.armorDurability < 5) { // if the armor is not max durability, increase it
+                        if (tributeCraftArmor.armorDurability === 4) { // if the armor is max durability, do nothing
+                            $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] fully repaired their armor.</div></li>`);
+                        } else if (tributeCraftArmor.armorDurability === 3){ // if the armor is 3 durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
+                            let randomChance = ReturnRandomNumber(1, 2);
+                            if (randomChance === 1) { // 50% chance to repair armor for 1 durability
+                                $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
+                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 1;
+                                tributeCraftArmor.armorDurability = newArmorDurability;
+                            } else{ // 50% chance to repair armor for 2 durability (so back to full durability)
+                                $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] fully repaired their armor.</div></li>`);
+                                tributeCraftArmor.armorDurability = 5;
+                            }
+                        } else { // if the armor is 2 or lower durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
+                            let randomChance = ReturnRandomNumber(1, 2);
+                            if (randomChance === 1) { // 50% chance to repair armor for 1 durability
+                                $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
+                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 1;
+                                tributeCraftArmor.armorDurability = newArmorDurability;
+                            } else {
+                                $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
+                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 2;
+                                tributeCraftArmor.armorDurability = newArmorDurability;
+                            }
+                        }
+                    } else{ // if the armor is max durability, damage it for 1 durability
+                        $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] stumbled and damaged their armor for 1 durability.</div></li>`);
+                        let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) - 1;
+                        tributeCraftArmor.armorDurability = newArmorDurability; // should be 4 now
+                    }
+                } else{ // if the tribute doesn't have armor, craft it
+                    let ReturnRandomDurability = ReturnRandomNumber(1, 3);
+                    $("ul").append(`<li class="log"><div>${tributeCraftArmor.name} [${tributeCraftArmor.district}] crafted flimsy armor with ${ReturnRandomDurability} durability.</div></li>`);
+                    tributeCraftArmor.hasArmor = true;
+                    tributeCraftArmor.armorDurability = ReturnRandomDurability;
+                }
+                break;
+        }
     }
 
     // to implement
     function SuperRareRandomEvent() {
-        let random = ReturnRandomNumber(1, 10);
+        let random = ReturnRandomNumber(1, 8);
 
         switch (random) {
             case 1:
@@ -1372,19 +1471,18 @@ $(document).ready(function() {
                 HandleDeath(cheater);
                 break;
             case 3:
-            case 4:
                 let struckDownTribute = ReturnTribute("lightning");
                 $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died instantly!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
                 HandleDeath(struckDownTribute);
                 break;
-            case 5:
-            case 6:
+            case 4:
                 let earthquakeDamage = ReturnRandomNumber(20, 35);
                 $("ul").append(`<li class="log"><div>The arena was hit by an eartquake! All tributes lose ${earthquakeDamage} HP.</div></li>`);
                 HandleEarthquake(earthquakeDamage, "earthquake");
                 break;
-            case 7:
+            case 5:
+            case 6:
                 let dreamerTribute = ReturnTribute("dream");
                 let randomForDreamCameTrue = ReturnRandomNumber(1, 2);
                 dreamer = dreamerTribute;
@@ -1395,7 +1493,7 @@ $(document).ready(function() {
                 }
                 $("ul").append(`<li class="log"><div>${dreamerTribute.name} [${dreamerTribute.district}] had a weird dream; foretelling their own death.</div></li>`);
                 break;
-            case 8:
+            case 7:
                 let weedTribute = ReturnTribute("sponsorGift");
                 if (weedTribute.hp != 100) {
                     $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and restored all of their HP.</div></li>`);
@@ -1409,17 +1507,11 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it.</div></li>`);
                     }
                 }
-            case 9:
+            case 8:
                 let droneCrashTribute = ReturnTribute("droneCrash");
                 $("ul").append(`<li class="log"><div class="bold">A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}] instantly!</div></li>`);
                 droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
                 HandleDeath(droneCrashTribute);
-                break;
-            case 10:
-                let mineTribute = ReturnTribute("steppedOnMine");
-                $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
-                mineTribute.causeOfDeath = `stepped on a mine`;
-                HandleDeath(mineTribute);
                 break;
         }
     }
