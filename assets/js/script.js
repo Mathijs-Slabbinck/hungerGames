@@ -598,6 +598,13 @@ $(document).ready(function() {
                         (intelligence * 0.4) -
                         (luck * 0.2);
                     break;
+                case "droneCrash":
+                    weight =
+                        (risk * 1.2) + // plus here since speed should RAISE chance but only a tiny bit
+                        (popularity * 0.4) -
+                        (speed * 0.4) -
+                        (luck * 0.2);
+                    break;
             }
 
 
@@ -1164,8 +1171,22 @@ $(document).ready(function() {
         let sparedTribute = ReturnTribute("sparedTribute");
         let randomForBackStabbed = ReturnRandomNumber(1, 2);
         let tries = 0;
+        let attempts = 0;
 
         while(mercyShower === sparedTribute){
+            while (mercyShower.district === sparedTribute.district && attempts < 200){
+                let randomChance = ReturnRandomNumber(1, 6);
+                if (randomChance != 1){ // 5/6 chance to pick a new tribute
+                    sparedTribute = ReturnTribute("sparedTribute");
+                }
+                attempts++;
+            }
+
+            if (attempts === 200 && mercyShower.district === sparedTribute.district) {
+                $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute.`);
+                return;
+            }
+
             if(aliveTributes.length > 2){
                 sparedTribute = ReturnTribute("sparedTribute");
                 if (tries === 200) { // if the code can't find 2 tributes, should never happen
@@ -1195,7 +1216,7 @@ $(document).ready(function() {
                 let damage = sparedTribute.CalculateDamage() / 1.25;
                 HandleDamage(mercyShower, damage);
                 if (mercyShower.isAlive){
-                    $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and lost ${damage} HP.</div><div>${mercyShower.name} now has ${mercyShower.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and lost ${damage} HP. ${mercyShower.name} now has ${mercyShower.hp} HP.</div></li>`);
                 } else{
                     $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and got killed by ${sparedTribute.name}.</div>></li>`);
                     HandleDeath(mercyShower);
@@ -1229,7 +1250,7 @@ $(document).ready(function() {
                 rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
                 HandleDeath(rester); // handle death of the tribute that died
             } else{
-                $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
             }
         } else if(random === 4 || random === 5){ // 2/7 chance to get ambushed with a chance to escape
             if(rester.speed >= 8){ // if the tribute passes the speed check, do nothing
@@ -1244,7 +1265,7 @@ $(document).ready(function() {
                     rester.causeOfDeath = `attacked by ${attacker.name} [${attacker.district}] while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
-                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
             }
         } else{ // 2/7 chance to compare stats between the two tributes
@@ -1256,7 +1277,7 @@ $(document).ready(function() {
                     attacker.causeOfDeath = `failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
                     HandleDeath(attacker); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage. ${attacker.name} [${attacker.district}] now has ${attacker.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage. ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
                 }
             } else if(rester.speed > attacker.speed){ // if the tribute has more speed than the ambusher, do nothing
                 $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape.</div></li>`);
@@ -1268,7 +1289,7 @@ $(document).ready(function() {
                     rester.causeOfDeath = `attacked by ${attacker.name} [${attacker.district}]  while resting`; // set the cause of death
                     HandleDeath(rester); // handle death of the tribute that died
                 } else{
-                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
             }
         }
@@ -1333,7 +1354,7 @@ $(document).ready(function() {
 
     // to implement
     function SuperRareRandomEvent() {
-        let random = ReturnRandomNumber(1, 8);
+        let random = ReturnRandomNumber(1, 9);
 
         switch (random) {
             case 1:
@@ -1381,6 +1402,12 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it.</div></li>`);
                     }
                 }
+            case 9:
+                let droneCrashTribute = ReturnTribute("droneCrash");
+                $("ul").append(`<li class="log"><div class="bold">A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}] instantly!</div></li>`);
+                droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
+                HandleDeath(droneCrashTribute);
+                break;
         }
     }
 
