@@ -13,9 +13,10 @@ $(document).ready(function() {
     ];
 
     const weaponModifiers = { // an array that keeps track of dmg modifiers for weapons
-        knife: 1.25,
-        bow: 1.5,
-        sword: 1.75,
+        "makeshift knife": 1.15,
+        "knife": 1.25,
+        "bow": 1.5,
+        "sword": 1.75,
     };
 
     let generated;
@@ -230,15 +231,11 @@ $(document).ready(function() {
                     ShowedMercy();
                 } else if (randomEvent >= 43 && randomEvent <= 46) { // 4 chance
                     Rested();
-                } else if (randomEvent === 47) { // temp until I implement RareRandomEvent() | 1 chance
+                } else if (randomEvent === 47 || randomEvent === 48) { // 2 chance
+                    RareRandomEvent();
+                } else if (randomEvent === 49) { // 1 chance
                     SuperRareRandomEvent();
                 }
-
-                /*else if (randomEvent === 47 || randomEvent === 48) { // temp until I implement RareRandomEvent()
-                    RareRandomEvent();
-                } else if (randomEvent === 49) {
-                    SuperRareRandomEvent();
-                }*/
 
                 ScrollToBottom();
             }, delay);
@@ -619,7 +616,7 @@ $(document).ready(function() {
                         (luck * 0.2) -
                         (intelligence * 0.15);
                         break;
-                case "craftArmor":
+                case "craft":
                     weight =
                         (risk * 1.2) +
                         (intelligence * 1.5) +
@@ -840,13 +837,12 @@ $(document).ready(function() {
         switch (random) {
             case 1: // try to give a sword
                 // when chosenTribute has no weapon, try giving a sword first
-                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
-                if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
+                if (chosenTribute.weapon === "none") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] picked up a sword.</li></div>`);
                     chosenTribute.weapon = "sword";
                 } else if (chosenTribute.weapon === "sword") { // if the tribute already has a sword, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a sword but already has one.</li></div>`);
-                } else if (chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife") { // if the tribute has a bow or knife, upgrade to sword
+                } else if (chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife" || chosenTribute.weapon === "makeshift knife") { // if the tribute has a bow or knife, upgrade to sword
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a sword and upgraded their weapon.</li></div>`);
                     chosenTribute.weapon = "sword";
                 } else { //should never happen | otherwise, give a sword and throw an error
@@ -857,15 +853,14 @@ $(document).ready(function() {
                 break;
             case 2: // try to give a bow
                 // when chosenTribute has no weapon, try giving a bow first
-                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
-                if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
+                if (chosenTribute.weapon === "none") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] picked up a bow.</li></div>`);
                     chosenTribute.weapon = "bow";
                 } else if (chosenTribute.weapon === "bow") { // if tribute already has a bow, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a bow but already has one.</li></div>`);
                 } else if (chosenTribute.weapon === "sword") { // if the tribute has a sword, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a bow but already has a better weapon.</li></div>`);
-                } else if (chosenTribute.weapon === "knife") { // if the tribute has a knife, upgrade to bow
+                } else if (chosenTribute.weapon === "knife" || chosenTribute.weapon === "makeshift knife") { // if the tribute has a knife, upgrade to bow
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a bow and upgraded their weapon.</li></div>`);
                     chosenTribute.weapon = "bow";
                 } else { // should never happen | otherwise, give a bow and throw an error
@@ -875,16 +870,18 @@ $(document).ready(function() {
                 }
                 break;
             case 3: // try to give a knife
-                // when chosenTribute has no weapon, try giving a knife first
-                // (could be chosenTribute.weapon == "none" but this is to avoid undefined)
-                if (chosenTribute.weapon != "sword" && chosenTribute.weapon != "bow" && chosenTribute.weapon != "knife") {
+                if (chosenTribute.weapon === "none") {
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] picked up a knife.</li></div>`);
                     chosenTribute.weapon = "knife";
                 } else if (chosenTribute.weapon === "sword" || chosenTribute.weapon == "bow") { // if the tribute has a sword or bow, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a knife but already has a better weapon.</li></div>`);
                 } else if (chosenTribute.weapon === "knife") { // if the tribute already has a knife, give nothing
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a knife but already has one.</li></div>`);
-                } else { // should never happen | otherwise, give a knife and throw an error
+                } else if (chosenTribute.weapon === "makeshift knife") { // if the tribute has a makeshift knife, upgrade to knife
+                    $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] found a knife and upgraded their weapon.</li></div>`);
+                    chosenTribute.weapon = "knife";
+                }
+                else { // should never happen | otherwise, give a knife and throw an error
                     $("ul").append(`<div class="log"><li>${chosenTribute.name} [${chosenTribute.district}] picked up a knife.</li></div>`);
                     chosenTribute.weapon = "bow";
                     throw new Error("Error: Giving knife almost failed.");
@@ -1370,7 +1367,7 @@ $(document).ready(function() {
 
     // to implement
     function RareRandomEvent() {
-        let random = ReturnRandomNumber(1, 3);
+        let random = ReturnRandomNumber(1, 5);
 
         switch(random){
             case 1:
@@ -1415,7 +1412,7 @@ $(document).ready(function() {
                     }
                 }
             case 3:
-                let tributeCraftArmor = ReturnTribute("craftedArmor");
+                let tributeCraftArmor = ReturnTribute("craft");
 
                 if (tributeCraftArmor.hasArmor) { // if the tribute already has armor, check armor durability
                     if (tributeCraftArmor.armorDurability < 5) { // if the armor is not max durability, increase it
@@ -1455,34 +1452,65 @@ $(document).ready(function() {
                     tributeCraftArmor.armorDurability = ReturnRandomDurability;
                 }
                 break;
+            case 4:
+                let howManyTributes = ReturnRandomNumber(1, 7); // select 1 to 7 tributes to be caught in the fire
+                let wildFireTributesArray = []; // initialize an empty array to store the tributes that are caught in the fire  || I use an array to make sure the tributes are not repeated
+                for (let i = 0; i < howManyTributes; i++) { // loop through the number of tributes to be caught in the fire
+                    let wildFireTribute = ReturnRandomNumber("wildFire"); // select a random tribute
+                    while (wildFireTributesArray.includes(wildFireTribute)) { //make sure the tribute is not already in the array
+                        wildFireTribute = ReturnRandomNumber("wildFire");
+                    }
+                    wildFireTributesArray.push(wildFireTribute); // add the tribute to the array
+                }
+                $("ul").append(`<li class="log"><div>A wildfire broke out ${howManyTributes} tributes were caught in it!</div>`);
+                for (let i = 0; i < wildFireTributesArray.length; i++) { // loop through the array of tributes caught in the fire
+                    let wildFireTribute = wildFireTributesArray[i]; // select the tribute
+                    let randomDamage = ReturnRandomNumber(10, 30); // select a random damage amount
+                    HandleDamage(wildFireTribute, randomDamage); // apply damage to the tribute
+                    if (wildFireTribute.isAlive) { // check if the tribute is dead
+                        $("ul").append(`<div>${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and lost ${randomDamage} HP before they managed to escape. They now have ${wildFireTribute.hp} HP.</div>`);
+                    } else {
+                        $("ul").append(`<div class="bold">${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and died.</div>`);
+                        wildFireTribute.causeOfDeath = `caught in wildfire`;
+                        HandleDeath(wildFireTribute);
+                    }
+                }
+                $("ul").append(`</li>`);
+                break;
+            case 5:
+                let tributeCraftWeapon = ReturnTribute("craftedWeapon");
+                while(tributeCraftWeapon.weapon != "none") {
+                    tributeCraftWeapon = ReturnTribute("craftedWeapon");
+                }
+                $("ul").append(`<div class="bold">${tributeCraftWeapon.name} [${tributeCraftWeapon.district}] crafted a makeshift knife.</div>`);
+                tributeCraftWeapon.weapon = "makeshift knife"; // set the weapon to makeshift knife
+                break;
         }
     }
 
     // to implement
     function SuperRareRandomEvent() {
-        let random = ReturnRandomNumber(1, 8);
+        let random = ReturnRandomNumber(1, 6);
 
         switch (random) {
             case 1:
-            case 2:
                 let cheater = ReturnTribute("cheater");
                 $("ul").append(`<li class="log"><div class="bold">${cheater.name} [${cheater.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
                 cheater.causeOfDeath = `caught cheating`;
                 HandleDeath(cheater);
                 break;
-            case 3:
+            case 2:
                 let struckDownTribute = ReturnTribute("lightning");
                 $("ul").append(`<li class="log"><div class="bold">${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died instantly!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
                 HandleDeath(struckDownTribute);
                 break;
-            case 4:
+            case 3:
                 let earthquakeDamage = ReturnRandomNumber(20, 35);
                 $("ul").append(`<li class="log"><div>The arena was hit by an eartquake! All tributes lose ${earthquakeDamage} HP.</div></li>`);
                 HandleEarthquake(earthquakeDamage, "earthquake");
                 break;
-            case 5:
-            case 6:
+            case 4:
                 let dreamerTribute = ReturnTribute("dream");
                 let randomForDreamCameTrue = ReturnRandomNumber(1, 2);
                 dreamer = dreamerTribute;
@@ -1493,7 +1521,7 @@ $(document).ready(function() {
                 }
                 $("ul").append(`<li class="log"><div>${dreamerTribute.name} [${dreamerTribute.district}] had a weird dream; foretelling their own death.</div></li>`);
                 break;
-            case 7:
+            case 5:
                 let weedTribute = ReturnTribute("sponsorGift");
                 if (weedTribute.hp != 100) {
                     $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and restored all of their HP.</div></li>`);
@@ -1507,7 +1535,7 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it.</div></li>`);
                     }
                 }
-            case 8:
+            case 6:
                 let droneCrashTribute = ReturnTribute("droneCrash");
                 $("ul").append(`<li class="log"><div class="bold">A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}] instantly!</div></li>`);
                 droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
