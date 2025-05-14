@@ -33,6 +33,93 @@ $(document).ready(function() {
 
     function StartCountdown() { // start the countdown
         $("main").append(`<li class="log"><div id="countDown"></div></li>`);
+        let randomForSteppedOfPlate = ReturnRandomNumber(1, 7);
+        let delay = ReturnRandomTimer(true);
+        let counterDelay = ReturnRandomNumber(400, 500);
+        setTimeout(function(){
+            if (randomForSteppedOfPlate === 1) { // 1/7 chance a tribute stepped off their plate
+                let tribute = ReturnTribute("steppedOfPlate");
+                let randomFor2Tributes = ReturnRandomNumber(1, 5);
+                if (randomFor2Tributes >= 1 && randomFor2Tributes <= 4) { // 4/5 chance only 1 tribute stepped of their plate
+                    $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
+                    tribute.causeOfDeath = `started early and was blown up`;
+                    HandleDeath(tribute);
+                    ScrollToBottom();
+                } else { // 1/5 chance multiple tributes stepped of their plate
+                    let randomFor3Tributes = ReturnRandomNumber(1, 4);
+                    let tribute2 = ReturnTribute("steppedOfPlate");
+                    while (tribute === tribute2) { // make sure this isn't the same tribute
+                        tribute2 = ReturnTribute("steppedOfPlate");
+                    }
+                    if (randomFor3Tributes >= 1 && randomFor3Tributes <= 3) { // 3/4 chance 2 tributes get blown up
+                        $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
+                        tribute.causeOfDeath = `started early and was blown up`;
+                        HandleDeath(tribute);
+                        ScrollToBottom();
+                        setTimeout(function(){
+                            $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
+                            tribute2.causeOfDeath = `started early and was blown up`;
+                            HandleDeath(tribute2);
+                            ScrollToBottom();
+                        }, delay - counterDelay);
+                        setTimeout(function () {
+                            PlayKillSound(); // play it again after short delay to make sure 2 canon shots can be heard
+                        }, 750);
+                    } else { // 1/4 chance more tributes stepped off their plate
+                        let randomFor4Tributes = ReturnRandomNumber(1, 4);
+                        let tribute3 = ReturnTribute("steppedOfPlate");
+                        while (tribute3 === tribute || tribute3 === tribute2) { // make sure this isn't the same tribute
+                            tribute3 = ReturnTribute("steppedOfPlate");
+                        }
+                        if (randomFor4Tributes >= 1 && randomFor4Tributes <= 3) { // 3/4 chance 3 tributes get blown up
+                            $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
+                            tribute.causeOfDeath = `started early and was blown up`;
+                            HandleDeath(tribute);
+                            ScrollToBottom();
+                            setTimeout(function () {
+                                $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
+                                tribute2.causeOfDeath = `started early and was blown up`;
+                                HandleDeath(tribute2);
+                                ScrollToBottom();
+                            }, delay - counterDelay);
+                            setTimeout(function(){
+                                $("main").append(`<li class="log"><div>${tribute3.name} [${tribute3.district}] stepped off their plate early and was blown up!</div></li>`);
+                                tribute3.causeOfDeath = `started early and was blown up`;
+                                HandleDeath(tribute3);
+                                ScrollToBottom();
+                            }, delay - counterDelay + delay - counterDelay);
+                        } else {
+                            let tribute4 = ReturnTribute("steppedOfPlate");
+                            while (tribute4 === tribute || tribute4 === tribute2 || tribute4 === tribute3) { // make sure this isn't the same tribute
+                                tribute4 = ReturnTribute("steppedOfPlate");
+                            }
+                            $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
+                            tribute.causeOfDeath = `started early and was blown up`;
+                            HandleDeath(tribute);
+                            ScrollToBottom();
+                            setTimeout(function () {
+                                $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
+                                tribute2.causeOfDeath = `started early and was blown up`;
+                                HandleDeath(tribute2);
+                                ScrollToBottom();
+                            }, delay - counterDelay);
+                            setTimeout(function () {
+                                $("main").append(`<li class="log"><div>${tribute3.name} [${tribute3.district}] stepped off their plate early and was blown up!</div></li>`);
+                                tribute3.causeOfDeath = `started early and was blown up`;
+                                HandleDeath(tribute3);
+                                ScrollToBottom();
+                            }, delay - counterDelay + delay - counterDelay);
+                            setTimeout(function (){
+                                tribute4.causeOfDeath = `started early and was blown up`;
+                                HandleDeath(tribute4);
+                                $("main").append(`<li class="log"><div>${tribute4.name} [${tribute4.district}] stepped off their plate early and was blown up!</div></li>`);
+                                ScrollToBottom();
+                            }, delay - counterDelay + delay - counterDelay + delay - counterDelay)
+                        }
+                    }
+                }
+            }
+        }, delay);
 
         for (let i = 0; i < 10; i++) { // loop 10 times, 1 time for every second
             setTimeout(function () {
@@ -504,6 +591,13 @@ $(document).ready(function() {
                         (luck * 0.2) -
                         (survival * 0.25);
                         break;
+                case "steppedOfPlate":
+                    weight =
+                        (risk * 1.2) + // plus here since speed should RAISE chance but only a tiny bit
+                        (speed * 0.2) -
+                        (intelligence * 0.4) -
+                        (luck * 0.2);
+                    break;
             }
 
 
@@ -1076,9 +1170,10 @@ $(document).ready(function() {
                 sparedTribute = ReturnTribute("sparedTribute");
                 if (tries === 200) { // if the code can't find 2 tributes, should never happen
                     $("ul").append(`<li class="log"><div>${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute.`);
+                    return;
                 }
                 tries++;
-            } else if(aliveTributes.length === 2){
+            } else if(aliveTributes.length === 2){ // should never happen, but in case
                 let randomNumber = ReturnRandomNumber(1, 2);
                 if(randomNumber - 1 === 0){ // check if number is one
                     mercyShower = aliveTributes[randomNumber];
