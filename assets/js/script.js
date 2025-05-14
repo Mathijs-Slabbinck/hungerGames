@@ -645,7 +645,7 @@ $(document).ready(function() {
             HandleDamage(aliveTributes[i], damage);
             if (!aliveTributes[i].isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
-                aliveTributes[i].causeOfDeath = `causeOfDeathMessage`
+                aliveTributes[i].causeOfDeath = `${causeOfDeathMessage}`;
                 HandleDeath(aliveTributes[i]);
             }
         }
@@ -678,7 +678,7 @@ $(document).ready(function() {
                 if (tribute1.isAlive === false && tribute2.isAlive === true) { // if tribute1 is dead and tribute2 is alive
                     $("ul").append(`<li class="log"><div>${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div class="bold">${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
                     tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                    tribute1.causeOfDeath = `killed by ${tribute2.name}`; // set the cause of death
+                    tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}]`; // set the cause of death
                     HandleDeath(tribute1); // handle death of tribute1
                 } else if (tribute1.isAlive === true && tribute2.isAlive === false) { // if tribute1 is alive and tribute2 is dead
                     $("ul").append(`<li class="log"><div class="bold">${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div><div>${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
@@ -1088,7 +1088,7 @@ $(document).ready(function() {
             chosenTribute.causeOfDeath = `injuries`; // set the cause of death
             HandleDeath(chosenTribute);
         } else {
-            $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] got injured and took ${injuryDamage} damage. ${chosenTribute.name} now has ${chosenTribute.hp} HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>${chosenTribute.name} [${chosenTribute.district}] got injured and took ${injuryDamage} damage. They now have ${chosenTribute.hp} HP.</div></li>`);
         }
     }
 
