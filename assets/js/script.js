@@ -358,23 +358,23 @@ $(document).ready(function() {
                         (speed * 1.75) +
                         (combat * 1.2) +
                         (risk * 1.7) +
-                        (survival * 0.9);
+                        (survival * 1.1);
                     break;
                 case "combat":
                     weight =
-                        (luck * 0.80) +
+                        (luck * 0.60) +
                         (speed * 0.75) +
                         (combat * 1.2) +
                         (risk * 1.7) +
-                        (survival * 0.85);
+                        (survival * 0.65);
                     break;
                 case "fellInTrap":
                     weight =
-                        (luck * 0.85) +
-                        (speed * 0.85) +
-                        (intelligence * 0.7) +
+                        (luck * 0.35) +
+                        (speed * 0.35) +
+                        (intelligence * 0.6) +
                         (risk * 1.15) +
-                        (survival * 0.7);
+                        (survival * 0.6);
                     break;
                 case "trapSetter":
                     weight =
@@ -389,16 +389,16 @@ $(document).ready(function() {
                     break;
                 case "animalAttack":
                     weight =
-                        (luck * 0.85) +
-                        (survival * 0.75) +
+                        (luck * 0.35) +
+                        (survival * 0.25) +
                         (combat * 0.75) +
                         (risk * 1.15) +
-                        (speed * 0.85);
+                        (speed * 0.35);
                     break;
                 case "poisonedFood":
                     weight =
-                        (luck * 0.85) +
-                        (survival * 0.4) +
+                        (luck * 0.35) +
+                        (survival * 0.1) +
                         (risk * 1.15);
                     break;
                 case "ateFood":
@@ -410,7 +410,7 @@ $(document).ready(function() {
                 case "trainedPower":
                     weight =
                         (luck * 1.5) +
-                        (power * 0.5) +
+                        (power * 0.2) +
                         (risk * 1.2) +
                         (intelligence * 1.25) +
                         (survival * 1.2);
@@ -418,7 +418,7 @@ $(document).ready(function() {
                 case "trainedCombatSkills":
                     weight =
                         (luck * 1.5) +
-                        (combat * 0.5) +
+                        (combat * 0.2) +
                         (risk * 1.2) +
                         (intelligence * 1.25) +
                         (survival * 1.2);
@@ -428,22 +428,23 @@ $(document).ready(function() {
                         (luck * 1.5) +
                         (risk * 1.2) +
                         (intelligence * 1.25) +
-                        (survival * 1.2);
+                        (survival * 1.2) +
+                        (speed * 0.2);
                         break;
                 case "injured":
                     weight =
-                        (luck * 0.85) +
+                        (luck * 0.4) +
                         (risk * 1.2) +
-                        (survival * 0.7) +
-                        (intelligence * 0.9);
+                        (survival * 0.3) +
+                        (intelligence * 0.45);
                     break;
                 case "ambushed":
                     weight =
-                        (luck * 0.85) +
-                        (speed * 0.7) +
-                        (combat * 0.55) +
+                        (luck * 0.45) +
+                        (speed * 0.35) +
+                        (combat * 0.3) +
                         (risk * 1.2) +
-                        (survival * 0.8);
+                        (survival * 0.4);
                     break;
                 case "ambusher":
                     weight =
@@ -479,28 +480,28 @@ $(document).ready(function() {
                     break;
                 case "cheater":
                     weight =
-                        (luck * 0.6) +
+                        (luck * 0.3) +
                         (risk * 1.3);
                     break;
                 case "monsterEncounter":
                     weight =
                         (luck * 0.85) +
                         (risk * 1.2) +
-                        (speed * 0.7) +
-                        (survival * 0.9);
+                        (speed * 0.3) +
+                        (survival * 0.4);
                     break;
                 case "lightning":
                     weight =
-                        (luck * 0.75) +
+                        (luck * 0.4) +
                         (risk * 1.2) +
-                        (survival * 0.65) +
-                        (speed * 0.75);
+                        (survival * 0.4) +
+                        (speed * 0.35);
                         break;
                 case "dream":
                     weight =
-                        (luck * 0.6) +
+                        (luck * 0.15) +
                         (risk * 1.1) +
-                        (survival * 0.95)
+                        (survival * 0.3)
                         (intelligence *1.05);
                         break;
             }
