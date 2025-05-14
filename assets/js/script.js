@@ -708,7 +708,7 @@ $(document).ready(function() {
                 } else if (tribute1.isAlive === true && tribute2.isAlive === false) { // if tribute1 is alive and tribute2 is dead
                     $("ul").append(`<li class="log"><div class="bold">${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div><div>${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
                     tribute1.AddKill(tribute2); // award a kill to tribute1
-                    tribute2.causeOfDeath = `killed by ${tribute1.name}`; // set the cause of death
+                    tribute2.causeOfDeath = `killed by ${tribute1.name} ${tribute1.district}`; // set the cause of death
                     HandleDeath(tribute2); // handle death of tribute2
                 } else if (tribute1.isAlive === true && tribute2.isAlive === true) { // if both tributes are alive
                     $("ul").append(`<li class="log"><div>${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div>${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
@@ -732,7 +732,7 @@ $(document).ready(function() {
                 if (damageTo.isAlive === false) { // if the tribute that took damage is dead
                     $("ul").append(`<li class="log"><div class="bold">${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage. ${damageTo.name} has died.</li></div>`);
                     attacker.AddKill(damageTo); // award a kill to the attacker and store the killed tribute
-                    damageTo.causeOfDeath = `killed by ${attacker.name}`; // set the cause of death
+                    damageTo.causeOfDeath = `killed by ${attacker.name} ${attacker.district}`; // set the cause of death
                     HandleDeath(damageTo); // handle death of the tribute that died
                 } else { // if the tribute that took damage is alive
                     $("ul").append(`<li class="log"><div>${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage. ${damageTo.name} now has ${damageTo.hp} HP.</li></div>`);
