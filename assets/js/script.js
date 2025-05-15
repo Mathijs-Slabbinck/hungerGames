@@ -4,8 +4,15 @@ let dreamer = null;
 let dreamCameTrue = null;
 let skipIntro = false; // set to true to skip the intro
 let skipIntroAndCountDown = false; // set to true to skip the intro and countdown
+let soundEnabled = true; // set to true to enable sound
 let canonPool = []; // initialize an empty array to store preloaded canon sounds to avoid delay
 let canonIndex = 0; // initialize an index to keep track of the current canon sound
+let countDown = new Audio('assets/media/countdown.mp3'); // preload the sound so it doesn't lag
+let slogan = new Audio('assets/media/slogan.mp3'); // preload the sound so it doesn't lag
+countDown.preload = 'auto';
+countDown.load();
+slogan.preload = 'auto';
+slogan.load();
 
 $(document).ready(function() {
     const fields = [ // an array containing all stats a Tribute has
@@ -663,7 +670,9 @@ $(document).ready(function() {
 
         victim.causeOfDeath = deathCause; // set the cause of death
         RemoveTributeFromAliveList(victim); // if the tribute is dead, remove it from the aliveTributes array
-        PlayKillSound(victim, deathCause); // play the canon sound
+        if(soundEnabled){
+            PlayKillSound(); // play the canon sound
+        }
     }
 
     function HandleEarthquake(damage, causeOfDeathMessage){
@@ -888,8 +897,7 @@ $(document).ready(function() {
         return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
     }
 
-    function PlayKillSound(tribute, deathCause) {
-        console.log(`Playing canon sound for tribute: ${tribute.name} + " [${deathCause}]`);
+    function PlayKillSound() {
         const canonInstance = canonPool[canonIndex]; // get the canon instance from the pool
         //canonInstance.volume = canonAudio.volume;     // optional: inherit volume
         canonInstance.play().catch(e => {throw new error("Audio play failed:", e)});
@@ -1763,16 +1771,18 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#submit", function () {
-        if (canonPool.length === 0) { // if the canon pool is empty, fill it
-            for (let i = 1; i < 23; i++) { // make 23 canon audio objects (1 for each tribute, to be certain there are enough ready if needed around the same moment)
-            let canonAudio = new Audio('assets/media/canon.mp3');
-                canonAudio.volume = 0;
-                canonAudio.play().then(() => {
-                    canonAudio.pause();
-                    canonAudio.currentTime = 0;
-                    canonAudio.volume = 1;
-                }).catch(() => { throw new Error("Audio play failed"); }); // in case it would fail
-                canonPool.push(canonAudio);
+        if(soundEnabled){
+            if (canonPool.length === 0) { // if the canon pool is empty, fill it
+                for (let i = 1; i < 23; i++) { // make 23 canon audio objects (1 for each tribute, to be certain there are enough ready if needed around the same moment)
+                    let canonAudio = new Audio('assets/media/canon.mp3');
+                    canonAudio.volume = 0;
+                    canonAudio.play().then(() => {
+                        canonAudio.pause();
+                        canonAudio.currentTime = 0;
+                        canonAudio.volume = 1;
+                    }).catch(() => { throw new Error("Audio play failed"); }); // in case it would fail
+                    canonPool.push(canonAudio);
+                }
             }
         }
 
@@ -1819,17 +1829,21 @@ $(document).ready(function() {
 
         $("main").empty();
 
-        let countDown = new Audio('assets/media/countDown.mp3');
         if (skipIntro){
-            countDown.play();
+            if(soundEnabled){
+                countDown.play();
+            }
             StartCountdown();
         } else if(skipIntroAndCountDown){
             StartLogging();
         } else{
-            let slogan = new Audio('assets/media/slogan.mp3');
-            slogan.play();
+            if(soundEnabled){
+                slogan.play();
+            }
             setTimeout(function () {
-                countDown.play();
+                if(soundEnabled){
+                    countDown.play();
+                }
                 StartCountdown();
             }, 8000);
         }
@@ -1874,8 +1888,10 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#seeTributes", function () {
-        let anthem = new Audio('assets/media/anthemShort.mp3');
-        anthem.play();
+        if(soundEnabled){
+            let anthem = new Audio('assets/media/anthemShort.mp3');
+            anthem.play();
+        }
         $("#eventLog").hide();
         if (generated != true) {
             GenerateDistricts(false);
@@ -1912,6 +1928,19 @@ $(document).ready(function() {
         } else {
             skipIntroAndCountDown = false;
             $("#skipIntroAndCountDown").text("NO");
+        }
+    });
+
+
+    $(document).on("click", "#toggleSound", function () {
+        if(!soundEnabled){
+            soundEnabled = true;
+            $("#toggleSound").text("ON");
+        } else{
+            soundEnabled = false;
+            $("#toggleSound").text("OFF");
+            skipIntro = true;
+            $("#skipIntro").text("YES");
         }
     });
 

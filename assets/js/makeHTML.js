@@ -142,8 +142,9 @@ function GenerateDistricts(beforeGame = true) {
 
     if (beforeGame) {
         $container.append(`
-            <div class="row align-items-center"><p class="col-10">Skip intro?</p><button type="button" class="col-2" id="skipIntro">NO</button></div>
-            <div class="row align-items-center"><p class="col-10">Skip intro & countdown? (not recommended)</p><button type="button" class="col-2" id="skipIntroAndCountDown">NO</button></div>
+            <div class="row align-items-center"><p class="col-10">Skip intro :</p><button type="button" class="col-2" id="skipIntro">NO</button></div>
+            <div class="row align-items-center"><p class="col-10">Skip intro & countdown (not recommended) :</p><button type="button" class="col-2" id="skipIntroAndCountDown">NO</button></div>
+            <div class="row align-items-center"><p class="col-10">Sound :</p><button type="button" class="col-2" id="toggleSound">ON</button></div>
             <div class="row" id="fillInRandomly"><p class="col-12">fill empty fields randomly</p></div>
             <div class="row" id="clearFields"><p class="col-12">clear all fields</p></div>
             <div class="row" id="submit"><p class="col-12">start Hunger Games</p></div>
