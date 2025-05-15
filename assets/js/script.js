@@ -182,6 +182,8 @@ $(document).ready(function() {
         LogShit(startEventsAmount, true); // call the function, passing the amount of events and a boolean to say if it's the start of the game
     }
 
+
+    // this function will be called to log the events that happen during the bloodbath or normal day
     function LogShit(eventsAmount, isStart) { // eventsAmount = how many events will happen, isStart = if it's the start of the game
         let delay = 0;
         console.log("events amount : " + eventsAmount);
@@ -191,6 +193,7 @@ $(document).ready(function() {
             let randomEvent = ReturnRandomNumber(1, 47);
             delay += randomTimer;
 
+            // should never happen, but if the day starts with only 2 tributes alive, start the final battle
             if (aliveTributes.length === 2) {
                 const [tribute1, tribute2] = aliveTributes;
                 FinalBattle(tribute1, tribute2);
@@ -198,7 +201,7 @@ $(document).ready(function() {
             }
 
             setTimeout(() => {
-                // If only 2 tributes left, start the final battle
+                // If only 2 tributes left, start the final battle (check after each event)
                 if (aliveTributes.length === 2) {
                     const [tribute1, tribute2] = aliveTributes;
                     FinalBattle(tribute1, tribute2);
@@ -228,9 +231,11 @@ $(document).ready(function() {
                     ShowedMercy();
                 } else if (randomEvent >= 43 && randomEvent <= 46) { // 4 chance
                     Rested();
-                } else if (randomEvent === 47 || randomEvent === 48) { // 2 chance
+                } else if (random >= 47 && randomEvent <= 48) { // 2 chance
+                    CraftSomething();
+                } else if (randomEvent === 49 || randomEvent === 50) { // 2 chance
                     RareRandomEvent();
-                } else if (randomEvent === 49) { // 1 chance
+                } else if (randomEvent === 51) { // 1 chance
                     SuperRareRandomEvent();
                 }
 
@@ -243,6 +248,7 @@ $(document).ready(function() {
             // Skip announcement if the final battle has started
             if (aliveTributes.length === 2) return;
 
+            // if the day ends with more than 2 tributes alive, show the end of day message
             if (whichDay === 0) {
                 $("ul").append(`<li class="log announcement"><div>📢 The bloodbath has ended! 📢</div></li>`);
             } else {
@@ -254,6 +260,7 @@ $(document).ready(function() {
         }, delay + 450); // small delay to ensure the announcement appears after the last event
     }
 
+    // this function will be called to log the events that happen during the end phase
     function LogEndPhase() {
         console.log("end phase started");
         let delay = 0;
@@ -299,8 +306,13 @@ $(document).ready(function() {
         scheduleEvent();
     }
 
+    // this function will never be called, this is here for when a lot of tributes need to die for testing purposes
     function NukeTributes(){
-        for (let i = 0; i < aliveTributes.length - 2; i++){
+        let howManyAlive = aliveTributes.length;
+        for (let i = 0; i < howManyAlive - 5; i++){
+            aliveTributes[i].KillTribute();
+            aliveTributes[i].causeOfDeath = "nuked";
+            HandleDeath(aliveTributes[i]);
             aliveTributes.pop();
         }
     }
@@ -363,6 +375,7 @@ $(document).ready(function() {
                 // Now that the battle is over, append the final winner and loser info
                 $("#eventLog").append(`<li class='log gold'><div>[⚔️💀] ${loser.name} [${loser.district}] was slain by ${winner.name} [${winner.district}] in round ${round} of the final battle.</div><div>🏆 ${winner.name} from district ${winner.district} wins the Hunger Games! 🏆</div></li>`);
                 $("#eventLog").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
+                $("#eventLog").append(`<li id="refresh" class="col-12 finish">SEE TRIBUTES</li>`);
                 ScrollToBottom();  // Scroll to bottom of log once final battle is finished
                 return;
             }
@@ -1446,9 +1459,60 @@ $(document).ready(function() {
         }
     }
 
-    // to implement
+    function CraftSomething(){
+        let ReturnRandomNumber = ReturnRandomNumber(1, 2);
+        let crafter = ReturnTribute("craft");
+        if(ReturnRandomNumber === 1){ // 50% chance to craft armor
+
+            if (crafter.hasArmor) { // if the tribute already has armor, check armor durability
+                if (crafter.armorDurability < 5) { // if the armor is not max durability, increase it
+                    if (crafter.armorDurability === 4) { // if the armor is max durability, do nothing
+                        $("ul").append(`<li class="log"><div>[🛠️🛡️] ${crafter.name} [${crafter.district}] fully repaired their armor.</div></li>`);
+                    } else if (crafter.armorDurability === 3) { // if the armor is 3 durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
+                        let randomChance = ReturnRandomNumber(1, 2);
+                        if (randomChance === 1) { // 50% chance to repair armor for 1 durability
+                            $("ul").append(`<li class="log"><div>[🛠️🛡️] ${crafter.name} [${crafter.district}] repaired their armor for 1 durability.</div></li>`);
+                            let newArmorDurability = parseInt(crafter.armorDurability) + 1;
+                            crafter.armorDurability = newArmorDurability;
+                        } else { // 50% chance to repair armor for 2 durability (so back to full durability)
+                            $("ul").append(`<li class="log"><div>[🛠️🛡️] ${crafter.name} [${crafter.district}] fully repaired their armor.</div></li>`);
+                            crafter.armorDurability = 5;
+                        }
+                    } else { // if the armor is 2 or lower durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
+                        let randomChance = ReturnRandomNumber(1, 2);
+                        if (randomChance === 1) { // 50% chance to repair armor for 1 durability
+                            $("ul").append(`<li class="log"><div>[🛠️🛡️] ${crafter.name} [${crafter.district}] repaired their armor for 1 durability.</div></li>`);
+                            let newArmorDurability = parseInt(crafter.armorDurability) + 1;
+                            crafter.armorDurability = newArmorDurability;
+                        } else {
+                            $("ul").append(`<li class="log"><div>[🛠️🛡️] ${crafter.name} [${crafter.district}] repaired their armor for 1 durability.</div></li>`);
+                            let newArmorDurability = parseInt(crafter.armorDurability) + 2;
+                            crafter.armorDurability = newArmorDurability;
+                        }
+                    }
+                } else { // if the armor is max durability, damage it for 1 durability
+                    $("ul").append(`<li class="log"><div>[💢🛡️] ${crafter.name} [${crafter.district}] stumbled and damaged their armor for 1 durability.</div></li>`);
+                    let newArmorDurability = parseInt(crafter.armorDurability) - 1;
+                    crafter.armorDurability = newArmorDurability; // should be 4 now
+                }
+            } else { // if the tribute doesn't have armor, craft it
+                let ReturnRandomDurability = ReturnRandomNumber(1, 3);
+                $("ul").append(`<li class="log"><div>[⚒️🛡️] ${crafter.name} [${crafter.district}] crafted flimsy armor with ${ReturnRandomDurability} durability.</div></li>`);
+                crafter.hasArmor = true;
+                crafter.armorDurability = ReturnRandomDurability;
+            }
+        } else{ // 50% chance to craft a weapon
+            while (crafter.weapon != "none") {
+                crafter = ReturnTribute("craftedWeapon");
+            }
+            $("ul").append(`<div class="bold">[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife.</div>`);
+            crafter.weapon = "makeshift knife"; // set the weapon to makeshift knife
+        }
+    }
+
+    // add more events
     function RareRandomEvent() {
-        let random = ReturnRandomNumber(1, 5);
+        let random = ReturnRandomNumber(1, 3);
 
         switch(random){
             case 1:
@@ -1493,47 +1557,6 @@ $(document).ready(function() {
                     }
                 }
             case 3:
-                let tributeCraftArmor = ReturnTribute("craft");
-
-                if (tributeCraftArmor.hasArmor) { // if the tribute already has armor, check armor durability
-                    if (tributeCraftArmor.armorDurability < 5) { // if the armor is not max durability, increase it
-                        if (tributeCraftArmor.armorDurability === 4) { // if the armor is max durability, do nothing
-                            $("ul").append(`<li class="log"><div>[🛠️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] fully repaired their armor.</div></li>`);
-                        } else if (tributeCraftArmor.armorDurability === 3){ // if the armor is 3 durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
-                            let randomChance = ReturnRandomNumber(1, 2);
-                            if (randomChance === 1) { // 50% chance to repair armor for 1 durability
-                                $("ul").append(`<li class="log"><div>[🛠️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
-                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 1;
-                                tributeCraftArmor.armorDurability = newArmorDurability;
-                            } else{ // 50% chance to repair armor for 2 durability (so back to full durability)
-                                $("ul").append(`<li class="log"><div>[🛠️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] fully repaired their armor.</div></li>`);
-                                tributeCraftArmor.armorDurability = 5;
-                            }
-                        } else { // if the armor is 2 or lower durability, have a 50% chance to repair it for 1 durability and 50% chance to repair it for 2 durability
-                            let randomChance = ReturnRandomNumber(1, 2);
-                            if (randomChance === 1) { // 50% chance to repair armor for 1 durability
-                                $("ul").append(`<li class="log"><div>[🛠️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
-                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 1;
-                                tributeCraftArmor.armorDurability = newArmorDurability;
-                            } else {
-                                $("ul").append(`<li class="log"><div>[🛠️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] repaired their armor for 1 durability.</div></li>`);
-                                let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) + 2;
-                                tributeCraftArmor.armorDurability = newArmorDurability;
-                            }
-                        }
-                    } else{ // if the armor is max durability, damage it for 1 durability
-                        $("ul").append(`<li class="log"><div>[💢🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] stumbled and damaged their armor for 1 durability.</div></li>`);
-                        let newArmorDurability = parseInt(tributeCraftArmor.armorDurability) - 1;
-                        tributeCraftArmor.armorDurability = newArmorDurability; // should be 4 now
-                    }
-                } else{ // if the tribute doesn't have armor, craft it
-                    let ReturnRandomDurability = ReturnRandomNumber(1, 3);
-                    $("ul").append(`<li class="log"><div>[⚒️🛡️] ${tributeCraftArmor.name} [${tributeCraftArmor.district}] crafted flimsy armor with ${ReturnRandomDurability} durability.</div></li>`);
-                    tributeCraftArmor.hasArmor = true;
-                    tributeCraftArmor.armorDurability = ReturnRandomDurability;
-                }
-                break;
-            case 4:
                 // this part prevents the game from crashing if there aren't enough tributes alive in the while loop
                 let maxTributes = aliveTributes.length; // get the number of alive tributes
                 if (maxTributes < 7) { // if there are less than 7 tributes, set the max tributes to the number of alive tributes -2 (to avoid killing the last 2 tributes)
@@ -1572,14 +1595,6 @@ $(document).ready(function() {
                     }
                 }
                 $("ul").append(`</li>`);
-                break;
-            case 5:
-                let tributeCraftWeapon = ReturnTribute("craftedWeapon");
-                while(tributeCraftWeapon.weapon != "none") {
-                    tributeCraftWeapon = ReturnTribute("craftedWeapon");
-                }
-                $("ul").append(`<div class="bold">[⚒️🗡️] ${tributeCraftWeapon.name} [${tributeCraftWeapon.district}] crafted a makeshift knife.</div>`);
-                tributeCraftWeapon.weapon = "makeshift knife"; // set the weapon to makeshift knife
                 break;
         }
     }
@@ -1814,6 +1829,10 @@ $(document).ready(function() {
             skipIntro = false;
             $("#skipIntro").text("NO");
         }
+   });
+
+    $(document).on("click", "#refresh", function (){
+        location.reload();
    });
 
     function FillInData() {
