@@ -318,7 +318,7 @@ $(document).ready(function() {
     }
 
     // prepare 2 tributes for combat and call CombatTributes to start the combat
-    function Combat(delay, isStart, isEndGame = false){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
+    function Combat(delay, isStart = false, isEndGame = false){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
             let tribute2 = ReturnTribute("combat");
@@ -709,9 +709,9 @@ $(document).ready(function() {
                 damageMode = ReturnRandomNumber(1, 13);
             } else if (!isStartOfGame && isEndGame){ // if it's the end of the game, remove combat styles
                 damageMode = ReturnRandomNumber(4, 7);
-            } else if ((!isStartOfGame && !isEndGame) || (isStartOfGame && isEndGame)) { // should never happen
-                alert("Critical error: Game cannot be at start and end at the same time.");
-                damageMode = damageMode = ReturnRandomNumber(1, 13); // fallback to default behavior
+            } else if ((isStartOfGame && isEndGame)) { // should never happen || if it's both the start and end of the game, fallback to default behavior
+                alert("Error: Game cannot be at start and end at the same time.");
+                damageMode = damageMode = ReturnRandomNumber(1, 11); // fallback to default behavior
                 throw new Error("Invalid state: both isStartOfGame and isEndGame cannot be true or false at the same time.");
             }
             else { // if it's a regular day, limit function to only combat
@@ -1515,13 +1515,13 @@ $(document).ready(function() {
         let random = ReturnRandomNumber(1, 3);
 
         switch(random){
-            case 1:
+            case 1: // mine explosion
                 let mineTribute = ReturnTribute("steppedOnMine");
                 $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
                 mineTribute.causeOfDeath = `stepped on a mine`;
                 HandleDeath(mineTribute);
                 break;
-            case 2:
+            case 2: // monkey attack (steal item or damage)
                 let tributeStolenItem = ReturnTribute("stolenItem");
 
                 if (tributeStolenItem.hasArmor) { // try to take armor first
@@ -1556,7 +1556,7 @@ $(document).ready(function() {
                         HandleDeath(tributeStolenItem);
                     }
                 }
-            case 3:
+            case 3: // wildfire
                 // this part prevents the game from crashing if there aren't enough tributes alive in the while loop
                 let maxTributes = aliveTributes.length; // get the number of alive tributes
                 if (maxTributes < 7) { // if there are less than 7 tributes, set the max tributes to the number of alive tributes -2 (to avoid killing the last 2 tributes)
@@ -1604,13 +1604,14 @@ $(document).ready(function() {
         let random = ReturnRandomNumber(1, 6);
 
         switch (random) {
-            case 1:
+            case 1: // cheater
                 let cheater = ReturnTribute("cheater");
                 $("ul").append(`<li class="log"><div class="bold">[⚠️💀] ${cheater.name} [${cheater.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
                 cheater.causeOfDeath = `caught cheating`;
                 HandleDeath(cheater);
                 break;
-            case 2:
+            case 2: // lightning strike
+            // TO DO: ADD CHANCE TO DODGE / NOT DIE
                 let struckDownTribute = ReturnTribute("lightning");
                 $("ul").append(`<li class="log"><div class="bold">[⚡💀] ${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died instantly!</div></li>`);
                 struckDownTribute.causeOfDeath = `struck by lightning`;
