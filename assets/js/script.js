@@ -37,14 +37,15 @@ $(document).ready(function() {
         let randomForSteppedOfPlate = ReturnRandomNumber(1, 7);
         let delay = ReturnRandomTimer(true);
         let counterDelay = ReturnRandomNumber(400, 500);
+        let deathCause = `started early and was blown up`;
         setTimeout(function(){
             if (randomForSteppedOfPlate === 1) { // 1/7 chance a tribute stepped off their plate
                 let tribute = ReturnTribute("steppedOfPlate");
                 let randomFor2Tributes = ReturnRandomNumber(1, 5);
                 if (randomFor2Tributes >= 1 && randomFor2Tributes <= 4) { // 4/5 chance only 1 tribute stepped of their plate
                     $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
-                    tribute.causeOfDeath = `started early and was blown up`;
-                    HandleDeath(tribute);
+
+                    HandleDeath(tribute, deathCause);
                     ScrollToBottom();
                 } else { // 1/5 chance multiple tributes stepped of their plate
                     let randomFor3Tributes = ReturnRandomNumber(1, 4);
@@ -54,63 +55,64 @@ $(document).ready(function() {
                     }
                     if (randomFor3Tributes >= 1 && randomFor3Tributes <= 3) { // 3/4 chance 2 tributes get blown up
                         $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
-                        tribute.causeOfDeath = `started early and was blown up`;
-                        HandleDeath(tribute);
+
+                        let deathCause = `started early and was blown up`;
+                        HandleDeath(tribute, deathCause);
                         ScrollToBottom();
                         setTimeout(function(){
                             $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
-                            tribute2.causeOfDeath = `started early and was blown up`;
-                            HandleDeath(tribute2);
+
+                            HandleDeath(tribute2, deathCause);
                             ScrollToBottom();
                         }, delay - counterDelay);
-                    } else { // 1/4 chance more tributes stepped off their plate
-                        let randomFor4Tributes = ReturnRandomNumber(1, 4);
+                    } else { // 1/5 chance more tributes stepped off their plate
+                        let randomFor4Tributes = ReturnRandomNumber(1, 5);
                         let tribute3 = ReturnTribute("steppedOfPlate");
                         while (tribute3 === tribute || tribute3 === tribute2) { // make sure this isn't the same tribute
                             tribute3 = ReturnTribute("steppedOfPlate");
                         }
-                        if (randomFor4Tributes >= 1 && randomFor4Tributes <= 3) { // 3/4 chance 3 tributes get blown up
+                        if (randomFor4Tributes >= 1 && randomFor4Tributes <= 4) { // 3/5 chance 3 tributes get blown up
                             $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
-                            tribute.causeOfDeath = `started early and was blown up`;
-                            HandleDeath(tribute);
+
+                            HandleDeath(tribute, deathCause);
                             ScrollToBottom();
                             setTimeout(function () {
                                 $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
-                                tribute2.causeOfDeath = `started early and was blown up`;
-                                HandleDeath(tribute2);
+
+                                HandleDeath(tribute2, deathCause);
                                 ScrollToBottom();
                             }, delay - counterDelay);
                             setTimeout(function(){
                                 $("main").append(`<li class="log"><div>${tribute3.name} [${tribute3.district}] stepped off their plate early and was blown up!</div></li>`);
-                                tribute3.causeOfDeath = `started early and was blown up`;
-                                HandleDeath(tribute3);
+
+                                HandleDeath(tribute3, deathCause);
                                 ScrollToBottom();
                             }, delay - counterDelay + delay - counterDelay);
-                        } else {
+                        } else { // 1/5 chance 4 tributes get blown up
                             let tribute4 = ReturnTribute("steppedOfPlate");
                             while (tribute4 === tribute || tribute4 === tribute2 || tribute4 === tribute3) { // make sure this isn't the same tribute
                                 tribute4 = ReturnTribute("steppedOfPlate");
                             }
                             $("main").append(`<li class="log"><div>${tribute.name} [${tribute.district}] stepped off their plate early and was blown up!</div></li>`);
-                            tribute.causeOfDeath = `started early and was blown up`;
-                            HandleDeath(tribute);
+
+                            HandleDeath(tribute, deathCause);
                             ScrollToBottom();
                             setTimeout(function () {
                                 $("main").append(`<li class="log"><div>${tribute2.name} [${tribute2.district}] stepped off their plate early and was blown up!</div></li>`);
-                                tribute2.causeOfDeath = `started early and was blown up`;
-                                HandleDeath(tribute2);
+
+                                HandleDeath(tribute2, deathCause);
                                 ScrollToBottom();
                             }, delay - counterDelay);
                             setTimeout(function () {
                                 $("main").append(`<li class="log"><div>${tribute3.name} [${tribute3.district}] stepped off their plate early and was blown up!</div></li>`);
-                                tribute3.causeOfDeath = `started early and was blown up`;
-                                HandleDeath(tribute3);
+
+                                HandleDeath(tribute3, deathCause);
                                 ScrollToBottom();
                             }, delay - counterDelay + delay - counterDelay);
                             setTimeout(function (){
-                                tribute4.causeOfDeath = `started early and was blown up`;
-                                HandleDeath(tribute4);
                                 $("main").append(`<li class="log"><div>${tribute4.name} [${tribute4.district}] stepped off their plate early and was blown up!</div></li>`);
+
+                                HandleDeath(tribute4, deathCause);
                                 ScrollToBottom();
                             }, delay - counterDelay + delay - counterDelay + delay - counterDelay)
                         }
@@ -182,6 +184,14 @@ $(document).ready(function() {
         LogShit(startEventsAmount, true); // call the function, passing the amount of events and a boolean to say if it's the start of the game
     }
 
+    function CheckToStartFinalBattle() { // check if the final battle should start
+        if (aliveTributes.length === 2) {
+            const [tribute1, tribute2] = aliveTributes;
+            FinalBattle(tribute1, tribute2);
+            return; // exit the function that called this so no more events are logged
+        }
+    }
+
 
     // this function will be called to log the events that happen during the bloodbath or normal day
     function LogShit(eventsAmount, isStart) { // eventsAmount = how many events will happen, isStart = if it's the start of the game
@@ -194,19 +204,11 @@ $(document).ready(function() {
             delay += randomTimer;
 
             // should never happen, but if the day starts with only 2 tributes alive, start the final battle
-            if (aliveTributes.length === 2) {
-                const [tribute1, tribute2] = aliveTributes;
-                FinalBattle(tribute1, tribute2);
-                return;
-            }
+            CheckToStartFinalBattle()
 
             setTimeout(() => {
                 // If only 2 tributes left, start the final battle (check after each event)
-                if (aliveTributes.length === 2) {
-                    const [tribute1, tribute2] = aliveTributes;
-                    FinalBattle(tribute1, tribute2);
-                    return;
-                }
+                CheckToStartFinalBattle()
 
                 // Proceed with regular event
                 if (isStart || randomEvent <= 10) { // 10 chance
@@ -267,13 +269,8 @@ $(document).ready(function() {
 
         // Function to schedule events
         function scheduleEvent() {
-            // Check if more than 2 tributes are alive
-            if (aliveTributes.length <= 2) {
-                // Once only 2 tributes remain, trigger the final battle
-                const [tribute1, tribute2] = aliveTributes;
-                FinalBattle(tribute1, tribute2);
-                return; // Exit the function once final battle is triggered
-            }
+            // Check if more than 2 tributes are alive, if not, start the final battle
+            CheckToStartFinalBattle();
 
             let randomTimer = ReturnRandomTimer(true);
             let randomEvent = ReturnRandomNumber(1, 20);
@@ -310,9 +307,9 @@ $(document).ready(function() {
     function NukeTributes(){
         let howManyAlive = aliveTributes.length;
         for (let i = 0; i < howManyAlive - 5; i++){
-            aliveTributes[i].KillTribute();
-            aliveTributes[i].causeOfDeath = "nuked";
-            HandleDeath(aliveTributes[i]);
+
+            let deathCause = "nuked";
+            HandleDeath(aliveTributes[i], deathCause);
             aliveTributes.pop();
         }
     }
@@ -321,23 +318,7 @@ $(document).ready(function() {
     function Combat(delay, isStart = false, isEndGame = false){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
-            let tribute2 = ReturnTribute("combat");
-
-            if (aliveTributes.length > 2) { // if there are more than 2 tributes alive, make sure the tributes are not the same
-                while (tribute1 === tribute2) {
-                    tribute2 = ReturnTribute("combat"); // pick a different tribute if the tributes are the same
-                }
-            } else if (aliveTributes.length === 2) { // if there are only 2 tributes alive, pick them both
-                const [tribute1, tribute2] = aliveTributes;
-                FinalBattle(tribute1, tribute2);
-            }
-
-            if (aliveTributes.length > 3) { // if there are more than 3 tributes alive, make same district battles less likely
-                while (tribute1.district === tribute2.district) { // check if the tributes are from the same district
-                    if (ReturnRandomNumber(1, 6) === 1) break; // 1 in 6 chance to allow same district battles
-                    tribute2 = ReturnTribute("combat"); // 5 in 6 chance to try to pick a different tribute
-                }
-            }
+            let tribute2 = ReturnValidSecondTribute(tribute1, tribute2, 6, "combat"); // pick a valid 2nd tribute
 
             CombatTributes(tribute1, tribute2, isStart, isEndGame); // start the combat with the prepared tributes
             CheckToRemoveTributesFromList(); // check if the tributes are dead and remove them from the aliveTributes array if missed
@@ -366,16 +347,13 @@ $(document).ready(function() {
                 let winner = attacker.isAlive ? attacker : defender;
                 let loser = !attacker.isAlive ? attacker : defender;
 
-                // Record the death and add kill count
-                winner.AddKill(loser);
-                winner.killedTributes.push(loser.name);
-                loser.causeOfDeath = `Killed by ${winner.name} [${winner.district}] in the final battle`;
-                HandleDeath(loser);
+                let deathCause = `Killed by ${winner.name} [${winner.district}] in the final battle`;
+                HandleDeath(loser, deathCause, winner);
 
                 // Now that the battle is over, append the final winner and loser info
                 $("#eventLog").append(`<li class='log gold'><div>[⚔️💀] ${loser.name} [${loser.district}] was slain by ${winner.name} [${winner.district}] in round ${round} of the final battle.</div><div>🏆 ${winner.name} from district ${winner.district} wins the Hunger Games! 🏆</div></li>`);
                 $("#eventLog").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
-                $("#eventLog").append(`<li id="refresh" class="col-12 finish">SEE TRIBUTES</li>`);
+                $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
                 ScrollToBottom();  // Scroll to bottom of log once final battle is finished
                 return;
             }
@@ -398,19 +376,20 @@ $(document).ready(function() {
     }
 
     function FellInTrap() {
-        let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick a random number between 1 and 3 to determine which trap the tribute fell into
-        let trappedTribute = ReturnTribute("fellInTrap"); // pick a tribute to fall into the trap
-        let trapSetter = ReturnTribute("trapSetter"); // pick a tribute that set the trap
+        let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick which trap
+        let trappedTribute = ReturnTribute("fellInTrap");
+        let trapSetter = ReturnValidSecondTribute(trappedTribute, trapSetter, 4, "trapSetter");
+
         if (randomForWhichTrap === 1 || randomForWhichTrap === 2) { // 2/3 chance to take damage
             let trapDamage = ReturnRandomNumber(25, 60); // generate a random number between 25 and 60 for the trap damage
             HandleDamage(trappedTribute, trapDamage); // handle the damage
             if (!trappedTribute.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div class="bold">[🪤💀] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage. ${trappedTribute.name} died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">[🪤💀] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage! ${trappedTribute.name} died.</div></li>`);
                 trapSetter.AddKill(trappedTribute); // award a kill to the trap setter and store the killed tribute
                 trappedTribute.causeOfDeath = `trap by ${trapSetter.name} [${trapSetter.district}]`; // set the cause of death
                 HandleDeath(trappedTribute); // handle death of the tribute
             } else {
-                $("ul").append(`<li class="log"><div>[🪤💥] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage. They now have ${trappedTribute.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🪤💥] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage! They now have ${trappedTribute.hp} HP.</div></li>`);
             }
         } else if (randomForWhichTrap === 3) { // 1/3 chance to die instantly
             $("ul").append(`<li class="log"><div class="bold">[🪤💀] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and died instantly.</div></li>`);
@@ -668,11 +647,21 @@ $(document).ready(function() {
 
     }
 
-    function HandleDeath(tribute){
-        if(tribute.isAlive){
-            tribute.KillTribute();
+    // victim = the tribute that died
+    // killer = if the victim was killed by another tribute, it will be the killer, if not it will be null
+    // we request the death cause so I'm sure I won't forget to set it (since it's a required parameter)
+    function HandleDeath(victim, deathCause, killer = null) {
+        if (victim.isAlive){ // if the tribute is still alive, kill it
+            victim.KillTribute();
         }
-        RemoveTributeFromAliveList(tribute); // if the tribute is dead, remove it from the aliveTributes array
+
+        if (killer !== null){ // if tribute2 is not null, remove it from the aliveTributes array
+            killer.AddKill(victim); // add a kill to the killer
+            killer.killedTributes.push(victim); // add the killed tribute to the killer's killedTributes array
+        }
+
+        victim.causeOfDeath = deathCause; // set the cause of death
+        RemoveTributeFromAliveList(victim); // if the tribute is dead, remove it from the aliveTributes array
         PlayKillSound(); // play the canon sound
     }
 
@@ -680,21 +669,22 @@ $(document).ready(function() {
         for (let i = 0; i < aliveTributes.length; i++) {
             HandleDamage(aliveTributes[i], damage);
             if (!aliveTributes[i].isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div class="bold">[〰️💀] ${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake.</div></li>`);
-                aliveTributes[i].causeOfDeath = `${causeOfDeathMessage}`;
-                HandleDeath(aliveTributes[i]);
+                $("ul").append(`<li class="log"><div class="bold">[〰️💀] ${aliveTributes[i].name} [${aliveTributes[i].district}] died from the earthquake!</div></li>`);
+                HandleDeath(aliveTributes[i], causeOfDeathMessage);
             } else{
-                $("ul").append(`<li class="log"><div>[〰️💥] ${aliveTributes[i].name} [${aliveTributes[i].district}] took ${damage} damage from the earthquake. They now have ${aliveTributes[i].hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[〰️💥] ${aliveTributes[i].name} [${aliveTributes[i].district}] took ${damage} damage from the earthquake! They now have ${aliveTributes[i].hp} HP.</div></li>`);
             }
         }
 
         if (aliveTributes.length === 0) {
             $("ul").append(`<li class="log announcement noWinner"><div>📢 All tributes died; there is no winner this edition! 📢</div></li>`);
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
+            $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
             return;
         } else if (aliveTributes.length === 1) {
             $("ul").append(`<li class="log announcement gold"><div>📢 ${aliveTributes[0].name} [${aliveTributes[0].district}] is the last tribute alive! They win the Hunger Games! 📢</div></li>`);
             $("ul").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
+            $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
             return;
         }
     }
@@ -721,30 +711,30 @@ $(document).ready(function() {
             if (damageMode === 1 || damageMode === 2 || damageMode === 3) { // make both tributes do damage to each other
                 let damageToTribute1 = CalculateDamage(tribute2);
                 let damageToTribute2 = CalculateDamage(tribute1);
+                let deathCause;
 
                 HandleDamage(tribute1, damageToTribute1);
                 HandleDamage(tribute2, damageToTribute2);
 
                 if (!tribute1.isAlive && tribute2.isAlive) { // if tribute1 is dead and tribute2 is alive
-                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀]${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div></li>`);
-                    tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                    tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in short combat`; // set the cause of death
-                    HandleDeath(tribute1); // handle death of tribute1
+                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀]${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div></li>`);
+
+                    deathCause = `killed by ${tribute2.name} [${tribute2.district}] in short combat`;
+                    HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
                 } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div>[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div></li>`);
-                    tribute1.AddKill(tribute2); // award a kill to tribute1
-                    tribute2.causeOfDeath = `killed by ${tribute1.name} ${tribute1.district} in short combat`; // set the cause of death
-                    HandleDeath(tribute2); // handle death of tribute2
+                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div></li>`);
+
+                    deathCause = `killed by ${tribute1.name} [${tribute1.district}] in short combat`;
+                    HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
                 } else if (tribute1.isAlive && tribute2.isAlive) { // if both tributes are alive
-                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div><div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div><div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div></li>`);
                 } else { // if both tributes are dead
-                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div><div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div></li>`);
-                    tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
-                    tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                    tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in short combat`; // set the cause of death
-                    tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}] in short combat`; // set the cause of death
-                    HandleDeath(tribute1); // handle death of tribute1
-                    HandleDeath(tribute2); // handle death of tribute2
+                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div><div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div></li>`);
+
+                    let deathMessage1 = `killed by ${tribute2.name} [${tribute2.district}] in short combat`; // set the cause of death
+                    let deathMessage2 = `killed by ${tribute1.name} [${tribute1.district}] in short combat`; // set the cause of death
+                    HandleDeath(tribute1, deathMessage1, tribute2); // handle death of tribute1
+                    HandleDeath(tribute2, deathMessage2, tribute1); // handle death of tribute2
                     setTimeout(function () {
                         PlayKillSound(); // play it again after short delay to make sure 2 canon shots can be heard
                     }, 750);
@@ -755,53 +745,55 @@ $(document).ready(function() {
                 let damage = CalculateDamage(attacker); // calculate the damage of the attacker
                 HandleDamage(damageTo, damage); // handle the damage of the tribute that takes damage
                 if (damageTo.isAlive === false) { // if the tribute that took damage is dead
-                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage. ${damageTo.name} has died.</li></div>`);
-                    attacker.AddKill(damageTo); // award a kill to the attacker and store the killed tribute
-                    damageTo.causeOfDeath = `killed by ${attacker.name} ${attacker.district} in 1 attack`; // set the cause of death
-                    HandleDeath(damageTo); // handle death of the tribute that died
+                    $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage! ${damageTo.name} has died.</li></div>`);
+
+                    let deathCause = `killed by ${attacker.name} ${attacker.district} in 1 attack`; // set the cause of death
+                    HandleDeath(damageTo, deathCause, attacker); // handle death of the tribute that died
                 } else { // if the tribute that took damage is alive
-                    $("ul").append(`<li class="log"><div>[⚔️💥] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage. ${damageTo.name} now has ${damageTo.hp} HP.</li></div>`);
+                    $("ul").append(`<li class="log"><div>[⚔️💥] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage! ${damageTo.name} now has ${damageTo.hp} HP.</li></div>`);
                 }
             } else if (damageMode === 7) { // 1 tribute gets killed instantly by the other
                 let victim = Math.random() < 0.5 ? tribute1 : tribute2; // pick a random tribute to be the victim
                 let killer = victim === tribute1 ? tribute2 : tribute1; // pick the other tribute as the killer
-                killer.AddKill(victim); // award a kill to the killer and store the killed tribute
-                victim.causeOfDeath = `instantly killed by ${killer.name} [${killer.district}]`; // set the cause of death
-                HandleDeath(victim); // handle death of the victim
+
                 $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${victim.name} [${victim.district}] has been killed instantly by ${killer.name} [${killer.district}]!</div></li>`);
+
+                let deathCause = `instantly killed by ${killer.name} [${killer.district}]`; // set the cause of death
+                HandleDeath(victim, deathCause, killer); // handle death of the victim
             } else if (damageMode === 8) { // make 2 tributes fight until 1 dies
                 let fightLog = `<li class="log">`;
-                while (tribute1.isAlive === true && tribute2.isAlive === true) { // as long as both tributes are alive, make them fight
+                while (tribute1.isAlive && tribute2.isAlive) { // as long as both tributes are alive, make them fight
                     HandleDamage(tribute1, damageToTribute1); // handle damage done to tribute1
                     HandleDamage(tribute2, damageToTribute2);  // handle damage done to tribute2
                 }
                 if(!tribute1.isAlive || !tribute2.isAlive){ // if at least 1 tribute is dead
                     if (!tribute1.isAlive && tribute2.isAlive) {// if tribute1 is dead and tribute2 is alive
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div>`;
-                        tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                        tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute1); // handle death of tribute1
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+
+                        let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
+                        HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
                     } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
-                        tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
-                        tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute2); // handle death of tribute2
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
+
+                        let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
+                        HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
                     } else{ // if both tributes are dead
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
                         tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
                         tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                        tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
-                        tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute1); // handle death of tribute1
-                        HandleDeath(tribute2); // handle death of tribute2
+
+                        let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
+                        let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
+                        HandleDeath(tribute1, deathCause1, tribute2); // handle death of tribute1
+                        HandleDeath(tribute2, deathCause2, tribute1); // handle death of tribute2
 
                     }
                 } else{ // if both tributes are alive
-                    fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                    fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
+                    fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
+                    fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
                 }
 
                 fightLog += `</li>`;
@@ -815,29 +807,29 @@ $(document).ready(function() {
                     HandleDamage(tribute2, damageToTribute2);  // handle damage done to tribute2
 
                     if (!tribute1.isAlive && tribute2.isAlive) { // if tribute1 is dead and tribute2 is alive
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div>`;
-                        tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                        tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
-                        HandleDeath(tribute1); // handle death of tribute1
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+
+                        let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
+                        HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
                         break; // exit the loop
                     } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
                         tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
-                        tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
-                        HandleDeath(tribute2); // handle death of tribute2
+
+                        let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
+                        HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
                         break; // exit the loop
                     } else if(tribute1.isAlive && tribute2.isAlive){ // if both tributes are alive
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
                     } else{ // if both tributes are dead
-                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage. ${tribute2.name} died.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage. ${tribute1.name} died.</div>`;
-                        tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
-                        tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-                        tribute1.causeOfDeath = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
-                        tribute2.causeOfDeath = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
-                        HandleDeath(tribute1); // handle death of tribute1
-                        HandleDeath(tribute2); // handle death of tribute2
+                        fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+
+                        let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
+                        let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
+                        HandleDeath(tribute1, deathCause1, tribute2); // handle death of tribute1
+                        HandleDeath(tribute2, deathCause2, tribute2); // handle death of tribute2
                         break; // exit the loop
                     }
                 }
@@ -856,12 +848,12 @@ $(document).ready(function() {
 
                 HandleDamage(defenderTribute, damageToTribute1); // handle damage done to defender tribute
                 if (!defenderTribute.isAlive){ // if the defender tribute is dead
-                    fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage. ${defenderTribute.name} died.</div>`;
-                    attackerTribute.AddKill(defenderTribute); // award a kill to the attacker and store the killed tribute
-                    defenderTribute.causeOfDeath = `killed by ${attackerTribute.name} [${attackerTribute.district}] in long combat`; // set the cause of death
-                    HandleDeath(defenderTribute); // handle death of defender tribute
+                    fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} died.</div>`;
+
+                    let deathCause = `killed by ${attackerTribute.name} [${attackerTribute.district}] in long combat`; // set the cause of death
+                    HandleDeath(defenderTribute, deathCause, attackerTribute); // handle death of defender tribute
                 } else { // if the defender tribute is alive
-                    fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage. ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
+                    fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
                 }
             } else if (damageMode == 12 || damageMode == 13) { // only applies during the bloodbath, 2/7 chance to find something in stead of fighting
                 FoundSomething();
@@ -893,12 +885,13 @@ $(document).ready(function() {
 
         function ApplyDamage() {
             HandleDamage(chosenTribute, animalDamage);
-            if (chosenTribute.isAlive === false) { // check if the tribute is dead
+            if (!chosenTribute.isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">[🐺💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals and died.</div></li>`);
-                HandleDeath(chosenTribute);
-                chosenTribute.causeOfDeath = `killed by wild animals`; // set the cause of death
+
+                let deathCause = `killed by wild animals`; // set the cause of death
+                HandleDeath(chosenTribute, deathCause);
             } else {
-                $("ul").append(`<li class="log"><div>[🐺💥] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals and took ${animalDamage} damage. They now have ${chosenTribute.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🐺💥] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals and took ${animalDamage} damage! They now have ${chosenTribute.hp} HP.</div></li>`);
             }
         }
 
@@ -908,8 +901,9 @@ $(document).ready(function() {
             $("ul").append(`<li class="log"><div>[🐺🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to escape.</div></li>`);
         } else if (random === 3) { // 1/10 chance to die instantly
             $("ul").append(`<li class="log"><div class="bold">[🐺💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals and died instantly!</div></li>`);
-            chosenTribute.causeOfDeath = `killed by wild animals`;
-            HandleDeath(chosenTribute);
+
+            let deathCause = `killed by wild animals`; // set the cause of death
+            HandleDeath(chosenTribute, deathCause);
         } else if (random >= 4 && random <= 10) { // 7/10 chance for stat check
             if (chosenTribute.power >= 8) {
                 $("ul").append(`<li class="log"><div>[🐺👊] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to fight them off.</div></li>`);
@@ -1015,10 +1009,11 @@ $(document).ready(function() {
             HandleDamage(tribute, hpDifference);
             if (!tribute.isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${tribute.name} [${tribute.district}] ate poisoned food and died.</div></li>`);
-                tribute.causeOfDeath = `poisoned food`; // set the cause of death
-                HandleDeath(tribute); // handle death of the tribute
+
+                let deathCause = `poisoned food`; // set the cause of death
+                HandleDeath(tribute, deathCause); // handle death of the tribute
             } else {
-                $("ul").append(`<li class="log"><div>[☣️💥] ${tribute.name} [${tribute.district}] ate poisoned food and took ${hpDifference} damage. They now have ${tribute.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[☣️💥] ${tribute.name} [${tribute.district}] ate poisoned food and took ${hpDifference} damage! They now have ${tribute.hp} HP.</div></li>`);
             }
         }
 
@@ -1036,8 +1031,9 @@ $(document).ready(function() {
                 HandleDamage(chosenTribute, hpDifference);
                 if (!chosenTribute.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${chosenTribute.name} [${chosenTribute.district}] ate poisoned food and died.</div></li>`);
-                    chosenTribute.causeOfDeath = `poisoned food`; // set the cause of death
-                    HandleDeath(chosenTribute); // handle death of the tribute
+
+                    let deathCause = `poisoned food`; // set the cause of death
+                    HandleDeath(chosenTribute, deathCause); // handle death of the tribute
                 } else {
                     $("ul").append(`<li class="log"><div>[☣️💥] ${chosenTribute.name} [${chosenTribute.district}] found food but it was poisoned. They now have ${chosenTribute.hp} HP.</div></li>`);
                 }
@@ -1204,38 +1200,31 @@ $(document).ready(function() {
         HandleDamage(chosenTribute, injuryDamage);
         if (chosenTribute.isAlive === false) { // check if the tribute is dead
             $("ul").append(`<li class="log"><div class="bold">[🤕💀] ${chosenTribute.name} [${chosenTribute.district}] got injured and died to their injuries.</div></li>`);
-            chosenTribute.causeOfDeath = `injuries`; // set the cause of death
-            HandleDeath(chosenTribute);
+
+            let deathCause = `injuries`; // set the cause of death
+            HandleDeath(chosenTribute, deathCause);
         } else {
-            $("ul").append(`<li class="log"><div>[🤕💥] ${chosenTribute.name} [${chosenTribute.district}] got injured and took ${injuryDamage} damage. They now have ${chosenTribute.hp} HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>[🤕💥] ${chosenTribute.name} [${chosenTribute.district}] got injured and took ${injuryDamage} damage! They now have ${chosenTribute.hp} HP.</div></li>`);
         }
     }
 
     function Ambushed(){
         let ambushedTribute = ReturnTribute("ambushed");
-        let ambusher = ReturnTribute("ambusher");
+        let ambusher = ReturnValidSecondTribute(ambushedTribute, ambusher, 10, "ambusher");
         let ambusherDamage = CalculateDamage(ambusher);
         let ambushedDamage = CalculateDamage(ambushedTribute);
         let random = ReturnRandomNumber(1, 8);
 
-        function TakeDamage(damageTaker, damage, damageGiver) {
-            HandleDamage(damageTaker, damage);
-
-            if (!damageTaker.isAlive) { // check if the tribute is dead
-                damageGiver.AddKill(damageTaker); // award a kill to the killer and store the killed tribute
-                HandleDeath(damageTaker); // handle death of the tribute that died
-            }
-        }
-
         if (random === 1 || random === 2) { // 2/8 chance to take damage
-            TakeDamage(ambushedTribute, ambusherDamage, ambusher); // apply damage to the ambushed tribute
+            HandleDamage(ambushedTribute, ambusherDamage);
+
             if (!ambushedTribute.isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">[🥷💀] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and died.</div></li>`);
-                ambushedTribute.causeOfDeath = `ambushed by ${ambusher.name} [${ambusher.district}]`; // set the cause of death
-                HandleDeath(ambushedTribute); // handle death of the tribute that died
-                ambusher.AddKill(ambushedTribute); // award a kill to the killer and store the killed tribute
+
+                let deathCause = `ambushed by ${ambusher.name} [${ambusher.district}]`; // set the cause of death
+                HandleDeath(ambushedTribute, deathCause, ambusher); // handle death of the tribute that died
             } else {
-                $("ul").append(`<li class="log"><div>[🥷💥] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🥷💥] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage! ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
             }
         } else if (random === 3) { // 1/8 chance take no damage
             $("ul").append(`<li class="log"><div>[🥷🏃] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to escape.</div></li>`);
@@ -1245,34 +1234,41 @@ $(document).ready(function() {
             } else if (ambushedTribute.speed >= 8){ // if the ambushed tribute passes the speed check, do nothing
                 $("ul").append(`<li class="log"><div>[🥷🏃] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to run away.</div></li>`);
             } else if (ambushedTribute.combatSkills >= 8){ // // if the ambushed tribute passes the combat skills check, fight back
-                TakeDamage(ambusher, ambushedDamage, ambushedTribute); // apply damage to the ambusher tribute
+                HandleDamage(ambusher, ambushedDamage);
+
                 if (!ambusher.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[☠️🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back and killed them.</div></li>`);
-                    ambusher.causeOfDeath = `failed ambush on ${ambushedTribute.name} [${ambushedTribute.district}]`; // set the cause of death
+
+                    let deathCause = `failed ambush on ${ambushedTribute.name} [${ambushedTribute.district}]`; // set the cause of death
+                    HandleDeath(ambusher, deathCause, ambushedTribute); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>[💥🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[💥🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back, dealing ${ambushedDamage} damage! ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
                 }
             }
         } else{ // 3/8 chance to compare stats
             if (ambushedTribute.combatSkills > ambusher.combatSkills) { // if the ambushed tribute has more power than the ambusher
-                TakeDamage(ambusher, ambushedDamage, ambushedTribute); // apply damage to the ambusher tribute
+                HandleDamage(ambusher, ambushedDamage);
+
                 if (!ambusher.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[☠️🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back and killed them.</div></li>`);
-                    ambusher.causeOfDeath = `failed ambush on ${ambushedTribute.name} [${ambushedTribute.district}]`; // set the cause of death
-                    HandleDeath(ambusher); // handle death of the tribute that died
-                    ambushedTribute.AddKill(ambusher); // award a kill to the killer and store the killed tribute
+
+                    let deathCause = `failed ambush on ${ambushedTribute.name} [${ambushedTribute.district}]`; // set the cause of death
+                    HandleDeath(ambusher, deathCause, ambushedTribute); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>[🗡️🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back, dealing ${ambushedDamage} damage. ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🗡️🥷] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but fought back, dealing ${ambushedDamage} damage! ${ambusher.name} now has ${ambusher.hp} HP.</div></li>`);
                 }
             } else if (ambushedTribute.speed > ambusher.speed) { // if the ambushed tribute has more speed than the ambusher
                 $("ul").append(`<li class="log"><div>[🥷🏃] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to outrun them.</div></li>`);
             } else { // if the ambushed tribute fails both checks, apply damage
-                TakeDamage(ambushedTribute, ambusherDamage, ambusher); // apply damage to the ambushed tribute
+                HandleDamage(ambushedTribute, ambusherDamage);
+
                 if (!ambushedTribute.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[🥷💀] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and died.</div></li>`);
-                    ambushedTribute.causeOfDeath = `ambushed by ${ambusher.name} [${ambusher.district}]`; // set the cause of death
+
+                    let deathCause = `ambushed by ${ambusher.name} [${ambusher.district}]`; // set the cause of death
+                    HandleDeath(ambushedTribute, deathCause, ambusher);
                 } else {
-                    $("ul").append(`<li class="log"><div>[🥷💥] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage. ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🥷💥] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage! ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
                 }
             }
         }
@@ -1282,42 +1278,20 @@ $(document).ready(function() {
         let mercyShower = ReturnTribute("showedMercy");
         let sparedTribute = ReturnTribute("sparedTribute");
         let randomForBackStabbed = ReturnRandomNumber(1, 2);
-        let tries = 0; // Keep rerolling sparedTribute until there are 2 different tributes
-        let attempts = 0; // keep rerolling sparedTribute until it is (1/6) from a different district
 
-        while(mercyShower === sparedTribute){
-            while (mercyShower.district === sparedTribute.district && attempts < 200){
-                let randomChance = ReturnRandomNumber(1, 6);
-                if (randomChance != 1){ // 5/6 chance to pick a new tribute
+        // First, ensure mercyShower and sparedTribute are not the same tribute
+        while (mercyShower === sparedTribute) {
+            sparedTribute = ReturnTribute("sparedTribute");
+        }
+
+        // If same district, 1/6 chance to allow mercy — otherwise reroll until different district
+        if (mercyShower.district === sparedTribute.district) {
+            let allowSameDistrict = ReturnRandomNumber(1, 6); // 1 = allow
+            if (allowSameDistrict !== 1) {
+                // Reroll until a tribute from a different district is found
+                do {
                     sparedTribute = ReturnTribute("sparedTribute");
-                }
-                attempts++;
-            }
-
-            if (attempts === 200 && mercyShower.district === sparedTribute.district) {
-                $("ul").append(`<li class="log"><div>[🥺❌] ${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute.`);
-                throw new Error("Error: Can't find 2 tributes to show mercy");
-            }
-
-            if(aliveTributes.length > 2){
-                sparedTribute = ReturnTribute("sparedTribute");
-                if (tries === 200) { // if the code can't find 2 tributes, should never happen
-                    $("ul").append(`<li class="log"><div>[🥺❌] ${mercyShower.name} [${mercyShower.district}] showed mercy to a tribute.`);
-                    throw new Error("Error: Can't find 2 tributes to show mercy");
-                }
-                tries++;
-            } else if(aliveTributes.length === 2){ // should never happen, but in case
-                let randomNumber = ReturnRandomNumber(1, 2);
-                if(randomNumber - 1 === 0){ // check if number is one
-                    mercyShower = aliveTributes[randomNumber];
-                    sparedTribute = aliveTributes[randomNumber +1];
-                } else{ // if random number is 2
-                    mercyShower = aliveTributes[randomNumber];
-                    sparedTribute = aliveTributes[randomNumber - 1];
-                }
-            } else{
-                alert("Critical Error: Only 1 tribute left to show mercy!");
-                throw new Error("Only one tribute left to show mercy!");
+                } while (sparedTribute.district === mercyShower.district);
             }
         }
 
@@ -1331,9 +1305,9 @@ $(document).ready(function() {
                     $("ul").append(`<li class="log"><div>[💥🥺] ${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and lost ${damage} HP. ${mercyShower.name} now has ${mercyShower.hp} HP.</div></li>`);
                 } else{
                     $("ul").append(`<li class="log"><div>[☠️🥺] ${mercyShower.name} [${mercyShower.district}] showed mercy to ${sparedTribute.name} [${sparedTribute.district}] but was backstabbed and got killed by ${sparedTribute.name}.</div>></li>`);
-                    HandleDeath(mercyShower);
-                    mercyShower.causeOfDeath = `showed mercy but backstabbed by ${sparedTribute.name} [${sparedTribute.district}]`
-                    sparedTribute.AddKill(mercyShower);
+
+                    let deathCause = `showed mercy but backstabbed by ${sparedTribute.name} [${sparedTribute.district}]`
+                    HandleDeath(mercyShower, deathCause, sparedTribute);
                 }
             }
         } else{ // if the tribute has less than 10 popularity, give +1 popularity
@@ -1343,9 +1317,34 @@ $(document).ready(function() {
         }
     }
 
+    // TO DO : IMPLEMENT THIS
+    // tribute1 = first tribute | tribute2 = second tribute (the one that will be switched if necessary)
+    // sameDistrictChance = chance to allow same district tributes (between 1 and sameDistrictChance)
+    // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
+    function ReturnValidSecondTribute(tribute1, tribute2, sameDistrictChance, whatFor) {
+
+        CheckToStartFinalBattle();
+
+        while (tribute1 === tribute2) { // ensure the tributes are not the same
+            tribute2 = ReturnTribute(whatFor);
+        }
+
+        if (tribute1.district === tribute2.district) {
+            let allowSameDistrict = ReturnRandomNumber(1, sameDistrictChance); // 1 = allow
+            if (allowSameDistrict !== 1) {
+                // Reroll until a tribute from a different district is found
+                do {
+                    tribute2 = ReturnTribute(whatFor);
+                } while (tribute1.district === tribute2.district);
+            }
+        }
+
+        return tribute2;
+    }
+
     function Rested(){
         let rester = ReturnTribute("rested");
-        let attacker = ReturnTribute("attackedRester");
+        let attacker = ReturnValidSecondTribute(rester, ReturnTribute("attackedRester"), 10, "attackedRester");
         let resterDamage = CalculateDamage(rester);
         let attackerDamage = CalculateDamage(attacker);
         let randomHeal = ReturnRandomNumber(15, 45);
@@ -1358,9 +1357,9 @@ $(document).ready(function() {
             HandleDamage(rester, attackerDamage); // apply damage to the rester
             if (!rester.isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
-                attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
-                rester.causeOfDeath = `attacked by ${attacker.name} while resting`; // set the cause of death
-                HandleDeath(rester); // handle death of the tribute that died
+
+                let deathCause = `attacked by ${attacker.name} while resting`; // set the cause of death
+                HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
             } else{
                 $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
             }
@@ -1373,9 +1372,9 @@ $(document).ready(function() {
                 HandleDamage(rester, attackerDamage); // apply damage to the rester
                 if (!rester.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
-                    attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
-                    rester.causeOfDeath = `attacked by ${attacker.name} [${attacker.district}] while resting`; // set the cause of death
-                    HandleDeath(rester); // handle death of the tribute that died
+
+                    let deathCause = `attacked by ${attacker.name} [${attacker.district}] while resting`; // set the cause of death
+                    HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
                 } else{
                     $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
@@ -1385,11 +1384,11 @@ $(document).ready(function() {
                 HandleDamage(attacker, resterDamage); // apply damage to the ambusher tribute
                 if (!attacker.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[☠️💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back and killed them.</div></li>`);
-                    rester.AddKill(attacker); // award a kill to the killer and store the killed tribute
-                    attacker.causeOfDeath = `failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
-                    HandleDeath(attacker); // handle death of the tribute that died
+
+                    let deathCause = `failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
+                    HandleDeath(attacker, deathCause, rester); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>[💥💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage. ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[💥💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage! ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
                 }
             } else if(rester.speed > attacker.speed){ // if the tribute has more speed than the ambusher, do nothing
                 $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape.</div></li>`);
@@ -1397,9 +1396,9 @@ $(document).ready(function() {
                 HandleDamage(rester, attackerDamage); // apply damage to the ambushed tribute
                 if (!rester.isAlive) { // check if the tribute is dead
                     $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
-                    attacker.AddKill(rester); // award a kill to the killer and store the killed tribute
-                    rester.causeOfDeath = `attacked by ${attacker.name} [${attacker.district}]  while resting`; // set the cause of death
-                    HandleDeath(rester); // handle death of the tribute that died
+
+                    let deathCause = `attacked by ${attacker.name} [${attacker.district}]  while resting`; // set the cause of death
+                    HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
                 } else{
                     $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
@@ -1410,12 +1409,14 @@ $(document).ready(function() {
     function EncounterMonster(){
         let chosenTribute = ReturnTribute("monsterEncounter");
         let random = ReturnRandomNumber(1, 5);
+        let deathCause;
 
         switch(random){
             case 1: // 1 / 5 chance to die instantly
-                $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster.</div></li>`);
-                chosenTribute.causeOfDeath = `end game monster`;
-                HandleDeath(chosenTribute);
+                $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster!</div></li>`);
+
+                let deathCause1 = `end game monster`;
+                HandleDeath(chosenTribute, deathCause1);
                 break;
             case 2:
             case 3: // 2 / 5 chance to do stat check
@@ -1423,25 +1424,28 @@ $(document).ready(function() {
                 if(chosenTribute.speed >= 8){
                     HandleDamage(chosenTribute, randomSmallDamage);
                     if(chosenTribute.isAlive){
-                        $("ul").append(`<li class="log"><div>[👹🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but escaped. They only lost ${randomSmallDamage} HP.</div></li>`);
+                        $("ul").append(`<li class="log"><div>[👹🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but escaped! They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else{
-                        $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to run but got killed by an end phase monster.</div></li>`);
-                        chosenTribute.causeOfDeath = `failed to run from end game monster`;
-                        HandleDeath(chosenTribute);
+                        $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to run but got killed by an end phase monster!</div></li>`);
+
+                        deathCause = `failed to run from end game monster`;
+                        HandleDeath(chosenTribute, deathCause2);
                     }
                 } else if (chosenTribute.luck >= 8){
                     HandleDamage(chosenTribute, randomSmallDamage);
                     if (chosenTribute.isAlive) {
-                        $("ul").append(`<li class="log"><div>[👹😵] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but succesfully played dead. They only lost ${randomSmallDamage} HP.</div></li>`);
+                        $("ul").append(`<li class="log"><div>[👹😵] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but succesfully played dead! They only lost ${randomSmallDamage} HP.</div></li>`);
                     } else {
-                        $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to play dead but got killed by an end phase monster.</div></li>`);
-                        chosenTribute.causeOfDeath = `failed to play death from end game monster`;
-                        HandleDeath(chosenTribute);
+                        $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to play dead but got killed by an end phase monster!</div></li>`);
+
+                        deathCause = `failed to play death from end game monster`;
+                        HandleDeath(chosenTribute, deathCause3);
                     }
                 } else{
-                    $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster.</div></li>`);
-                    chosenTribute.causeOfDeath = `end game monster`;
-                    HandleDeath(chosenTribute);
+                    $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster!</div></li>`);
+
+                    deathCause = `end game monster`;
+                    HandleDeath(chosenTribute, deathCause4);
                 }
                 break;
             case 4:
@@ -1449,11 +1453,12 @@ $(document).ready(function() {
                 let randomDamage = ReturnRandomNumber(45, 80);
                 HandleDamage(chosenTribute, randomDamage);
                 if (chosenTribute.isAlive) {
-                    $("ul").append(`<li class="log"><div>[👹💥] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but survived. They lost ${randomDamage} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[👹💥] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster but survived! They lost ${randomDamage} HP.</div></li>`);
                 } else {
-                    $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster and died.</div></li>`);
-                    chosenTribute.causeOfDeath = `end game monster`;
-                    HandleDeath(chosenTribute);
+                    $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster and died!</div></li>`);
+
+                    deathCause = `end game monster`;
+                    HandleDeath(chosenTribute, deathCause5);
                 }
                 break;
         }
@@ -1502,7 +1507,7 @@ $(document).ready(function() {
                 crafter.armorDurability = ReturnRandomDurability;
             }
         } else{ // 50% chance to craft a weapon
-            while (crafter.weapon != "none") {
+            while (crafter.weapon != "none") { // make sure the tribute can craft a weapon (so pick one without weapon)
                 crafter = ReturnTribute("craftedWeapon");
             }
             $("ul").append(`<div class="bold">[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife.</div>`);
@@ -1513,13 +1518,15 @@ $(document).ready(function() {
     // add more events
     function RareRandomEvent() {
         let random = ReturnRandomNumber(1, 3);
+        let deathCause;
 
         switch(random){
             case 1: // mine explosion
                 let mineTribute = ReturnTribute("steppedOnMine");
                 $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
-                mineTribute.causeOfDeath = `stepped on a mine`;
-                HandleDeath(mineTribute);
+
+                deathCause = `stepped on a mine`;
+                HandleDeath(mineTribute, deathCause);
                 break;
             case 2: // monkey attack (steal item or damage)
                 let tributeStolenItem = ReturnTribute("stolenItem");
@@ -1552,8 +1559,9 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>[🐒💥] ${tributeStolenItem.name} [${tributeStolenItem.district}]'s ${tributeStolenItem.weapon} got attacked by a group of monkeys and lost ${damage} HP before they managed to flee!</div></li>`);
                     } else {
                         $("ul").append(`<li class="log"><div>[🐒💀] ${tributeStolenItem.name} [${tributeStolenItem.district}]'s ${tributeStolenItem.weapon} got attacked by a group of monkeys and died!</div></li>`);
-                        tributeStolenItem.causeOfDeath = `killed by a group of monkeys`;
-                        HandleDeath(tributeStolenItem);
+
+                        deathCause = `killed by a group of monkeys`;
+                        HandleDeath(tributeStolenItem, deathCause);
                     }
                 }
             case 3: // wildfire
@@ -1587,11 +1595,12 @@ $(document).ready(function() {
                     let randomDamage = ReturnRandomNumber(10, 30); // select a random damage amount
                     HandleDamage(wildFireTribute, randomDamage); // apply damage to the tribute
                     if (wildFireTribute.isAlive) { // check if the tribute is dead
-                        $("ul").append(`<div>[🔥💥] ${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and lost ${randomDamage} HP before they managed to escape. They now have ${wildFireTribute.hp} HP.</div>`);
+                        $("ul").append(`<div>[🔥💥] ${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and lost ${randomDamage} HP before they managed to escape! They now have ${wildFireTribute.hp} HP.</div>`);
                     } else {
-                        $("ul").append(`<div class="bold">[🔥💀] ${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and died.</div>`);
-                        wildFireTribute.causeOfDeath = `caught in wildfire`;
-                        HandleDeath(wildFireTribute);
+                        $("ul").append(`<div class="bold">[🔥💀] ${wildFireTribute.name} [${wildFireTribute.district}] was caught in the wildfire and died!</div>`);
+
+                        let deathCause = `caught in wildfire`;
+                        HandleDeath(wildFireTribute, deathCause);
                     }
                 }
                 $("ul").append(`</li>`);
@@ -1602,20 +1611,23 @@ $(document).ready(function() {
     // to implement
     function SuperRareRandomEvent() {
         let random = ReturnRandomNumber(1, 6);
+        let deathCause;
 
         switch (random) {
             case 1: // cheater
                 let cheater = ReturnTribute("cheater");
                 $("ul").append(`<li class="log"><div class="bold">[⚠️💀] ${cheater.name} [${cheater.district}] was caught cheating and got killed by the gamemakers!</div></li>`);
-                cheater.causeOfDeath = `caught cheating`;
-                HandleDeath(cheater);
+
+                deathCause = `caught cheating`;
+                HandleDeath(cheater, deathCause);
                 break;
             case 2: // lightning strike
             // TO DO: ADD CHANCE TO DODGE / NOT DIE
                 let struckDownTribute = ReturnTribute("lightning");
                 $("ul").append(`<li class="log"><div class="bold">[⚡💀] ${struckDownTribute.name} [${struckDownTribute.district}] was struck by lightning and died instantly!</div></li>`);
-                struckDownTribute.causeOfDeath = `struck by lightning`;
-                HandleDeath(struckDownTribute);
+
+                deathCause = `struck by lightning`;
+                HandleDeath(struckDownTribute, deathCause);
                 break;
             case 3:
                 let earthquakeDamage = ReturnRandomNumber(20, 35);
@@ -1631,29 +1643,30 @@ $(document).ready(function() {
                 } else {
                     dreamCameTrue = false;
                 }
-                $("ul").append(`<li class="log"><div>[💤💭] ${dreamerTribute.name} [${dreamerTribute.district}] had a weird dream; foretelling their own death.</div></li>`);
+                $("ul").append(`<li class="log"><div>[💤💭] ${dreamerTribute.name} [${dreamerTribute.district}] had a weird dream; foretelling their own death!</div></li>`);
                 break;
             case 5:
                 let weedTribute = ReturnTribute("sponsorGift");
                 if (weedTribute.hp != 100) {
-                    $("ul").append(`<li class="log"><div>[🎈🌿] ${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and restored all of their HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🌿] ${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and restored all of their HP!</div></li>`);
                     weedTribute.hp = 100;
                 } else {
                     if (weedTribute.intelligence != 1) {
-                        $("ul").append(`<li class="log"><div>[🎈🌿] ${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and lost 1 intelligence.</div></li>`);
+                        $("ul").append(`<li class="log"><div>[🎈🌿] ${weedTribute.name} [${weedTribute.district}] received weed from a sponsor and lost 1 intelligence!</div></li>`);
                         let newIntelligence = parseInt(weedTribute.intelligence) - 1;
                         weedTribute.intelligence = newIntelligence;
                     } else {
-                        $("ul").append(`<li class="log"><div[🎈🌿] >${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it.</div></li>`);
+                        $("ul").append(`<li class="log"><div[🎈🌿] >${weedTribute.name} [${weedTribute.district}] received weed from a sponsor but decided not to smoke it!</div></li>`);
                     }
                 }
             case 6:
                 let droneCrashTribute = ReturnTribute("droneCrash");
                 let droneCrashMode = ReturnRandomNumber(1, 2);
+                deathCause = `sponsor gift crashed`;
                 if(droneCrashMode === 1){ // 50% chance to instantly kill the tribute
                     $("ul").append(`<li class="log"><div class="bold">[🎈💀] A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}] instantly!</div></li>`);
-                    droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
-                    HandleDeath(droneCrashTribute);
+
+                    HandleDeath(droneCrashTribute, deathCause);
                 } else{ // 50% chance to damage the tribute
                     let droneDamage = ReturnRandomNumber(20, 50);
                     HandleDamage(droneCrashTribute, droneDamage);
@@ -1661,8 +1674,8 @@ $(document).ready(function() {
                         $("ul").append(`<li class="log"><div>[🎈💥] A sponsor gift came crashing down and damaged ${droneCrashTribute.name} [${droneCrashTribute.district}] for ${droneDamage} HP. They now have ${droneCrashTribute.hp} HP.</div></li>`);
                     } else{ // if the tribute is dead
                         $("ul").append(`<li class="log"><div class="bold">[🎈💀] A sponsor gift came crashing down and killed ${droneCrashTribute.name} [${droneCrashTribute.district}]!</div></li>`);
-                        droneCrashTribute.causeOfDeath = `sponsor gift crashed`;
-                        HandleDeath(droneCrashTribute);
+
+                        HandleDeath(droneCrashTribute, deathCause);
                     }
                 }
                 break;
@@ -1780,17 +1793,19 @@ $(document).ready(function() {
                 if(dreamer.isAlive){
                     setTimeout(function () {
                         $("#eventLog").append(`<li class='log'><div class="bold">${dreamer.name}'s [${dreamer.district}] dream came true and they died to a hart attack.</div></li>`);
-                        HandleDeath(dreamer);
-                        dreamer.causeOfDeath = `foresaw their hart attack in a dream`;
-                        dreamer = null;
-                        dreamCameTrue = null;
+
+                        let deathCause = `foresaw their hart attack in a dream`;
+                        HandleDeath(dreamer, deathCause);
+
+                        dreamer = null; // can't be moved outside the if statement because of the setTimeout
+                        dreamCameTrue = null; // can't be moved outside the if statement because of the setTimeout
                     }, delay);
                 } // else (if I want to add a text for if the tribute has died during the day)
             } else {
                 setTimeout(function () {
                     $("#eventLog").append(`<li class='log'><div>${dreamer.name}'s [${dreamer.district}] dream didn't come true and they lived (for now).</div></li>`);
-                    dreamer = null;
-                    dreamCameTrue = null;
+                    dreamer = null; // can't be moved outside the if statement because of the setTimeout
+                    dreamCameTrue = null; // can't be moved outside the if statement because of the setTimeout
                 }, delay);
             }
         }
