@@ -318,7 +318,7 @@ $(document).ready(function() {
     function Combat(delay, isStart = false, isEndGame = false){ // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
-            let tribute2 = ReturnValidSecondTribute(tribute1, tribute2, 6, "combat"); // pick a valid 2nd tribute
+            let tribute2 = ReturnValidSecondTribute(tribute1, 6, "combat"); // pick a valid 2nd tribute
 
             CombatTributes(tribute1, tribute2, isStart, isEndGame); // start the combat with the prepared tributes
             CheckToRemoveTributesFromList(); // check if the tributes are dead and remove them from the aliveTributes array if missed
@@ -378,7 +378,7 @@ $(document).ready(function() {
     function FellInTrap() {
         let randomForWhichTrap = ReturnRandomNumber(1, 3); // pick which trap
         let trappedTribute = ReturnTribute("fellInTrap");
-        let trapSetter = ReturnValidSecondTribute(trappedTribute, trapSetter, 4, "trapSetter");
+        let trapSetter = ReturnValidSecondTribute(trappedTribute, 4, "trapSetter");
 
         if (randomForWhichTrap === 1 || randomForWhichTrap === 2) { // 2/3 chance to take damage
             let trapDamage = ReturnRandomNumber(25, 60); // generate a random number between 25 and 60 for the trap damage
@@ -695,11 +695,12 @@ $(document).ready(function() {
 
         if (tribute1.isAlive && tribute2.isAlive) { // check if both tributes are alive
             let damageMode;
+
             if (isStartOfGame && !isEndGame) { // if it's the start of the game add chance to find items to simulate bloodbath
                 damageMode = ReturnRandomNumber(1, 13);
             } else if (!isStartOfGame && isEndGame){ // if it's the end of the game, remove combat styles
                 damageMode = ReturnRandomNumber(4, 7);
-            } else if ((isStartOfGame && isEndGame)) { // should never happen || if it's both the start and end of the game, fallback to default behavior
+            } else if (isStartOfGame && isEndGame) { // should never happen || if it's both the start and end of the game, fallback to default behavior
                 alert("Error: Game cannot be at start and end at the same time.");
                 damageMode = damageMode = ReturnRandomNumber(1, 11); // fallback to default behavior
                 throw new Error("Invalid state: both isStartOfGame and isEndGame cannot be true or false at the same time.");
@@ -1210,7 +1211,7 @@ $(document).ready(function() {
 
     function Ambushed(){
         let ambushedTribute = ReturnTribute("ambushed");
-        let ambusher = ReturnValidSecondTribute(ambushedTribute, ambusher, 10, "ambusher");
+        let ambusher = ReturnValidSecondTribute(ambushedTribute, 10, "ambusher");
         let ambusherDamage = CalculateDamage(ambusher);
         let ambushedDamage = CalculateDamage(ambushedTribute);
         let random = ReturnRandomNumber(1, 8);
@@ -1321,8 +1322,8 @@ $(document).ready(function() {
     // tribute1 = first tribute | tribute2 = second tribute (the one that will be switched if necessary)
     // sameDistrictChance = chance to allow same district tributes (between 1 and sameDistrictChance)
     // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
-    function ReturnValidSecondTribute(tribute1, tribute2, sameDistrictChance, whatFor) {
-
+    function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor) {
+        let tribute2 = ReturnTribute(whatFor); // pick a second tribute
         CheckToStartFinalBattle();
 
         while (tribute1 === tribute2) { // ensure the tributes are not the same
@@ -1344,7 +1345,7 @@ $(document).ready(function() {
 
     function Rested(){
         let rester = ReturnTribute("rested");
-        let attacker = ReturnValidSecondTribute(rester, ReturnTribute("attackedRester"), 10, "attackedRester");
+        let attacker = ReturnValidSecondTribute(rester, 10, "attackedRester");
         let resterDamage = CalculateDamage(rester);
         let attackerDamage = CalculateDamage(attacker);
         let randomHeal = ReturnRandomNumber(15, 45);
