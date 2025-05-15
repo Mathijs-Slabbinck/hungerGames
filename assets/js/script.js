@@ -3,7 +3,9 @@ let allTributes = [];
 let dreamer = null;
 let dreamCameTrue = null;
 let skipIntro = false; // set to true to skip the intro
-let canonAudio = new Audio('assets/media/canon.mp3');
+let skipIntroAndCountDown = false; // set to true to skip the intro and countdown
+let canonPool = []; // initialize an empty array to store preloaded canon sounds to avoid delay
+let canonIndex = 0; // initialize an index to keep track of the current canon sound
 
 $(document).ready(function() {
     const fields = [ // an array containing all stats a Tribute has
@@ -321,7 +323,6 @@ $(document).ready(function() {
             let tribute2 = ReturnValidSecondTribute(tribute1, 6, "combat"); // pick a valid 2nd tribute
 
             CombatTributes(tribute1, tribute2, isStart, isEndGame); // start the combat with the prepared tributes
-            CheckToRemoveTributesFromList(); // check if the tributes are dead and remove them from the aliveTributes array if missed
         }, delay);
     }
 
@@ -385,17 +386,17 @@ $(document).ready(function() {
             HandleDamage(trappedTribute, trapDamage); // handle the damage
             if (!trappedTribute.isAlive) { // check if the tribute is dead
                 $("ul").append(`<li class="log"><div class="bold">[🪤💀] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage! ${trappedTribute.name} died.</div></li>`);
-                trapSetter.AddKill(trappedTribute); // award a kill to the trap setter and store the killed tribute
-                trappedTribute.causeOfDeath = `trap by ${trapSetter.name} [${trapSetter.district}]`; // set the cause of death
-                HandleDeath(trappedTribute); // handle death of the tribute
+
+                let deathCause = `trap by ${trapSetter.name} [${trapSetter.district}]`; // set the cause of death
+                HandleDeath(trappedTribute, deathCause, trapSetter); // handle death of the tribute
             } else {
                 $("ul").append(`<li class="log"><div>[🪤💥] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and took ${trapDamage} damage! They now have ${trappedTribute.hp} HP.</div></li>`);
             }
         } else if (randomForWhichTrap === 3) { // 1/3 chance to die instantly
             $("ul").append(`<li class="log"><div class="bold">[🪤💀] ${trappedTribute.name} [${trappedTribute.district}] fell into ${trapSetter.name} [${trapSetter.district}]'s trap and died instantly.</div></li>`);
-            trapSetter.AddKill(trappedTribute); // award a kill to the trap setter and store the killed tribute
-            trappedTribute.causeOfDeath = `trap by ${trapSetter.name} [${trapSetter.district}]`; // set the cause of death
-            HandleDeath(trappedTribute); // handle death of the tribute
+
+            let deathCause = `trap by ${trapSetter.name} [${trapSetter.district}]`; // set the cause of death
+            HandleDeath(trappedTribute, deathCause, trapSetter); // handle death of the tribute
         }
     }
 
@@ -662,7 +663,7 @@ $(document).ready(function() {
 
         victim.causeOfDeath = deathCause; // set the cause of death
         RemoveTributeFromAliveList(victim); // if the tribute is dead, remove it from the aliveTributes array
-        PlayKillSound(); // play the canon sound
+        PlayKillSound(victim, deathCause); // play the canon sound
     }
 
     function HandleEarthquake(damage, causeOfDeathMessage){
@@ -702,7 +703,7 @@ $(document).ready(function() {
                 damageMode = ReturnRandomNumber(4, 7);
             } else if (isStartOfGame && isEndGame) { // should never happen || if it's both the start and end of the game, fallback to default behavior
                 alert("Error: Game cannot be at start and end at the same time.");
-                damageMode = damageMode = ReturnRandomNumber(1, 11); // fallback to default behavior
+                damageMode = ReturnRandomNumber(1, 11); // fallback to default behavior
                 throw new Error("Invalid state: both isStartOfGame and isEndGame cannot be true or false at the same time.");
             }
             else { // if it's a regular day, limit function to only combat
@@ -710,8 +711,6 @@ $(document).ready(function() {
             }
 
             if (damageMode === 1 || damageMode === 2 || damageMode === 3) { // make both tributes do damage to each other
-                let damageToTribute1 = CalculateDamage(tribute2);
-                let damageToTribute2 = CalculateDamage(tribute1);
                 let deathCause;
 
                 HandleDamage(tribute1, damageToTribute1);
@@ -735,9 +734,11 @@ $(document).ready(function() {
                     let deathMessage1 = `killed by ${tribute2.name} [${tribute2.district}] in short combat`; // set the cause of death
                     let deathMessage2 = `killed by ${tribute1.name} [${tribute1.district}] in short combat`; // set the cause of death
                     HandleDeath(tribute1, deathMessage1, tribute2); // handle death of tribute1
-                    HandleDeath(tribute2, deathMessage2, tribute1); // handle death of tribute2
+                    RemoveTributeFromAliveList(tribute2);
+                    // I delayed tribute2's death a bit to make sure the canon sound plays for both tributes
+                    // that's why I removed it from the aliveTributes array here, before calling HandleDeath where it normally happens
                     setTimeout(function () {
-                        PlayKillSound(); // play it again after short delay to make sure 2 canon shots can be heard
+                        HandleDeath(tribute2, deathMessage2, tribute1);
                     }, 750);
                 }
             } else if (damageMode === 4 || damageMode === 5 || damageMode === 6) { // make 1 tribute do damage to another tribute
@@ -766,35 +767,38 @@ $(document).ready(function() {
                 while (tribute1.isAlive && tribute2.isAlive) { // as long as both tributes are alive, make them fight
                     HandleDamage(tribute1, damageToTribute1); // handle damage done to tribute1
                     HandleDamage(tribute2, damageToTribute2);  // handle damage done to tribute2
-                }
-                if(!tribute1.isAlive || !tribute2.isAlive){ // if at least 1 tribute is dead
-                    if (!tribute1.isAlive && tribute2.isAlive) {// if tribute1 is dead and tribute2 is alive
+                    if (!tribute1.isAlive || !tribute2.isAlive) { // if at least 1 tribute is dead
+                        if (!tribute1.isAlive && tribute2.isAlive) {// if tribute1 is dead and tribute2 is alive
+                            fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
+                            fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+
+                            let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
+                            HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
+                        } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
+                            fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                            fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
+
+                            let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
+                            HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
+                        } else { // if both tributes are dead
+                            fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+
+                            let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
+                            let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
+                            HandleDeath(tribute1, deathCause1, tribute2); // handle death of tribute1
+
+                            RemoveTributeFromAliveList(tribute2); // remove tribute2 from alive tributes
+                            // I delayed tribute2's death a bit to make sure the canon sound plays for both tributes
+                            // that's why I removed it from the aliveTributes array here, before calling HandleDeath where it normally happens
+                            setTimeout(function () {
+                                HandleDeath(tribute2, deathCause2, tribute1); // handle death of tribute2
+                            }, 750);
+                        }
+                    } else { // if both tributes are alive
                         fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
-
-                        let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
-                    } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
-
-                        let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
-                    } else{ // if both tributes are dead
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
-                        tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
-                        tribute2.AddKill(tribute1); // award a kill to tribute2 and store the killed tribute
-
-                        let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
-                        let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
-                        HandleDeath(tribute1, deathCause1, tribute2); // handle death of tribute1
-                        HandleDeath(tribute2, deathCause2, tribute1); // handle death of tribute2
-
+                        fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
                     }
-                } else{ // if both tributes are alive
-                    fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                    fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
                 }
 
                 fightLog += `</li>`;
@@ -815,7 +819,6 @@ $(document).ready(function() {
                         break; // exit the loop
                     } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
                         fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                        tribute1.AddKill(tribute2); // award a kill to tribute1 and store the killed tribute
 
                         let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
                         HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
@@ -830,32 +833,44 @@ $(document).ready(function() {
                         let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
                         let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
                         HandleDeath(tribute1, deathCause1, tribute2); // handle death of tribute1
-                        HandleDeath(tribute2, deathCause2, tribute2); // handle death of tribute2
+                        RemoveTributeFromAliveList(tribute2); // remove tribute2 from alive tributes
+
+                        // I delayed tribute2's death a bit to make sure the canon sound plays for both tributes
+                        // that's why I removed it from the aliveTributes array here, before calling HandleDeath where it normally happens
+                        setTimeout(function () {
+                            HandleDeath(tribute2, deathCause2, tribute1); // handle death of tribute2
+                        }, 750);
                         break; // exit the loop
                     }
                 }
+                fightLog += `</li>`;
+                $("ul").append(fightLog);
             } else if (damageMode === 11){ // make them fight until 1 dies, but turns are random
                 let fightLog = `<li class="log">`;
-                let RandomForWhichTributeAttacks = ReturnRandomNumber(1, 2); // pick a random number to determine which tribute is the attacker
-                let attackerTribute;
-                let defenderTribute;
-                if (RandomForWhichTributeAttacks === 1){
-                    attackerTribute = tribute1; // set the attacker tribute to tribute1
-                    defenderTribute = tribute2; // set the defender tribute to tribute2
-                } else{
-                    attackerTribute = tribute2; // set the attacker tribute to tribute2
-                    defenderTribute = tribute1; // set the defender tribute to tribute1
-                }
+                while (tribute1.isAlive && tribute2.isAlive) { // as long as both tributes are alive, make them fight
+                    let RandomForWhichTributeAttacks = ReturnRandomNumber(1, 2); // pick a random number to determine which tribute is the attacker
+                    let attackerTribute;
+                    let defenderTribute;
+                    if (RandomForWhichTributeAttacks === 1) {
+                        attackerTribute = tribute1; // set the attacker tribute to tribute1
+                        defenderTribute = tribute2; // set the defender tribute to tribute2
+                    } else {
+                        attackerTribute = tribute2; // set the attacker tribute to tribute2
+                        defenderTribute = tribute1; // set the defender tribute to tribute1
+                    }
 
-                HandleDamage(defenderTribute, damageToTribute1); // handle damage done to defender tribute
-                if (!defenderTribute.isAlive){ // if the defender tribute is dead
-                    fightLog += `<div class="bold">[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} died.</div>`;
+                    HandleDamage(defenderTribute, damageToTribute1); // handle damage done to defender tribute
+                    if (!defenderTribute.isAlive) { // if the defender tribute is dead
+                        fightLog += `<div class="bold">[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} died.</div>`;
 
-                    let deathCause = `killed by ${attackerTribute.name} [${attackerTribute.district}] in long combat`; // set the cause of death
-                    HandleDeath(defenderTribute, deathCause, attackerTribute); // handle death of defender tribute
-                } else { // if the defender tribute is alive
-                    fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
+                        let deathCause = `killed by ${attackerTribute.name} [${attackerTribute.district}] in long combat`; // set the cause of death
+                        HandleDeath(defenderTribute, deathCause, attackerTribute); // handle death of defender tribute
+                    } else { // if the defender tribute is alive
+                        fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
+                    }
                 }
+                fightLog += `</li>`;
+                $("ul").append(fightLog);
             } else if (damageMode == 12 || damageMode == 13) { // only applies during the bloodbath, 2/7 chance to find something in stead of fighting
                 FoundSomething();
             }
@@ -873,10 +888,17 @@ $(document).ready(function() {
         return Math.floor((baseDamage + damageModifier + combatDamageModifier) * damageModifier2); // calculate and return damage output
     }
 
-    function PlayKillSound() {
-        const canonInstance = canonAudio.cloneNode(); // make a new copy
-        canonInstance.volume = canonAudio.volume;     // optional: inherit volume
-        canonInstance.play().catch(e => console.warn("Audio play failed:", e));
+    function PlayKillSound(tribute, deathCause) {
+        console.log(`Playing canon sound for tribute: ${tribute.name} + " [${deathCause}]`);
+        const canonInstance = canonPool[canonIndex]; // get the canon instance from the pool
+        //canonInstance.volume = canonAudio.volume;     // optional: inherit volume
+        canonInstance.play().catch(e => {throw new error("Audio play failed:", e)});
+        canonIndex++; // increment the canon index
+
+        // this should never happen since there are 23 tributes that can die and 23 canon sounds, but it's just in case
+        if (canonIndex >= canonPool.length) { // if the canon index is at the end of the pool
+            canonIndex = 0; // reset the canon index
+        }
     }
 
     function AnimalAttack() {
@@ -1344,7 +1366,7 @@ $(document).ready(function() {
 
     function Rested(){
         let rester = ReturnTribute("rested");
-        let attacker = ReturnValidSecondTribute(rester, 10, "attackedRester");
+        let attacker = ReturnValidSecondTribute(rester, 6, "attackedRester");
         let resterDamage = CalculateDamage(rester);
         let attackerDamage = CalculateDamage(attacker);
         let randomHeal = ReturnRandomNumber(15, 45);
@@ -1721,15 +1743,6 @@ $(document).ready(function() {
         $("html, body").animate({ scrollTop: $(document).height() }, 300);
     }
 
-    function CheckToRemoveTributesFromList() { // function to make sure the aliveTributes array is up to date
-        for (let i = 0; i < aliveTributes.length; i++) {
-            if (aliveTributes[i].isAlive === false) { // check if the tribute is dead
-                aliveTributes.splice(i, 1); // Remove 1 element at index i (so remove the tribute from aliveTributes)
-                i--; // when a tribute is removed, decrease the index to account for the shift in the array
-            }
-        }
-    }
-
     function RemoveTributeFromAliveList(tribute) {
         // Find the index of the tribute to remove
         let index = aliveTributes.indexOf(tribute);
@@ -1750,14 +1763,17 @@ $(document).ready(function() {
     });
 
     $(document).on("click", "#submit", function () {
-        if (!canonAudio.unlocked) {
-            canonAudio.volume = 0;
-            canonAudio.play().then(() => {
-                canonAudio.pause();
-                canonAudio.currentTime = 0;
-                canonAudio.volume = 1;
-                canonAudio.unlocked = true; // custom property to track it
-            });
+        if (canonPool.length === 0) { // if the canon pool is empty, fill it
+            for (let i = 1; i < 23; i++) { // make 23 canon audio objects (1 for each tribute, to be certain there are enough ready if needed around the same moment)
+            let canonAudio = new Audio('assets/media/canon.mp3');
+                canonAudio.volume = 0;
+                canonAudio.play().then(() => {
+                    canonAudio.pause();
+                    canonAudio.currentTime = 0;
+                    canonAudio.volume = 1;
+                }).catch(() => { throw new Error("Audio play failed"); }); // in case it would fail
+                canonPool.push(canonAudio);
+            }
         }
 
         let maleTribute;
@@ -1803,11 +1819,14 @@ $(document).ready(function() {
 
         $("main").empty();
 
-        if(skipIntro){
+        let countDown = new Audio('assets/media/countDown.mp3');
+        if (skipIntro){
+            countDown.play();
+            StartCountdown();
+        } else if(skipIntroAndCountDown){
             StartLogging();
         } else{
             let slogan = new Audio('assets/media/slogan.mp3');
-            let countDown = new Audio('assets/media/countDown.mp3');
             slogan.play();
             setTimeout(function () {
                 countDown.play();
@@ -1876,11 +1895,25 @@ $(document).ready(function() {
         if(!skipIntro){
             skipIntro = true;
             $("#skipIntro").text("YES");
+            skipIntroAndCountDown = false;
+            $("#skipIntroAndCountDown").text("NO");
         } else{
             skipIntro = false;
             $("#skipIntro").text("NO");
         }
    });
+
+    $(document).on("click", "#skipIntroAndCountDown", function (){
+        if (!skipIntroAndCountDown) {
+            skipIntroAndCountDown = true;
+            $("#skipIntroAndCountDown").text("YES");
+            skipIntro = false;
+            $("#skipIntro").text("NO");
+        } else {
+            skipIntroAndCountDown = false;
+            $("#skipIntroAndCountDown").text("NO");
+        }
+    });
 
     $(document).on("click", "#refresh", function (){
         location.reload();
