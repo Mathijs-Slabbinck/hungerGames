@@ -314,7 +314,7 @@ class Tribute {
 
   function CheckIfNumber(value){
     let n = parseInt(value);
-    if (!isNaN(n)) {
+    if (!isNaN(n)) { // if value is a number
         return true;
     } else {
         return false;
