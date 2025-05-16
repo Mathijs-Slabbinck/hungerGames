@@ -810,21 +810,21 @@ $(document).ready(function () {
                     if (!tribute1.isAlive || !tribute2.isAlive) { // if at least 1 tribute is dead
                         if (!tribute1.isAlive && tribute2.isAlive) {// if tribute1 is dead and tribute2 is alive
                             fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
-                            fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
 
                             let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
                             HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
                             break;
                         } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                            fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
                             fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
 
                             let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
                             HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
                             break;
                         } else { // if both tributes are dead
-                            fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                            fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
 
                             let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
                             let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
