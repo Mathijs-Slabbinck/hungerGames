@@ -1501,8 +1501,8 @@ $(document).ready(function () {
             case 1: // 1 / 5 chance to die instantly
                 $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster!</div></li>`);
 
-                let deathCause1 = `killed by an end game monster`;
-                HandleDeath(chosenTribute, deathCause1);
+                deathCause = `killed by an end game monster`;
+                HandleDeath(chosenTribute, deathCause);
                 break;
             case 2:
             case 3: // 2 / 5 chance to do stat check
@@ -1515,7 +1515,7 @@ $(document).ready(function () {
                         $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to run but got killed by an end phase monster!</div></li>`);
 
                         deathCause = `unable to escape the endgame monster`;
-                        HandleDeath(chosenTribute, deathCause2);
+                        HandleDeath(chosenTribute, deathCause);
                     }
                 } else if (chosenTribute.luck >= 8) {
                     HandleDamage(chosenTribute, randomSmallDamage);
@@ -1525,13 +1525,13 @@ $(document).ready(function () {
                         $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] tried to play dead but got killed by an end phase monster!</div></li>`);
 
                         deathCause = `unable to play death with the endgame monster`;
-                        HandleDeath(chosenTribute, deathCause3);
+                        HandleDeath(chosenTribute, deathCause);
                     }
                 } else {
                     $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] got killed by an end phase monster!</div></li>`);
 
                     deathCause = `killed by an end game monster`;
-                    HandleDeath(chosenTribute, deathCause4);
+                    HandleDeath(chosenTribute, deathCause);
                 }
                 break;
             case 4:
