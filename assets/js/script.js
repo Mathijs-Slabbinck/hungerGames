@@ -1,5 +1,6 @@
 let aliveTributes = [];
 let allTributes = [];
+let finalBattleStarted = false;
 let dreamer = null;
 let skipIntro = false; // set to true to skip the intro
 let skipIntroAndCountDown = false; // set to true to skip the intro and countdown
@@ -229,7 +230,7 @@ $(document).ready(function () {
 
         for (let i = 0; i < eventsAmount; i++) {
             let randomTimer = ReturnRandomTimer(isStart);
-            let randomEvent = ReturnRandomNumber(1, 51);
+            let randomEvent = ReturnRandomNumber(1, 49);
             delay += randomTimer;
 
             // should never happen, but if the day starts with only 2 tributes alive, start the final battle
@@ -258,15 +259,13 @@ $(document).ready(function () {
                     Injured();
                 } else if (randomEvent >= 36 && randomEvent <= 39) { // 4 chance
                     Ambushed();
-                } else if (randomEvent >= 40 && randomEvent <= 42) { // 3 chance
-                    ShowedMercy();
-                } else if (randomEvent >= 43 && randomEvent <= 46) { // 4 chance
+                } else if (randomEvent >= 40 && randomEvent <= 43) { // 4 chance
                     Rested();
-                } else if (randomEvent >= 47 && randomEvent <= 48) { // 2 chance
+                } else if (randomEvent >= 44 && randomEvent <= 46) { // 3 chance
                     CraftSomething();
-                } else if (randomEvent === 49 || randomEvent === 50) { // 2 chance
+                } else if (randomEvent === 47 || randomEvent === 48) { // 2 chance
                     RareRandomEvent();
-                } else if (randomEvent === 51) { // 1 chance
+                } else if (randomEvent === 49) { // 1 chance
                     SuperRareRandomEvent();
                 }
 
@@ -354,6 +353,7 @@ $(document).ready(function () {
     }
 
     function FinalBattle(tribute1, tribute2) {
+        if (finalBattleStarted) return; // Prevent multiple final battles from starting
         console.log(`⚔️ Final battle between ${tribute1.name} and ${tribute2.name} begins! ⚔️`);
 
         // Show the initial start of the final battle, only once before the fight begins
@@ -401,6 +401,8 @@ $(document).ready(function () {
             [attacker, defender] = [defender, attacker];
             round++;  // Increment round number for the next attack
         }, 1500); // time between attack rounds
+
+        finalBattleStarted = true; // Set battleStarted to true to prevent multiple final battles
     }
 
     function FellInTrap() {
@@ -1701,6 +1703,9 @@ $(document).ready(function () {
                 }
                 fireLog += `</li>`;
                 $("ul").append(fireLog);
+                break;
+            case 4:
+                ShowedMercy();
                 break;
         }
     }
