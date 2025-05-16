@@ -967,7 +967,7 @@ $(document).ready(function () {
         if (random === 1) { // 1/10 chance to take damage
             ApplyDamage();
         } else if (random === 2) { // 1/10 chance take no damage
-            $("ul").append(`<li class="log"><div>[🐺🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to escape.</div></li>`);
+            $("ul").append(`<li class="log"><div>[🐺🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to escape!</div></li>`);
         } else if (random === 3) { // 1/10 chance to die instantly
             $("ul").append(`<li class="log"><div class="bold">[🐺💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals and died instantly!</div></li>`);
 
@@ -975,13 +975,13 @@ $(document).ready(function () {
             HandleDeath(chosenTribute, deathCause);
         } else if (random >= 4 && random <= 10) { // 7/10 chance for stat check
             if (chosenTribute.power >= 8) {
-                $("ul").append(`<li class="log"><div>[🐺👊] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to fight them off.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🐺👊] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to fight them off!</div></li>`);
             } else if (chosenTribute.speed >= 8) {
-                $("ul").append(`<li class="log"><div>[🐺🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to outrun them.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🐺🏃] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to outrun them!</div></li>`);
             } else if (chosenTribute.survivalSkills >= 8) {
-                $("ul").append(`<li class="log"><div>[🐺🫣] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to hide.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🐺🫣] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to hide!</div></li>`);
             } else if (chosenTribute.intelligence >= 8) {
-                $("ul").append(`<li class="log"><div>[🐺💡] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to trick them.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🐺💡] ${chosenTribute.name} [${chosenTribute.district}] was attacked by a pack of wild animals but managed to trick them!</div></li>`);
             } else {
                 ApplyDamage(); // if the tribute fails all checks, apply damage
             }
@@ -995,15 +995,15 @@ $(document).ready(function () {
             case 1: // try to give a sword
                 // when chosenTribute has no weapon, try giving a sword first
                 if (chosenTribute.weapon === "none") {
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a sword.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a sword!</li></div>`);
                     chosenTribute.weapon = "sword";
                 } else if (chosenTribute.weapon === "sword") { // if the tribute already has a sword, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a sword but already has one.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a sword but already has one!</li></div>`);
                 } else if (chosenTribute.weapon === "bow" || chosenTribute.weapon === "knife" || chosenTribute.weapon === "makeshift knife") { // if the tribute has a bow or knife, upgrade to sword
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a sword and upgraded their weapon.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a sword and upgraded their weapon!</li></div>`);
                     chosenTribute.weapon = "sword";
                 } else { //should never happen | otherwise, give a sword and throw an error
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a sword.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a sword!</li></div>`);
                     chosenTribute.weapon = "sword";
                     throw new Error("Error: Giving sword almost failed.");
                 }
@@ -1011,35 +1011,35 @@ $(document).ready(function () {
             case 2: // try to give a bow
                 // when chosenTribute has no weapon, try giving a bow first
                 if (chosenTribute.weapon === "none") {
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a bow.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a bow!</li></div>`);
                     chosenTribute.weapon = "bow";
                 } else if (chosenTribute.weapon === "bow") { // if tribute already has a bow, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow but already has one.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow but already has one!</li></div>`);
                 } else if (chosenTribute.weapon === "sword") { // if the tribute has a sword, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow but already has a better weapon.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow but already has a better weapon!</li></div>`);
                 } else if (chosenTribute.weapon === "knife" || chosenTribute.weapon === "makeshift knife") { // if the tribute has a knife, upgrade to bow
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow and upgraded their weapon.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a bow and upgraded their weapon!</li></div>`);
                     chosenTribute.weapon = "bow";
                 } else { // should never happen | otherwise, give a bow and throw an error
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a bow.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a bow!</li></div>`);
                     chosenTribute.weapon = "bow";
                     throw new Error("Error: Giving bow almost failed.");
                 }
                 break;
             case 3: // try to give a knife
                 if (chosenTribute.weapon === "none") {
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a knife.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a knife!</li></div>`);
                     chosenTribute.weapon = "knife";
                 } else if (chosenTribute.weapon === "sword" || chosenTribute.weapon == "bow") { // if the tribute has a sword or bow, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife but already has a better weapon.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife but already has a better weapon!</li></div>`);
                 } else if (chosenTribute.weapon === "knife") { // if the tribute already has a knife, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife but already has one.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife but already has one!</li></div>`);
                 } else if (chosenTribute.weapon === "makeshift knife") { // if the tribute has a makeshift knife, upgrade to knife
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife and upgraded their weapon.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] found a knife and upgraded their weapon!</li></div>`);
                     chosenTribute.weapon = "knife";
                 }
                 else { // should never happen | otherwise, give a knife and throw an error
-                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a knife.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🗡️] ${chosenTribute.name} [${chosenTribute.district}] picked up a knife!</li></div>`);
                     chosenTribute.weapon = "bow";
                     throw new Error("Error: Giving knife almost failed.");
                 }
@@ -1048,21 +1048,21 @@ $(document).ready(function () {
             case 5:
                 if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2 (random)
                     let amountOfMedkits = Math.floor(Math.random() * 2) + 1;
-                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] picked up ${amountOfMedkits} medkit(s).</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] picked up ${amountOfMedkits} medkit(s)!</li></div>`);
                     chosenTribute.FindMedKit(amountOfMedkits);
                 } else if (chosenTribute.medKits == 1) { // if the tribute has 1 medkit, give 1
-                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] picked up 1 medkit.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] picked up 1 medkit!</li></div>`);
                     chosenTribute.FindMedKit(1);
                 } else { // if the tribute already has 2 medkits, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] found a medkit but already has 2.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🧰] ${chosenTribute.name} [${chosenTribute.district}] found a medkit but already has 2!</li></div>`);
                 }
                 break;
             case 6: // higher chance to give armor
             case 7:
                 if (chosenTribute.hasArmor === "yes") { // if the tribute has armor, give nothing
-                    $("ul").append(`<div class="log"><li>[🎒🛡️] ${chosenTribute.name} [${chosenTribute.district}] found armor but already has one.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🛡️] ${chosenTribute.name} [${chosenTribute.district}] found armor but already has one!</li></div>`);
                 } else { // if the tribute has no armor, give 1
-                    $("ul").append(`<div class="log"><li>[🎒🛡️] ${chosenTribute.name} [${chosenTribute.district}] picked up armor.</li></div>`);
+                    $("ul").append(`<div class="log"><li>[🎒🛡️] ${chosenTribute.name} [${chosenTribute.district}] picked up armor!</li></div>`);
                     chosenTribute.FindArmor();
                 }
                 break;
@@ -1077,7 +1077,7 @@ $(document).ready(function () {
         function AtePoisonedFood(tribute) {
             HandleDamage(tribute, hpDifference);
             if (!tribute.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${tribute.name} [${tribute.district}] ate poisoned food and died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${tribute.name} [${tribute.district}] ate poisoned food and died!</div></li>`);
 
                 let deathCause = `killed by poisoned food`; // set the cause of death
                 HandleDeath(tribute, deathCause); // handle death of the tribute
@@ -1090,21 +1090,21 @@ $(document).ready(function () {
             let poisonedTribute = ReturnTribute("poisonedFood"); // pick a tribute to eat poisoned food
             AtePoisonedFood(poisonedTribute);
         } else if (random === 2 || random === 3) { // 2/5 chance to take eat healthy food and heal
-            $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] ate healthy food and healed ${hpDifference} HP. They now have ${chosenTribute.hp} HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] ate healthy food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
             HandleHeal(chosenTribute, hpDifference);
         } else { // 2/5 chance for stat check
             if (chosenTribute.survivalSkills >= 7) { // if the tribute has high survival skills, they wil find healthy food
-                $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] found food and healed ${hpDifference} HP. They now have ${chosenTribute.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] found food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
                 HandleHeal(chosenTribute, hpDifference);
             } else { // if the tribute fails the survival skills check, they will eat poisoned food
                 HandleDamage(chosenTribute, hpDifference);
                 if (!chosenTribute.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${chosenTribute.name} [${chosenTribute.district}] ate poisoned food and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${chosenTribute.name} [${chosenTribute.district}] ate poisoned food and died!</div></li>`);
 
                     let deathCause = `killed by poisoned food`; // set the cause of death
                     HandleDeath(chosenTribute, deathCause); // handle death of the tribute
                 } else {
-                    $("ul").append(`<li class="log"><div>[☣️💥] ${chosenTribute.name} [${chosenTribute.district}] found food but it was poisoned. They now have ${chosenTribute.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[☣️💥] ${chosenTribute.name} [${chosenTribute.district}] found food but it was poisoned! They now have ${chosenTribute.hp} HP.</div></li>`);
                 }
             }
         }
@@ -1120,21 +1120,21 @@ $(document).ready(function () {
         if (gift === 1 || gift == 2) { // higher chance to get a medkit
             if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                 let randomMedkit = ReturnRandomNumber(1, 2);
-                $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor!</div></li>`);
                 chosenTribute.FindMedKit(randomMedkit);
             } else if (chosenTribute.medKits == 1) { // if the tribute has 1 medkit, give 1
-                $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor!</div></li>`);
                 chosenTribute.FindMedKit(1);
             } else { // if the tribute has 2 medkits, try to give armor
                 if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
-                    $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor!</div></li>`);
                     chosenTribute.FindArmor(1);
                 } else if (chosenTribute.weapon != "sword") { // if the tribute has medkits and armor, try to give a sword
-                    $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor!</div></li>`);
                     chosenTribute.weapon = "sword";
                 } else { // if the tribute has medkits, armor and a sword, try to give intelligence
                     if (chosenTribute.intelligence < 10) {
-                        $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
+                        $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor! (+1 intelligence)</div></li>`);
                         let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                         chosenTribute.intelligence = newIntelligence;
                     } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -1144,25 +1144,25 @@ $(document).ready(function () {
             }
         } else if (gift === 4 || gift === 4) { // higher chance to get armor
             if (chosenTribute.hasArmor === "no") { // if the tribute has no armor, give 1
-                $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor!</div></li>`);
                 chosenTribute.FindArmor();
             } else if (chosenTribute.medKits != 2) { // if the tribute has armor, try to give a medkit
                 if (chosenTribute.medKits != 2) { // check if the tribute doesn't have 2 medkits
                     if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                         let randomMedkit = Math.floor(Math.random() * 2) + 1;
-                        $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                        $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor!</div></li>`);
                         chosenTribute.FindMedKit(randomMedkit);
                     } else { // if the tribute has 1 medkit, give 1
-                        $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
+                        $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor!</div></li>`);
                         chosenTribute.FindMedKit(1);
                     }
                 }
             } else if (chosenTribute.weapon != "sword") { // if the tribute has armor and medkits, try to give a sword
-                $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor!</div></li>`);
                 chosenTribute.weapon = "sword";
             } else { // if the tribute has armor, medkits and a sword, try to give intelligence
                 if (chosenTribute.intelligence < 10) { // check if the tribute doesn't have max intelligence
-                    $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor! (+1 intelligence)</div></li>`);
                     let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                     chosenTribute.intelligence = newIntelligence;
                 } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -1171,23 +1171,23 @@ $(document).ready(function () {
             }
         } else if (gift === 5) { // lower chance to get a sword
             if (chosenTribute.weapon != "sword") { // if the tribute doesn't have a sword, give 1
-                $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🗡️] ${chosenTribute.name} [${chosenTribute.district}] received a sword from a sponsor!</div></li>`);
                 chosenTribute.weapon = "sword";
             } else if (chosenTribute.medKits != 2) { // if the tribute has a sword, try to give a medkit
                 if (chosenTribute.medKits == 0) { // if the tribute has no medkits, give 1 or 2
                     let randomMedkit = Math.floor(Math.random() * 2) + 1;
-                    $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received ${randomMedkit} medkit(s) from a sponsor!</div></li>`);
                     chosenTribute.FindMedKit(randomMedkit);
                 } else { // if the tribute has 1 medkit, give 1
-                    $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[🎈🧰] ${chosenTribute.name} [${chosenTribute.district}] received a medkit from a sponsor!</div></li>`);
                     chosenTribute.FindMedKit(1);
                 }
             } else if (chosenTribute.hasArmor === "no") { // if the tribute has a sword and medkits, try to give armor
-                $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🎈🛡️] ${chosenTribute.name} [${chosenTribute.district}] received armor from a sponsor!</div></li>`);
                 chosenTribute.FindArmor(1);
             } else { // if the tribute has a sword, medkits and armor, try to give intelligence
                 if (chosenTribute.intelligence < 10) { // check if the tribute doesn't have max intelligence
-                    $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor. (+1 intelligence)</li></div>`);
+                    $("ul").append(`<li class="log"><div>[🎈🧠] ${chosenTribute.name} [${chosenTribute.district}] received some knowledge about the arena from a sponsor! (+1 intelligence)</li></div>`);
                     let newIntelligence = parseInt(chosenTribute.intelligence) + 1;
                     chosenTribute.intelligence = newIntelligence;
                 } else { // if the tribute has max intelligence, medkits, armor and a sword, recall the function to give a different gift to a different tribute
@@ -1200,7 +1200,7 @@ $(document).ready(function () {
     function Trained(counter = 0) {
         if (counter > 200) {// if it's likely (after trying over 200 times) every tribute has maxed out their stats, stop the function
             let earthquakeDamage = ReturnRandomNumber(10, 25);
-            $("ul").append(`<li class="log"><div>〰️ A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP. 〰️</div></li>`);
+            $("ul").append(`<li class="log"><div>〰️ A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP! 〰️</div></li>`);
             HandleEarthquake(earthquakeDamage, "small eartquake");
         }
 
@@ -1209,15 +1209,15 @@ $(document).ready(function () {
         if (random === 1) { // 50% chance to train power
             let chosenTribute = ReturnTribute("trainedPower");
             if (chosenTribute.power < 10) { // if tribute has less than 10 power, give +1 power
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power!</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else if (chosenTribute.speed < 10) { // if tribute has less than 10 speed, give +1 speed
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed!</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else if (chosenTribute.combatSkills < 10) { // if tribute has less than 10 combat skills, give +1 combat skills
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills!</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else { // if the tribute has 10 power, speed and combat skills, try to train again
@@ -1227,15 +1227,15 @@ $(document).ready(function () {
         } else if (random === 2) { // 50% chance to train speed
             let chosenTribute = ReturnTribute("trainedSpeed");
             if (chosenTribute.speed < 10) { // if tribute has less than 10 speed, give +1 speed
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed!</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else if (chosenTribute.combatSkills < 10) {
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills!</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else if (chosenTribute.power < 10) {
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power!</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else {
@@ -1245,15 +1245,15 @@ $(document).ready(function () {
         } else if (random === 3) { // 50% chance to train combat skills
             let chosenTribute = ReturnTribute("trainedCombatSkills");
             if (chosenTribute.combatSkills < 10) {
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🤺] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 combat skills!</div></li>`);
                 let newCombatSkills = parseInt(chosenTribute.combatSkills) + 1;
                 chosenTribute.combatSkills = newCombatSkills;
             } else if (chosenTribute.power < 10) {
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️💪] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 power!</div></li>`);
                 let newPower = parseInt(chosenTribute.power) + 1;
                 chosenTribute.power = newPower;
             } else if (chosenTribute.speed < 10) {
-                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed.</div></li>`);
+                $("ul").append(`<li class="log"><div>[🏋️‍♂️🏃] ${chosenTribute.name} [${chosenTribute.district}] trained and got +1 speed!</div></li>`);
                 let newSpeed = parseInt(chosenTribute.speed) + 1;
                 chosenTribute.speed = newSpeed;
             } else {
@@ -1296,7 +1296,7 @@ $(document).ready(function () {
                 $("ul").append(`<li class="log"><div>[🥷💥] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] and took ${ambusherDamage} damage! ${ambushedTribute.name} now has ${ambushedTribute.hp} HP.</div></li>`);
             }
         } else if (random === 3) { // 1/8 chance take no damage
-            $("ul").append(`<li class="log"><div>[🥷🏃] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to escape.</div></li>`);
+            $("ul").append(`<li class="log"><div>[🥷🏃] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to escape!</div></li>`);
         } else if (random === 4 || random === 5) { // 2/8 chance to to do stat check
             if (ambushedTribute.survivalSkills >= 8) { // if the ambushed tribute has passes the survival skills check, do nothing
                 $("ul").append(`<li class="log"><div>[🥷🫣] ${ambushedTribute.name} [${ambushedTribute.district}] was ambushed by ${ambusher.name} [${ambusher.district}] but managed to hide.</div></li>`);
@@ -1438,38 +1438,38 @@ $(document).ready(function () {
         HandleHeal(rester, randomHeal);
 
         if (random === 1 || random === 2) { // 2/7 chance to successfully heal
-            $("ul").append(`<li class="log"><div>[💤❤️‍🩹] ${rester.name} [${rester.district}] rested and healed ${randomHeal} HP. They now have ${rester.hp} HP.</div></li>`);
+            $("ul").append(`<li class="log"><div>[💤❤️‍🩹] ${rester.name} [${rester.district}] rested and healed ${randomHeal} HP! They now have ${rester.hp} HP.</div></li>`);
         } else if (random === 3) { // 1/7 chance to get ambushed with guaranteed success
             HandleDamage(rester, attackerDamage); // apply damage to the rester
             if (!rester.isAlive) { // check if the tribute is dead
-                $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died!</div></li>`);
 
                 let deathCause = `killed by ${attacker.name} while resting`; // set the cause of death
                 HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
             } else {
-                $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
+                $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP! ${rester.name} now has ${rester.hp} HP.</div></li>`);
             }
         } else if (random === 4 || random === 5) { // 2/7 chance to get ambushed with a chance to escape
             if (rester.speed >= 8) { // if the tribute passes the speed check, do nothing
-                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape.</div></li>`);
+                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape!</div></li>`);
             } else if (rester.survivalSkills >= 8) { // if the tribute passes the survival skills check, do nothing
-                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but woke up in time to escape.</div></li>`);
+                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but woke up in time to escape!</div></li>`);
             } else { // if the rester fails both checks, apply damage
                 HandleDamage(rester, attackerDamage); // apply damage to the rester
                 if (!rester.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and died!</div></li>`);
 
                     let deathCause = `attacked and killed by ${attacker.name} [${attacker.district}] while resting`; // set the cause of death
                     HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested but got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP! ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
             }
         } else { // 2/7 chance to compare stats between the two tributes
             if (rester.survivalSkills > 5 && rester.combatSkills > attacker.combatSkills) { // if the tribute passes a surival check and has more combat skills than the attacker, attack back
                 HandleDamage(attacker, resterDamage); // apply damage to the ambusher tribute
                 if (!attacker.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">[☠️💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back and killed them.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">[☠️💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back and killed them!</div></li>`);
 
                     let deathCause = `killed during a failed attack on resting ${rester.name} [${rester.district}]`; // set the cause of death
                     HandleDeath(attacker, deathCause, rester); // handle death of the tribute that died
@@ -1477,16 +1477,16 @@ $(document).ready(function () {
                     $("ul").append(`<li class="log"><div>[💥💤] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but fought back, dealing ${attackerDamage} damage! ${attacker.name} now has ${attacker.hp} HP.</div></li>`);
                 }
             } else if (rester.speed > attacker.speed) { // if the tribute has more speed than the ambusher, do nothing
-                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape.</div></li>`);
+                $("ul").append(`<li class="log"><div>[💤🏃] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] but managed to escape!</div></li>`);
             } else { // if the tribute fails both checks, apply damage
                 HandleDamage(rester, attackerDamage); // apply damage to the ambushed tribute
                 if (!rester.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and died.</div></li>`);
+                    $("ul").append(`<li class="log"><div class="bold">[💤💀] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and died!</div></li>`);
 
                     let deathCause = `attacked and killed by ${attacker.name} [${attacker.district}]  while resting`; // set the cause of death
                     HandleDeath(rester, deathCause, attacker); // handle death of the tribute that died
                 } else {
-                    $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP. ${rester.name} now has ${rester.hp} HP.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[💤💥] ${rester.name} [${rester.district}] rested and got ambushed by ${attacker.name} [${attacker.district}] and lost ${attackerDamage} HP! ${rester.name} now has ${rester.hp} HP.</div></li>`);
                 }
             }
         }
@@ -1582,27 +1582,29 @@ $(document).ready(function () {
                         }
                     }
                 } else { // if the armor is max durability, damage it for 1 durability
-                    $("ul").append(`<li class="log"><div>[💢🛡️] ${crafter.name} [${crafter.district}] stumbled and damaged their armor for 1 durability.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[💢🛡️] ${crafter.name} [${crafter.district}] stumbled and damaged their armor for 1 durability!</div></li>`);
                     let newArmorDurability = parseInt(crafter.armorDurability) - 1;
                     crafter.armorDurability = newArmorDurability; // should be 4 now
                 }
             } else { // if the tribute doesn't have armor, craft it
                 let ReturnRandomDurability = ReturnRandomNumber(1, 3);
-                $("ul").append(`<li class="log"><div>[⚒️🛡️] ${crafter.name} [${crafter.district}] crafted flimsy armor with ${ReturnRandomDurability} durability.</div></li>`);
+                $("ul").append(`<li class="log"><div>[⚒️🛡️] ${crafter.name} [${crafter.district}] crafted flimsy armor with ${ReturnRandomDurability} durability!</div></li>`);
                 crafter.hasArmor = true;
                 crafter.armorDurability = ReturnRandomDurability;
             }
         } else { // 50% chance to craft a weapon
             let tries = 0;
             while (crafter.weapon != "none") { // make sure the tribute can craft a weapon (so pick one without weapon)
-                if (tries >= 200) { // if all tributes have a weapon weapon, throw an even to prevent infinite loop
-                    SuperRareRandomEvent();
+                if (tries >= 200) { // if all tributes have a weapon weapon, throw an event to prevent infinite loop
+                    let earthquakeDamage = ReturnRandomNumber(10, 25);
+                    $("ul").append(`<li class="log"><div>〰️ A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP! 〰️</div></li>`);
+                    HandleEarthquake(earthquakeDamage, "small eartquake");
                     break;
                 }
                 crafter = ReturnTribute("craftedWeapon");
                 tries++;
             }
-            $("ul").append(`<li class="log"><div class="bold">[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife.</div></li>`);
+            $("ul").append(`<li class="log"><div class="bold">[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife!</div></li>`);
             crafter.weapon = "makeshift knife"; // set the weapon to makeshift knife
         }
     }
