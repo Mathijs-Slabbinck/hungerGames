@@ -1,224 +1,224 @@
 class Tribute {
-    constructor(name, gender, district, speed, power, intelligence, popularity, risk, survivalSkills, combatSkills, luck) {
-      this.name = name;
-      this.gender = gender;
-      this.district = district;
-      this.speed = speed;
-      this.power = power;
-      this.intelligence = intelligence;
-      this.popularity = popularity;
-      this.risk = risk;
-      this.survivalSkills = survivalSkills;
-      this.combatSkills = combatSkills;
-      this.luck = luck;
-      this.hp = 100;
-      this.weapon = "none";
-      this.hasArmor = "no";
-      this.armorDurability = 0;
-      this.medKits = 0;
-      this.isAlive = true;
-      this.kills = 0;
-      this.killedTributes = [];
-      this.causeOfDeath = "none";
-    }
+  constructor(name, gender, district, speed, power, intelligence, popularity, risk, survivalSkills, combatSkills, luck) {
+    this.name = name;
+    this.gender = gender;
+    this.district = district;
+    this.speed = speed;
+    this.power = power;
+    this.intelligence = intelligence;
+    this.popularity = popularity;
+    this.risk = risk;
+    this.survivalSkills = survivalSkills;
+    this.combatSkills = combatSkills;
+    this.luck = luck;
+    this.hp = 100;
+    this.weapon = "none";
+    this.hasArmor = "no";
+    this.armorDurability = 0;
+    this.medKits = 0;
+    this.isAlive = true;
+    this.kills = 0;
+    this.killedTributes = [];
+    this.causeOfDeath = "none";
+  }
 
-    set name(value) {
-      if (!value.trim()) {
-        throw new Error("Please enter all name fields!");
+  set name(value) {
+    if (!value.trim()) {
+      throw new Error("Please enter all name fields!");
+    }
+    if (CheckIfNumber(value)) {
+      throw new Error("Names cannot be just numbers!");
+    }
+    this._name = value;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set gender(value) {
+    this._gender = value;
+  }
+
+
+  get gender() {
+    return this._gender;
+  }
+
+  set district(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 12) {
+        throw new Error("Please enter a number between 1 and 12!");
       }
-      if(CheckIfNumber(value)){
-        throw new Error("Names cannot be just numbers!");
+    } else {
+      throw new Error("Please enter valid numbers!");
+    }
+    this._district = value;
+  }
+
+  get district() {
+    return this._district;
+  }
+
+  set speed(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._name = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._speed = value;
+  }
 
-    get name() {
-      return this._name;
-    }
+  get speed() {
+    return this._speed;
+  }
 
-    set gender(value) {
-      this._gender = value;
-    }
-
-
-    get gender() {
-      return this._gender;
-    }
-
-    set district(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 12) {
-          throw new Error("Please enter a number between 1 and 12!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set power(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._district = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._power = value;
+  }
 
-    get district() {
-      return this._district;
-    }
+  get power() {
+    return this._power;
+  }
 
-    set speed(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set intelligence(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._speed = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._intelligence = value;
+  }
 
-    get speed() {
-      return this._speed;
-    }
+  get intelligence() {
+    return this._intelligence;
+  }
 
-    set power(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set popularity(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._power = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._popularity = value;
+  }
 
-    get power() {
-      return this._power;
-    }
+  get popularity() {
+    return this._popularity;
+  }
 
-    set intelligence(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set risk(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._intelligence = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._risk = value;
+  }
 
-    get intelligence() {
-      return this._intelligence;
-    }
+  get risk() {
+    return this._risk;
+  }
 
-    set popularity(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set survivalSkills(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._popularity = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._survivalSkills = value;
+  }
 
-    get popularity() {
-      return this._popularity;
-    }
+  get survivalSkills() {
+    return this._survivalSkills;
+  }
 
-    set risk(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set combatSkills(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._risk = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._combatSkills = value;
+  }
 
-    get risk() {
-      return this._risk;
-    }
+  get combatSkills() {
+    return this._combatSkills;
+  }
 
-    set survivalSkills(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
+  set luck(value) {
+    if (CheckIfNumber(value)) {
+      if (value < 1 || value > 10) {
+        throw new Error("Please enter a number between 1 and 10!");
       }
-      this._survivalSkills = value;
+    } else {
+      throw new Error("Please enter valid numbers!");
     }
+    this._luck = value;
+  }
 
-    get survivalSkills() {
-      return this._survivalSkills;
-    }
+  get luck() {
+    return this._luck;
+  }
 
-    set combatSkills(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
-      }
-      this._combatSkills = value;
-    }
+  get hp() {
+    return this._hp;
+  }
 
-    get combatSkills() {
-      return this._combatSkills;
-    }
+  set hp(value) {
+    this._hp = value;
+  }
 
-    set luck(value) {
-      if(CheckIfNumber(value)){
-        if (value < 1 || value > 10) {
-          throw new Error("Please enter a number between 1 and 10!");
-        }
-      } else{
-        throw new Error("Please enter valid numbers!");
-      }
-      this._luck = value;
-    }
+  get weapon() {
+    return this._weapon;
+  }
 
-    get luck() {
-      return this._luck;
-    }
+  set weapon(value) {
+    this._weapon = value;
+  }
 
-    get hp() {
-      return this._hp;
-    }
+  get armorDurability() {
+    return this._armorDurability;
+  }
 
-    set hp(value) {
-      this._hp = value;
-    }
+  set armorDurability(value) {
+    this._armorDurability = value;
+  }
 
-    get weapon() {
-      return this._weapon;
-    }
+  get medKits() {
+    return this._medKits;
+  }
 
-    set weapon(value) {
-      this._weapon = value;
-    }
+  set medKits(value) {
+    this._medKits = value;
+  }
 
-    get armorDurability() {
-      return this._armorDurability;
-    }
+  get isAlive() {
+    return this._isAlive;
+  }
 
-    set armorDurability(value) {
-      this._armorDurability = value;
-    }
-
-    get medKits() {
-      return this._medKits;
-    }
-
-    set medKits(value) {
-      this._medKits = value;
-    }
-
-    get isAlive() {
-      return this._isAlive;
-    }
-
-    set isAlive(value) {
-      this._isAlive = value;
-    }
+  set isAlive(value) {
+    this._isAlive = value;
+  }
 
   get hasArmor() {
     return this._hasArmor;
@@ -244,7 +244,7 @@ class Tribute {
     this._causeOfDeath = value;
   }
 
-    // Do damage to the tribute
+  // Do damage to the tribute
   DoDamage(damageDone) {
     if (damageDone < 0) {
       throw new Error("Damage cannot be negative!");
@@ -257,7 +257,7 @@ class Tribute {
     // If the tribute has armor, reduce its durability
     if (this.armorDurability !== 0) {
       this.armorDurability -= 1;
-      if(this.armorDurability === 0){
+      if (this.armorDurability === 0) {
         this.hasArmor = "no";
       }
     }
@@ -312,19 +312,11 @@ class Tribute {
   }
 }
 
-  function CheckIfNumber(value){
-    let n = parseInt(value);
-    if (!isNaN(n)) { // if value is a number
-        return true;
-    } else {
-        return false;
-    }
-  }
-
-  function CheckToUseMedKit() {
-    if (this.medKits > 0 && this.hp <= 60) {
-      this.medKits -= 1;
-      this.hp += 40;
-      return { medKitUsed: true }; // Return this if medkit was used
+function CheckIfNumber(value) {
+  let n = parseInt(value);
+  if (!isNaN(n)) { // if value is a number
+    return true;
+  } else {
+    return false;
   }
 }

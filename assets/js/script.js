@@ -288,7 +288,7 @@ $(document).ready(function () {
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
             ScrollToBottom();
-        }, delay + 450); // small delay to ensure the announcement appears after the last event
+        }, delay + 1000); // add small delay to ensure the announcement appears after the last event
     }
 
     // this function will be called to log the events that happen during the end phase
@@ -855,13 +855,13 @@ $(document).ready(function () {
                     HandleDamage(tribute2, damageToTribute2);  // handle damage done to tribute2
 
                     if (!tribute1.isAlive && tribute2.isAlive) { // if tribute1 is dead and tribute2 is alive
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+                        fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
 
                         let deathCause = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
                         HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
                         break; // exit the loop
                     } else if (tribute1.isAlive && !tribute2.isAlive) { // if tribute1 is alive and tribute2 is dead
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                        fightLog += `<div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
 
                         let deathCause = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
                         HandleDeath(tribute2, deathCause, tribute1); // handle death of tribute2
@@ -870,8 +870,8 @@ $(document).ready(function () {
                         fightLog += `<div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div>`;
                         fightLog += `<div>[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} now has ${tribute1.hp} HP.</div>`;
                     } else { // if both tributes are dead
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                        fightLog += `<div class="bold">[⚔️💥] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} also died.</div>`;
+                        fightLog += `<div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
+                        fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} also died.</div>`;
 
                         let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in medium combat`; // set the cause of death
                         let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in medium combat`; // set the cause of death
@@ -902,15 +902,16 @@ $(document).ready(function () {
                         defenderTribute = tribute1; // set the defender tribute to tribute1
                     }
 
-                    HandleDamage(defenderTribute, damageToTribute1); // handle damage done to defender tribute
+                    let attackerDamage = CalculateDamage(attackerTribute); // calculate damage of attacker tribute
+                    HandleDamage(defenderTribute, attackerDamage); // handle damage done to defender tribute
                     if (!defenderTribute.isAlive) { // if the defender tribute is dead
-                        fightLog += `<div class="bold">[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} died.</div>`;
+                        fightLog += `<div class="bold">[⚔️💀] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${attackerDamage} damage! ${defenderTribute.name} died.</div>`;
 
                         let deathCause = `killed by ${attackerTribute.name} [${attackerTribute.district}] in long combat`; // set the cause of death
                         HandleDeath(defenderTribute, deathCause, attackerTribute); // handle death of defender tribute
                         break;
                     } else { // if the defender tribute is alive
-                        fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${damageToTribute1} damage! ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
+                        fightLog += `<div>[⚔️💥] ${attackerTribute.name} [${attackerTribute.district}] attacks ${defenderTribute.name} [${defenderTribute.district}] for ${attackerDamage} damage! ${defenderTribute.name} now has ${defenderTribute.hp} HP.</div>`;
                     }
                 }
                 fightLog += `</li>`;
