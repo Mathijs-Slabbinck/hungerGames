@@ -346,6 +346,7 @@ $(document).ready(function () {
 
     // prepare 2 tributes for combat and call CombatTributes to start the combat
     function Combat(delay, isStart = false, isEndGame = false) { // delay is the time in seconds before the combat starts, isStart is a boolean to check if it's the start of the game
+        CheckToStartFinalBattle();
         setTimeout(function () {
             let tribute1 = ReturnTribute("combat");
             let tribute2 = ReturnValidSecondTribute(tribute1, 6, "combat"); // pick a valid 2nd tribute
@@ -408,6 +409,7 @@ $(document).ready(function () {
     }
 
     function FellInTrap() {
+        CheckToStartFinalBattle();
         let randomForWhichTrap = ReturnRandomNumber(1, 5); // pick which trap
         let trappedTribute = ReturnTribute("fellInTrap");
         let trapSetter = ReturnValidSecondTribute(trappedTribute, 4, "trapSetter");
@@ -668,6 +670,7 @@ $(document).ready(function () {
     }
 
     function HandleDamage(tribute, damage) {
+        CheckToStartFinalBattle();
         if (tribute.DoDamage(damage).medKitUsed) { // apply the damage and check if a medkit was used
             if (tribute.isAlive) { // verify the tribute is still alive
                 $("ul").append(`<li class="log"><div>❤️‍🩹 ${tribute.name} [${tribute.district}] used a medkit and healed 40 HP during the next encounter. ❤️‍🩹</div></li>`);
@@ -676,6 +679,7 @@ $(document).ready(function () {
     }
 
     function HandleHeal(tribute, healAmount) {
+        CheckToStartFinalBattle();
         if (parseInt(tribute.hp) + healAmount > 100) { // if the tribute's hp is higher than max after healing, set the tribute's hp to max
             tribute.hp = 100;
         } else { // if the tribute's hp is lower than max, heal the tribute for the heal amount
@@ -709,6 +713,7 @@ $(document).ready(function () {
         if (soundEnabled) {
             PlayKillSound(); // play the canon sound
         }
+        CheckToStartFinalBattle();
     }
 
     function HandleEarthquake(damage, causeOfDeathMessage) {
@@ -931,7 +936,7 @@ $(document).ready(function () {
     function PlayKillSound() {
         const canonInstance = canonPool[canonIndex]; // get the canon instance from the pool
         //canonInstance.volume = canonAudio.volume;     // optional: inherit volume
-        canonInstance.play().catch(e => { throw new error("Audio play failed:", e) });
+        canonInstance.play().catch(e => { throw new Error("Audio play failed:", e) });
         canonIndex++; // increment the canon index
 
         // this should never happen since there are 23 tributes that can die and 23 canon sounds, but it's just in case
@@ -1485,6 +1490,7 @@ $(document).ready(function () {
     }
 
     function EncounterMonster() {
+        CheckToStartFinalBattle();
         let chosenTribute = ReturnTribute("monsterEncounter");
         let random = ReturnRandomNumber(1, 5);
         let deathCause;
@@ -1536,7 +1542,7 @@ $(document).ready(function () {
                     $("ul").append(`<li class="log"><div class="bold">[👹💀] ${chosenTribute.name} [${chosenTribute.district}] was attacked by an end phase monster and died!</div></li>`);
 
                     deathCause = `killed by an end game monster`;
-                    HandleDeath(chosenTribute, deathCause5);
+                    HandleDeath(chosenTribute, deathCause);
                 }
                 break;
         }
@@ -1916,7 +1922,7 @@ $(document).ready(function () {
         let randomForWhenEndPhase = ReturnRandomNumber(5, 9); // how many tributes need to be alive for the end phase to start
         whichDay += 1;
         $("#eventLog").empty();
-        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started! (${aliveTributes.length} tributes are left to start the day.)</div</li>`);
+        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started!</div><div>(${aliveTributes.length} tributes are left to start the day.)</div</li>`);
         if (dreamer != null) {
             let delay = ReturnRandomTimer(true);
             let randomForDreamCameTrue = ReturnRandomNumber(1, 2);

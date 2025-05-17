@@ -109,6 +109,7 @@ main #fillInRandomly, #advanceToNext, #refresh{
     background-color: darkblue;
     border: 2px solid black;
     text-align: center;
+    color: white;
 }
 
 main #fillInRandomly p{
