@@ -759,7 +759,7 @@ $(document).ready(function () {
                 HandleDamage(tribute2, damageToTribute2);
 
                 if (!tribute1.isAlive && tribute2.isAlive) { // if tribute1 is dead and tribute2 is alive
-                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div><div class="bold">[⚔️💀]${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div></li>`);
+                    $("ul").append(`<li class="log"><div>[⚔️💥] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} now has ${tribute2.hp} HP.</div><div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div></li>`);
 
                     deathCause = `killed by ${tribute2.name} [${tribute2.district}] in short combat`;
                     HandleDeath(tribute1, deathCause, tribute2); // handle death of tribute1
@@ -2005,6 +2005,10 @@ $(document).ready(function () {
             skipIntroAndCountDown = false;
             $("#skipIntroAndCountDown").text("NO");
         } else {
+            if (!soundEnabled) {
+                alert("You can't skip the intro if sound is disabled!");
+                return;
+            }
             skipIntro = false;
             $("#skipIntro").text("NO");
         }
