@@ -850,6 +850,9 @@ $(document).ready(function () {
                 let maxRounds = ReturnRandomNumber(2, 4); // pick a random number between 2 and 4 for the max rounds
 
                 for (let i = 0; i < maxRounds; i++) { // loop through the rounds
+                    damageToTribute1 = CalculateDamage(tribute2); // re-calculate damage of tribute2 for randomness each round
+                    damageToTribute2 = CalculateDamage(tribute1); // re-calculate damage of tribute2 for randomness each round
+
                     HandleDamage(tribute1, damageToTribute1); // handle damage done to tribute1
                     HandleDamage(tribute2, damageToTribute2);  // handle damage done to tribute2
 
