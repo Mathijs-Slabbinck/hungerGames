@@ -202,6 +202,8 @@ $(document).ready(function () {
     }
 
     function CheckToStartFinalBattle() { // check if the final battle should start
+        if (finalBattleStarted) return; // Prevent multiple final battles from starting
+ 
         if (aliveTributes.length === 2) {
             const [tribute1, tribute2] = aliveTributes;
             FinalBattle(tribute1, tribute2);
@@ -282,7 +284,7 @@ $(document).ready(function () {
             if (whichDay === 0) {
                 $("ul").append(`<li class="log announcement"><div>📢 The bloodbath has ended! 📢</div></li>`);
             } else {
-                $("ul").append(`<li class="log announcement"><div>Day ${whichDay} has ended!</div></li>`);
+                $("ul").append(`<li class="log announcement"><div>Day ${whichDay} has ended!</li>`);
             }
             $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
             $("ul").append(`<li id="advanceToNext" class="col-12">ADVANCE TO DAY ${whichDay + 1}</li>`);
@@ -1365,6 +1367,7 @@ $(document).ready(function () {
     // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
     function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts = 0) {
         let tribute2 = ReturnTribute(whatFor); // pick a second tribute
+
         CheckToStartFinalBattle();
 
         function CheckIfSameTribute(){
@@ -1588,7 +1591,7 @@ $(document).ready(function () {
                     HandleEarthquake(earthquakeDamage, "small eartquake");
                     break;
                 }
-                crafter = ReturnTribute("craftedWeapon");
+                crafter = ReturnTribute("craft");
                 tries++;
             }
             $("ul").append(`<li class="log"><div>[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife!</div></li>`);
@@ -1911,7 +1914,7 @@ $(document).ready(function () {
         let randomForWhenEndPhase = ReturnRandomNumber(5, 9); // how many tributes need to be alive for the end phase to start
         whichDay += 1;
         $("#eventLog").empty();
-        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started!</div></li>`);
+        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started!</div><div>${aliveTributes.length} tributes are left</div</li>`);
         if (dreamer != null) {
             let delay = ReturnRandomTimer(true);
             let randomForDreamCameTrue = ReturnRandomNumber(1, 2);
