@@ -1366,6 +1366,7 @@ $(document).ready(function () {
     // sameDistrictChance = chance to allow same district tributes (between 1 and sameDistrictChance)
     // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
     function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts = 0) {
+        if (finalBattleStarted) return; // if the final battle has started, stop the function
         let tribute2 = ReturnTribute(whatFor); // pick a second tribute
 
         CheckToStartFinalBattle();
