@@ -717,6 +717,7 @@ $(document).ready(function () {
     }
 
     function HandleEarthquake(damage, causeOfDeathMessage) {
+        CheckToStartFinalBattle();
         for (let i = 0; i < aliveTributes.length; i++) {
             HandleDamage(aliveTributes[i], damage);
             if (!aliveTributes[i].isAlive) { // check if the tribute is dead
@@ -726,8 +727,6 @@ $(document).ready(function () {
                 $("ul").append(`<li class="log"><div>[〰️💥] ${aliveTributes[i].name} [${aliveTributes[i].district}] took ${damage} damage from the earthquake! They now have ${aliveTributes[i].hp} HP.</div></li>`);
             }
         }
-
-        CheckToStartFinalBattle();
     }
 
     function CombatTributes(tribute1, tribute2, isStartOfGame = false, isEndGame = false) { // possibly add escaping later?
@@ -946,6 +945,7 @@ $(document).ready(function () {
     }
 
     function AnimalAttack() {
+        CheckToStartFinalBattle();
         let chosenTribute = ReturnTribute("animalAttack");
         let animalDamage = ReturnRandomNumber(25, 65);
         let random = ReturnRandomNumber(1, 10);
@@ -987,6 +987,7 @@ $(document).ready(function () {
     }
 
     function FoundSomething() { // tribute finds a weapon, medkit or armor
+        CheckToStartFinalBattle();
         let random = ReturnRandomNumber(1, 7); // pick a random number to determine what the tribute finds
         let chosenTribute = ReturnTribute("foundSomething"); // select a tribute to find something
         switch (random) {
@@ -1068,6 +1069,7 @@ $(document).ready(function () {
     }
 
     function AteFood() {
+        CheckToStartFinalBattle();
         let chosenTribute = ReturnTribute("ateFood");
         let hpDifference = ReturnRandomNumber(10, 40);
         let random = ReturnRandomNumber(1, 5);
@@ -1109,6 +1111,7 @@ $(document).ready(function () {
     }
 
     function SponsorGift(attempts = 0) {
+        CheckToStartFinalBattle();
         let chosenTribute = ReturnTribute("sponsorGift"); // pick a tribute to give a gift to
         let gift = ReturnRandomNumber(1, 5); // generate a random to see what gift the tribute gets
         if (attempts > 200) { // if it's likely (after trying over 200 times) every tribute has max intelligence and all equipment, give nothing
@@ -1196,6 +1199,7 @@ $(document).ready(function () {
     }
 
     function Trained(counter = 0) {
+        CheckToStartFinalBattle();
         if (counter > 200) {// if it's likely (after trying over 200 times) every tribute has maxed out their stats, stop the function
             let earthquakeDamage = ReturnRandomNumber(10, 25);
             $("ul").append(`<li class="log"><div>〰️ A small earthquake hit the arena, all tributes lose ${earthquakeDamage} HP! 〰️</div></li>`);
@@ -1262,6 +1266,7 @@ $(document).ready(function () {
     }
 
     function Injured() {
+        CheckToStartFinalBattle();
         let chosenTribute = ReturnTribute("injured");
         let injuryDamage = ReturnRandomNumber(5, 20);
         HandleDamage(chosenTribute, injuryDamage);
@@ -1276,6 +1281,7 @@ $(document).ready(function () {
     }
 
     function Ambushed() {
+        CheckToStartFinalBattle();
         let ambushedTribute = ReturnTribute("ambushed");
         let ambusher = ReturnValidSecondTribute(ambushedTribute, 10, "ambusher");
         let ambusherDamage = CalculateDamage(ambusher);
@@ -1342,6 +1348,7 @@ $(document).ready(function () {
     }
 
     function ShowedMercy() {
+        CheckToStartFinalBattle();
         let mercyShower = ReturnTribute("showedMercy");
         let sparedTribute = ReturnValidSecondTribute(mercyShower, 6, "sparedTribute");
         let randomForBackStabbed = ReturnRandomNumber(1, 2);
@@ -1372,10 +1379,8 @@ $(document).ready(function () {
     // sameDistrictChance = chance to allow same district tributes (between 1 and sameDistrictChance)
     // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
     function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts = 0) {
-        if (finalBattleStarted) return; // if the final battle has started, stop the function
-        let tribute2 = ReturnTribute(whatFor); // pick a second tribute
-
         CheckToStartFinalBattle();
+        let tribute2 = ReturnTribute(whatFor); // pick a second tribute 
 
         function CheckIfSameTribute(){
             return tribute1 === tribute2; // return true if the tributes are the same, false if they aren'ts
@@ -1426,6 +1431,7 @@ $(document).ready(function () {
     }
 
     function Rested() {
+        CheckToStartFinalBattle();
         let rester = ReturnTribute("rested");
         let attacker = ReturnValidSecondTribute(rester, 6, "attackedRester");
         let resterDamage = CalculateDamage(rester);
@@ -1549,6 +1555,7 @@ $(document).ready(function () {
     }
 
     function CraftSomething() {
+        CheckToStartFinalBattle();
         let randomNumber = ReturnRandomNumber(1, 2);
         let crafter = ReturnTribute("craft");
         if (randomNumber === 1) { // 50% chance to craft armor
@@ -1609,6 +1616,7 @@ $(document).ready(function () {
 
     // add more events
     function RareRandomEvent() {
+        CheckToStartFinalBattle();
         let random = ReturnRandomNumber(1, 3);
         let deathCause;
 
@@ -1712,6 +1720,7 @@ $(document).ready(function () {
 
     // to implement
     function SuperRareRandomEvent() {
+        CheckToStartFinalBattle();
         let random = ReturnRandomNumber(1, 6);
         let deathCause;
 
@@ -1828,6 +1837,7 @@ $(document).ready(function () {
             // Remove the tribute from the array
             aliveTributes.splice(index, 1);
         }
+        CheckToStartFinalBattle();
     }
 
     //#region Event Handlers
