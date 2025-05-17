@@ -433,6 +433,7 @@ $(document).ready(function () {
 
     // return a tribute based on random value and stats correlating to the event
     function ReturnTribute(whatFor) { //whatfor = which event?
+        CheckToStartFinalBattle(); // check if the final battle should start
         if (!Array.isArray(aliveTributes) || aliveTributes.length === 0) { // check if the array AliveTributes is valid and empty
             console.log("Invalid input or empty aliveTributes array");
             return;
@@ -1915,7 +1916,7 @@ $(document).ready(function () {
         let randomForWhenEndPhase = ReturnRandomNumber(5, 9); // how many tributes need to be alive for the end phase to start
         whichDay += 1;
         $("#eventLog").empty();
-        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started!</div><div>${aliveTributes.length} tributes are left</div</li>`);
+        $("#eventLog").append(`<li class="log announcement"><div>Day ${whichDay} has started! (${aliveTributes.length} tributes are left to start the day.)</div</li>`);
         if (dreamer != null) {
             let delay = ReturnRandomTimer(true);
             let randomForDreamCameTrue = ReturnRandomNumber(1, 2);
