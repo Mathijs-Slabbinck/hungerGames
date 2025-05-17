@@ -719,17 +719,7 @@ $(document).ready(function () {
             }
         }
 
-        if (aliveTributes.length === 0) {
-            $("ul").append(`<li class="log announcement noWinner"><div>📢 All tributes died; there is no winner this edition! 📢</div></li>`);
-            $("ul").append(`<li id="seeTributes" class="col-12">SEE TRIBUTES</li>`);
-            $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
-            return;
-        } else if (aliveTributes.length === 1) {
-            $("ul").append(`<li class="log announcement gold"><div>📢 ${aliveTributes[0].name} [${aliveTributes[0].district}] is the last tribute alive! They win the Hunger Games! 📢</div></li>`);
-            $("ul").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
-            $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
-            return;
-        }
+        CheckToStartFinalBattle();
     }
 
     function CombatTributes(tribute1, tribute2, isStartOfGame = false, isEndGame = false) { // possibly add escaping later?
@@ -1373,32 +1363,23 @@ $(document).ready(function () {
     // tribute1 = first tribute | tribute2 = second tribute (the one that will be switched if necessary)
     // sameDistrictChance = chance to allow same district tributes (between 1 and sameDistrictChance)
     // whatFor = the reason for the tribute to be chosen (e.g. "attackedRester", "ambushed", etc.) (to pass to ReturnTribute)
-    function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor) {
+    function ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts = 0) {
         let tribute2 = ReturnTribute(whatFor); // pick a second tribute
         CheckToStartFinalBattle();
 
-        let tries;
+        function CheckIfSameTribute(){
+            return tribute1 === tribute2; // return true if the tributes are the same, false if they aren'ts
+        }
+
+        let tries = 0; // counter to prevent infinite loop
         while (tribute1 === tribute2) { // ensure the tributes are not the same
-            if (tries > 500) { // if it's likely (after trying over 500 times) every tribute has maxed out their stats, stop the function || should never happen
-                if (aliveTributes.size === 1) {
-                    $("ul").append(`<li class="log announcement gold"><div>📢 ${aliveTributes[0].name} [${aliveTributes[0].district}] is the last tribute alive! They win the Hunger Games! 📢</div></li>`);
-                    $("ul").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
-                    $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
-                    break;
-                } else if (aliveTributes.size === 2) {
-                    const [tribute1Left, tribute2Left] = aliveTributes;
-                    if (tribute1 === tribute1) {
-                        return tribute2;
-                    } else {
-                        return tribute1;
-                    }
-                } else {
-                    alert("Critical error: unable to select a valid second tribute.");
-                    throw new Error("Unexpected state: more than 2 tributes alive but unable to select a valid second tribute.");
-                }
+            if (tries > 500 || attempts > 500) { // if it's likely (after trying over 500 times) the game is in an invalid state, stop the function || should never happen
+                alert("Critical error: unable to select a valid second tribute.");
+                throw new Error("Unexpected state: more than 2 tributes alive but unable to select a valid second tribute.");
             }
             tribute2 = ReturnTribute(whatFor);
             tries++;
+            attempts++;
         }
 
         // this code is to prevent lag or bugs in the end phase of the game
@@ -1409,6 +1390,9 @@ $(document).ready(function () {
                     // Reroll until a tribute from a different district is found
                     do {
                         tribute2 = ReturnTribute(whatFor);
+                        if (CheckIfSameTribute()){
+                            return ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts);
+                        }
                     } while (tribute1.district === tribute2.district);
                 }
             }
@@ -1419,6 +1403,9 @@ $(document).ready(function () {
                     // Reroll until a tribute from a different district is found
                     do {
                         tribute2 = ReturnTribute(whatFor);
+                        if (CheckIfSameTribute()) {
+                            return ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts);
+                        }
                     } while (tribute1.district === tribute2.district);
                 }
             }
@@ -1604,7 +1591,7 @@ $(document).ready(function () {
                 crafter = ReturnTribute("craftedWeapon");
                 tries++;
             }
-            $("ul").append(`<li class="log"><div class="bold">[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife!</div></li>`);
+            $("ul").append(`<li class="log"><div>[⚒️🗡️] ${crafter.name} [${crafter.district}] crafted a makeshift knife!</div></li>`);
             crafter.weapon = "makeshift knife"; // set the weapon to makeshift knife
         }
     }
@@ -1617,7 +1604,7 @@ $(document).ready(function () {
         switch (random) {
             case 1: // mine explosion
                 let mineTribute = ReturnTribute("steppedOnMine");
-                $("ul").append(`<li class="log"><div class="bold">${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
+                $("ul").append(`<li class="log"><div class="bold">[💣💀] ${mineTribute.name} [${mineTribute.district}] stepped on a mine and blew up!</div></li>`);
 
                 deathCause = `killed by a landmine`;
                 HandleDeath(mineTribute, deathCause);
