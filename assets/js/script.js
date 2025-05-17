@@ -7,7 +7,7 @@ let skipIntroAndCountDown = false; // set to true to skip the intro and countdow
 let soundEnabled = true; // set to true to enable sound
 let canonPool = []; // initialize an empty array to store preloaded canon sounds to avoid delay
 let canonIndex = 0; // initialize an index to keep track of the current canon sound
-let countDown = new Audio('assets/media/countdown.mp3'); // preload the sound so it doesn't lag
+let countDown = new Audio('assets/media/countDown.mp3'); // preload the sound so it doesn't lag
 let slogan = new Audio('assets/media/slogan.mp3'); // preload the sound so it doesn't lag
 countDown.preload = 'auto';
 countDown.load();
