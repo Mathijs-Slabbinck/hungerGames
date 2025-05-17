@@ -385,7 +385,7 @@ $(document).ready(function () {
 
                 // Now that the battle is over, append the final winner and loser info
                 $("#eventLog").append(`<li class='log'><div>[⚔️💀] ${loser.name} [${loser.district}] was slain by ${winner.name} [${winner.district}] in round ${round} of the final battle.</div></li>`);
-                $("#eventLog").append(`<div class="">🏆 ${winner.name} from district ${winner.district} wins the Hunger Games! 🏆</div></li>`);
+                $("#eventLog").append(`<li class='log'><div class="">🏆 ${winner.name} from district ${winner.district} wins the Hunger Games! 🏆</div></li>`);
                 $("#eventLog").append(`<li id="seeTributes" class="col-12 finish">SEE TRIBUTES</li>`);
                 $("#eventLog").append(`<li id="refresh" class="col-12 finish">RESTART HUNGER GAMES</li>`);
                 ScrollToBottom();  // Scroll to bottom of log once final battle is finished
