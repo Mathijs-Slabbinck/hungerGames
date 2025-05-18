@@ -238,7 +238,7 @@ $(document).ready(function () {
             delay += randomTimer;
 
             // should never happen, but if the day starts with only 2 tributes alive, start the final battle
-            if(CheckToStartFinalBattle() === true) return;
+            if (CheckToStartFinalBattle() === true) return;
 
             setTimeout(() => {
                 // If only 2 tributes left, start the final battle (check after each event)
@@ -695,7 +695,7 @@ $(document).ready(function () {
     // victim = the tribute that died
     // killer = if the victim was killed by another tribute, it will be the killer, if not it will be null
     // we request the death cause so I'm sure I won't forget to set it (since it's a required parameter)
-    function HandleDeath(victim, deathCause, killer = null) {
+    function HandleDeath(victim, deathCause, killer = null, ignoreDreamer = false) {
         if (victim.isAlive) { // if the tribute is still alive, kill it
             victim.KillTribute();
         }
@@ -705,7 +705,8 @@ $(document).ready(function () {
             killer.killedTributes.push(victim); // add the killed tribute to the killer's killedTributes array
         }
 
-        if (dreamer === victim) { // if the dreamer is the tribute that died, set it to null
+        // ignoreDreamer is used to prevent the dreamer died message twice
+        if (dreamer === victim && !ignoreDreamer) { // if the dreamer is the tribute that died, set it to null
             $("ul").append(`<li class="log"><div class="bold">[💤💀] ${dreamer.name} [${dreamer.district}]'s dream came true!</div></li>`);
             deathCause = `foresaw they would be` + deathCause; // set the cause of death
             dreamer = null;
@@ -826,7 +827,7 @@ $(document).ready(function () {
                             break;
                         } else { // if both tributes are dead
                             fightLog += `<div class="bold">[⚔️💀] ${tribute1.name} [${tribute1.district}] attacks ${tribute2.name} [${tribute2.district}] for ${damageToTribute2} damage! ${tribute2.name} died.</div>`;
-                            fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] for ${damageToTribute1} damage! ${tribute1.name} died.</div>`;
+                            fightLog += `<div class="bold">[⚔️💀] ${tribute2.name} [${tribute2.district}] attacks ${tribute1.name} [${tribute1.district}] with 1 final attack for ${damageToTribute1} damage! ${tribute1.name} also died.</div>`;
 
                             let deathCause1 = `killed by ${tribute2.name} [${tribute2.district}] in long combat`; // set the cause of death
                             let deathCause2 = `killed by ${tribute1.name} [${tribute1.district}] in long combat`; // set the cause of death
@@ -1077,6 +1078,7 @@ $(document).ready(function () {
     function AteFood() {
         if (CheckToStartFinalBattle()) return;
         let chosenTribute = ReturnTribute("ateFood");
+        let poisonedTribute = ReturnTribute("poisonedFood"); // pick a tribute to eat poisoned food
         let hpDifference = ReturnRandomNumber(10, 40);
         let random = ReturnRandomNumber(1, 5);
 
@@ -1093,25 +1095,16 @@ $(document).ready(function () {
         }
 
         if (random === 1) { // 1/5 chance to take damage from poisoned food
-            let poisonedTribute = ReturnTribute("poisonedFood"); // pick a tribute to eat poisoned food
             AtePoisonedFood(poisonedTribute);
         } else if (random === 2 || random === 3) { // 2/5 chance to take eat healthy food and heal
-            $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] ate healthy food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
             HandleHeal(chosenTribute, hpDifference);
+            $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] ate healthy food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
         } else { // 2/5 chance for stat check
             if (chosenTribute.survivalSkills >= 7) { // if the tribute has high survival skills, they wil find healthy food
-                $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] found food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
                 HandleHeal(chosenTribute, hpDifference);
+                $("ul").append(`<li class="log"><div>[🍽️❤️‍🩹] ${chosenTribute.name} [${chosenTribute.district}] found food and healed ${hpDifference} HP! They now have ${chosenTribute.hp} HP.</div></li>`);
             } else { // if the tribute fails the survival skills check, they will eat poisoned food
-                HandleDamage(chosenTribute, hpDifference);
-                if (!chosenTribute.isAlive) { // check if the tribute is dead
-                    $("ul").append(`<li class="log"><div class="bold">[☣️💀] ${chosenTribute.name} [${chosenTribute.district}] ate poisoned food and died!</div></li>`);
-
-                    let deathCause = `killed by poisoned food`; // set the cause of death
-                    HandleDeath(chosenTribute, deathCause); // handle death of the tribute
-                } else {
-                    $("ul").append(`<li class="log"><div>[☣️💥] ${chosenTribute.name} [${chosenTribute.district}] found food but it was poisoned! They now have ${chosenTribute.hp} HP.</div></li>`);
-                }
+                AtePoisonedFood(chosenTribute);
             }
         }
     }
@@ -1388,7 +1381,7 @@ $(document).ready(function () {
         if (CheckToStartFinalBattle()) return;
         let tribute2 = ReturnTribute(whatFor); // pick a second tribute 
 
-        function CheckIfSameTribute(){
+        function CheckIfSameTribute() {
             return tribute1 === tribute2; // return true if the tributes are the same, false if they aren'ts
         }
 
@@ -1411,7 +1404,7 @@ $(document).ready(function () {
                     // Reroll until a tribute from a different district is found
                     do {
                         tribute2 = ReturnTribute(whatFor);
-                        if (CheckIfSameTribute()){
+                        if (CheckIfSameTribute()) {
                             return ReturnValidSecondTribute(tribute1, sameDistrictChance, whatFor, attempts);
                         }
                     } while (tribute1.district === tribute2.district);
@@ -1954,7 +1947,7 @@ $(document).ready(function () {
                         $("#eventLog").append(`<li class='log'><div class="bold">${dreamer.name}'s [${dreamer.district}] dream came true and they died to a hart attack.</div></li>`);
 
                         let deathCause = `foresaw he would be having a heart attack`;
-                        HandleDeath(dreamer, deathCause);
+                        HandleDeath(dreamer, deathCause, null, true);
 
                         dreamer = null; // can't be moved outside the if statement because of the setTimeout
                         dreamCameTrue = null; // can't be moved outside the if statement because of the setTimeout
