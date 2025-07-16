@@ -792,7 +792,7 @@ $(document).ready(function () {
                 if (damageTo.isAlive === false) { // if the tribute that took damage is dead
                     $("ul").append(`<li class="log"><div class="bold">[⚔️💀] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage! ${damageTo.name} has died.</li></div>`);
 
-                    let deathCause = `killed by ${attacker.name} ${attacker.district} in 1 attack`; // set the cause of death
+                    let deathCause = `killed by ${attacker.name} [${attacker.district}] in 1 attack`; // set the cause of death
                     HandleDeath(damageTo, deathCause, attacker); // handle death of the tribute that died
                 } else { // if the tribute that took damage is alive
                     $("ul").append(`<li class="log"><div>[⚔️💥] ${attacker.name} [${attacker.district}] attacks ${damageTo.name} [${damageTo.district}] for ${damage} damage! ${damageTo.name} now has ${damageTo.hp} HP.</li></div>`);
